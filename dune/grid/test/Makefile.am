@@ -207,6 +207,7 @@ SOURCES = basicunitcube.hh                      \
           checkiterators.cc                     \
           checkjacobians.cc                     \
           checkpartition.cc                     \
+          checkrandomaccessiterators.hh         \
           checktwists.cc                        \
           functions.hh                          \
           gridcheck.cc                          \
