@@ -1,0 +1,653 @@
+* Method of Description
+** Explicit and Implicit Call Arguments
+   Each call of a method of some object associated with a grid operates on the
+   provided method parameters and possibly on *this.  These constitute the
+   /explicit/ call arguments.  Operation on such an argument may be exclusive,
+   which prohibits any concurent calls that operate on the same argument, or
+   shared, which allows other concurent shared operations.  Sometimes and
+   argument is provided to a call but not actually used.  These cases are
+   listed with "none" access below, they have no restriction with regard to
+   other operations on the same argument.
+
+** Access Modes
+   Each argument may be accessed by a certain call in a certain way.
+   - none :: The call does not access this argument in any way.  Concurent
+             calls using this argument may happen in any mode.
+   - shared :: The call reads the argument, but does not modify it, or
+               otherwise ensures that multiple concurent shared calls are
+               safe.
+   - exclusive :: The call modifies the argument.  No concurent exclusive or
+                  shared accesses are permissible, but concurent calls with
+                  none access are allowed.
+   - unspecified :: The type of access is explicitly not specified.  Usually,
+                    access to some other argument already prohibits thread
+                    safety.  Not specifying the access leaves the door open
+                    for future development.
+
+** Implicit Calls Arguments
+   Some explicit arguments may provide access to other data structures, or
+   some data structures may be known globally.  These are /implicit/ call
+   arguments.  Examples include the grid being potentially accessed through a
+   grid view or an entity.
+
+** Argument Parts
+   Sometimes it is necessary to consider parts of an argument seperately.
+   These cases are explained for each object where they matters; the argument
+   parts have their access listed seperately, and any access listed for the
+   whole argument does not apply to the argument part.
+
+** Caches
+   Some objects potentially maintain internal caches.  These can be considered
+   special type orf argument parts; they are special in the sense that the
+   first access to them is exlusive, but later accesses are shared.  This is
+   listed as "init" access.
+
+   A cache may be either in "valid" or "invalid" state.  Some operations may
+   result in either "valid" or "invalid" state, these are listed with
+   "unknown" state.
+
+   Often, when an object has more than one cache, these caches are potentially
+   joined.  This means that initializing one cache may actually initialize
+   another cache too.  These cases are denoted as "may-init" access on the row
+   of the other cache below, since this may race with concurent "may-init" or
+   "init" operation on this cache, unless it is known that the other cache has
+   already been initialized.
+
+   The access modes for caches are:
+   - none :: The cache is not touched.
+             | before  | after   | access |
+             |---------+---------+--------|
+             | invalid | invalid | none   |
+             | valid   | valid   | none   |
+   - init :: If the cache was invalid, it will be made valid, and this
+             constitues a aclusive access.  Otherwise, if the cache was
+             already valid, is is not modified, and this constitutes a shared
+             access.
+             | before  | after | access    |
+             |---------+-------+-----------|
+             | invalid | valid | exclusive |
+             | valid   | valid | shared    |
+   - invalidate :: The cache is potentially invalidated.  This should be
+                   considered as an exclusive access.
+             | before  | after   | access    |
+             |---------+---------+-----------|
+             | invalid | unknown | exclusive |
+             | valid   | unknown | exclusive |
+   - may-init :: The cache is potentially initialized.  This should be
+                 considered an exclusive access, unless it is known that the
+                 cache is valid.  "init" access guarantees that the cache is
+                 valid afterwards no matter what, this guarantee does not hold
+                 here.
+             | before  | after   | access    |
+             |---------+---------+-----------|
+             | invalid | unknown | exclusive |
+             | valid   | valid   | shared    |
+
+** Communication
+   There is currently no provision in Dune to handle multiple MPI
+   communications concurently.  The rule therefore is: there may be at most
+   one communication happening at any one time, and this applies to
+   viewThreadSafe grids too.  However, if the grid is viewThreadSafe, you can
+   do many other things concurently to to communication, and thus attempt
+   latency hiding.  We formulate this by declaring that communication methods
+   have an implicit static "mpi" argument and need exclusive access to it.
+
+   Methods such as size() and rank() can always be called, even if a
+   communication is happening concurently.  To express this, such calls are
+   listed with "none" access with regard to their "mpi" argument, even though
+   they may actually read mpi state.
+
+* Description of Individual Objects
+** CollectiveCommunication
+   All methods that don't actually communicate are thread safe.  All other
+   methods are not thread safe in their implicit mpi argument; whether they
+   are also non-thread safe in *this is unspecified.
+
+   | methods                                                 | argument | access      |
+   |---------------------------------------------------------+----------+-------------|
+   | int rank () const                                       | *this    | shared      |
+   | int size () const                                       | mpi      | none        |
+   | operator MPI_Comm () const                              |          |             |
+   |---------------------------------------------------------+----------+-------------|
+   | T sum (T &in) const                                     | *this    | unspecified |
+   | int sum (T *inout, int len) const                       | mpi      | exclusive   |
+   | T prod (T &in) const                                    |          |             |
+   | int prod (T *inout, int len) const                      |          |             |
+   | T min (T &in) const                                     |          |             |
+   | int min (T *inout, int len) const                       |          |             |
+   | T max (T &in) const                                     |          |             |
+   | int max (T *inout, int len) const                       |          |             |
+   | int barrier () const                                    |          |             |
+   | int broadcast (T *inout, int len, int root) const       |          |             |
+   | int gather (T *in, T *out, int len, int root) const     |          |             |
+   | int scatter (T *send, T *recv, int len, int root) const |          |             |
+   | int allgather (T *sbuf, int count, T1 *rbuf) const      |          |             |
+   | int allreduce (Type *inout, int len) const              |          |             |
+   | int allreduce (Type *in, Type *out, int len) const      |          |             |
+
+** Entity
+   Two different entity objects A and B that denote the same entity in the
+   grid should nevertheless be considered seperate, i.e. write access to A
+   does not race with write access to B.
+
+   All methods on the entity are thread safe in terms of the entity object
+   (except caches) and the grid.
+
+   Caches (potentially joined):
+   - geometry
+   - geometry in father (only for Entity<0>)
+
+   Methods on any entity:
+   | methods                              | argument            | access   |
+   |--------------------------------------+---------------------+----------|
+   | GeometryType type () const           | *this               | shared   |
+   | EntitySeed seed () const             | geometry cache      | none     |
+   | int level () const                   | geo-in-father cache | none     |
+   | PartitionType partitionType () const | grid                | shared   |
+   |--------------------------------------+---------------------+----------|
+   | Geometry geometry () const           | *this               | shared   |
+   |                                      | geometry cache      | init     |
+   |                                      | geo-in-father cache | may-init |
+   |                                      | grid                | shared   |
+
+   Additional methods on Entity<0>:
+   | method                                         | argument            | access   |
+   |------------------------------------------------+---------------------+----------|
+   | template<int codim> int count () const         | *this               | shared   |
+   | bool isLeaf () const                           | geometry cache      | none     |
+   | bool isRegular () const                        | geo-in-father cache | none     |
+   | bool isNew () const                            | grid                | shared   |
+   | bool mightVanish () const                      |                     |          |
+   | bool hasBoundaryIntersections () const         |                     |          |
+   | LeafIntersectionIterator ileafbegin () const   |                     |          |
+   | LeafIntersectionIterator ileafend () const     |                     |          |
+   | LevelIntersectionIterator ilevelbegin () const |                     |          |
+   | LevelIntersectionIterator ilevelend () const   |                     |          |
+   | HierarchicIterator hbegin (int maxlevel) const |                     |          |
+   | HierarchicIterator hend (int maxlevel) const   |                     |          |
+   |------------------------------------------------+---------------------+----------|
+   | EntityPointer subEntity (int i) const          | *this               | shared   |
+   |                                                | geometry cache      | none     |
+   |                                                | geo-in-father cache | none     |
+   |                                                | grid                | shared   |
+   |------------------------------------------------+---------------------+----------|
+   | EntityPointer father () const                  | *this               | shared   |
+   | bool hasFather () const                        | geometry cache      | none     |
+   |                                                | geo-in-father cache | none     |
+   |                                                | grid                | shared   |
+   |------------------------------------------------+---------------------+----------|
+   | LocalGeometry geometryInFather () const        | *this               | shared   |
+   |                                                | geometry cache      | may-init |
+   |                                                | geo-in-father cache | init     |
+   |                                                | grid                | shared   |
+
+** EntityIterator and Entity Pointers
+   Methods on entity iterators and entity pointers are always thread safe with
+   respect to the grid any any involved grid views.
+
+   There may be two caches that are potentially joined: one for the entity,
+   which is used when dereferencing, and one for the level of the entity,
+   which is used when calling level().
+
+   Caches (potentially joined):
+   - entity
+   - entity level
+
+   Entity Iterators:
+   | method                                               | argument         | access     |
+   |------------------------------------------------------+------------------+------------|
+   | EntityIterator(const EntityIterator &rhs)            | *this            | exclusive  |
+   | EntityIterator &operator=(const EntityIterator &rhs) | any cache[*this] | invalidate |
+   |                                                      | rhs              | shared     |
+   |                                                      | any cache[rhs]   | none       |
+   |                                                      | grid view[any]   | shared     |
+   |                                                      | grid             | shared     |
+   |------------------------------------------------------+------------------+------------|
+   | EntityIterator & operator++ ()                       | *this            | exclusive  |
+   |                                                      | any cache        | invalidate |
+   |                                                      | grid view        | shared     |
+   |                                                      | grid             | shared     |
+   |------------------------------------------------------+------------------+------------|
+   | Entity & operator* () const                          | *this            | shared     |
+   | Entity * operator-> () const                         | entity cache     | init       |
+   |                                                      | level cache      | may-init   |
+   |                                                      | grid view        | shared     |
+   |                                                      | grid             | shared     |
+   |------------------------------------------------------+------------------+------------|
+   | bool operator== (const EntityPointer &rhs) const     | *this            | shared     |
+   | bool operator!= (const EntityPointer &rhs) const     | rhs              | shared     |
+   |                                                      | any cache[any]   | none       |
+   |                                                      | grid view        | shared     |
+   |                                                      | grid             | shared     |
+   |------------------------------------------------------+------------------+------------|
+   | int level () const                                   | *this            | shared     |
+   |                                                      | entity cache     | may-init   |
+   |                                                      | level cache      | init       |
+   |                                                      | grid view        | shared     |
+   |                                                      | grid             | shared     |
+
+   Entity Pointers:
+   | method                                                | argument         | access     |
+   |-------------------------------------------------------+------------------+------------|
+   | EntityPointer (const EntityPointer &rhs)              | *this            | exclusive  |
+   | EntityPointer (const EntityIterator &rhs)             | any cache[*this] | invalidate |
+   | EntityPointer (const Entity &rhs)                     | rhs              | shared     |
+   | EntityPointer & operator= (const EntityPointer &rhs)  | any cache[rhs]   | none       |
+   | EntityPointer & operator= (const EntityIterator &rhs) | grid             | shared     |
+   | EntityPointer & operator= (const Entity &rhs)         |                  |            |
+   |-------------------------------------------------------+------------------+------------|
+   | Entity & operator* () const                           | *this            | shared     |
+   | Entity * operator-> () const                          | entity cache     | init       |
+   |                                                       | level cache      | may-init   |
+   |                                                       | grid             | shared     |
+   |-------------------------------------------------------+------------------+------------|
+   | bool operator== (const EntityPointer &rhs) const      | *this            | shared     |
+   | bool operator!= (const EntityPointer &rhs) const      | rhs              | shared     |
+   |                                                       | any cache[any]   | none       |
+   |                                                       | grid             | shared     |
+   |-------------------------------------------------------+------------------+------------|
+   | int level () const                                    | *this            | shared     |
+   |                                                       | entity cache     | may-init   |
+   |                                                       | level cache      | init       |
+   |                                                       | grid             | shared     |
+
+** Entity Seeds
+   Entity Seeds are basically opaque identifiers with sufficient information
+   to recreate an entity object, given the grid.
+
+   | method                                       | argument | access    |
+   |----------------------------------------------+----------+-----------|
+   | EntitySeed(const EntitySeed &rhs)            | *this    | exclusive |
+   | EntitySeed &operator=(const EntitySeed &rhs) | rhs      | shared    |
+   |                                              | grid     | none      |
+
+** Geometry
+   Geometries may rely heavily on caching.  Potentially, each method other
+   than type() and corner access may have it's own cache, and all oth them are
+   potentially joined.  Therefore it is probably least error prone if each
+   thread uses it's exclusive copy of a geometry.
+
+   The cache for the called method is denoted as "method cache" below, the
+   other caches are denoted as "other caches".
+
+   Caches (potentially joined):
+   - affine
+   - global
+   - local
+   - integration element
+   - volume
+   - center
+   - jacobian transposed
+   - jacobian inverse transposed
+
+   | method                                                                             | argument         | access     |
+   |------------------------------------------------------------------------------------+------------------+------------|
+   | Geometry(const Geometry &rhs)                                                      | *this            | exclusive  |
+   |                                                                                    | any cache[*this] | invalidate |
+   |                                                                                    | rhs              | shared     |
+   |                                                                                    | any cache[rhs]   | none       |
+   |------------------------------------------------------------------------------------+------------------+------------|
+   | GeometryType type () const                                                         | *this            | shared     |
+   | int corners () const                                                               | any cache        | none       |
+   | GlobalCoordinate corner (int i) const                                              |                  |            |
+   |------------------------------------------------------------------------------------+------------------+------------|
+   | bool affine () const                                                               | *this            | shared     |
+   | GlobalCoordinate global (const LocalCoordinate &local) const                       | method cache     | init       |
+   | LocalCoordinate local (const GlobalCoordinate &global) const                       | other caches     | may-init   |
+   | ctype integrationElement (const LocalCoordinate &local) const                      |                  |            |
+   | ctype volume () const                                                              |                  |            |
+   | GlobalCoordinate center () const                                                   |                  |            |
+   | const JacobianTransposed & jacobianTransposed (const LocalCoordinate &local) const |                  |            |
+   | const Jacobian & jacobianInverseTransposed (const LocalCoordinate &local) const    |                  |            |
+
+** Grid
+   Caches (all potentially joined):
+   - level view, one for each level and pitype
+   - leaf view, one for each pitype
+   - local id set
+   - global id set
+   - level index set, one for each level
+   - leaf index set
+
+   In addition to the caches, there is one part of the grid that needs to be
+   considered seperately: the storage of refinement marks.  Unfortunately,
+   this must be considered as one unit, such that updates of marks for
+   different entities conflict, since the grid may choose to store the marks
+   e.g. in a map.
+
+   | method                                                                                                 | argument                | access      |
+   |--------------------------------------------------------------------------------------------------------+-------------------------+-------------|
+   | size_t numBoundarySegments () const                                                                    | *this                   | shared      |
+   | int maxLevel () const                                                                                  | any cache               | none        |
+   | int size (int level, int codim) const                                                                  | ref marks               | none        |
+   | int size (int codim) const                                                                             | mpi                     | none        |
+   | int size (int level, GeometryType type) const                                                          |                         |             |
+   | int size (GeometryType type) const                                                                     |                         |             |
+   | int overlapSize (int level, int codim) const                                                           |                         |             |
+   | int overlapSize (int codim) const                                                                      |                         |             |
+   | int ghostSize (int level, int codim) const                                                             |                         |             |
+   | int ghostSize (int codim) const                                                                        |                         |             |
+   |--------------------------------------------------------------------------------------------------------+-------------------------+-------------|
+   | bool loadBalance ()                                                                                    | *this                   | exclusive   |
+   | bool loadBalance (DataHandle &data)                                                                    | any cache               | invalidate  |
+   |                                                                                                        | ref marks               | exclusive   |
+   |                                                                                                        | mpi                     | exclusive   |
+   |                                                                                                        | data                    | unspecified |
+   |--------------------------------------------------------------------------------------------------------+-------------------------+-------------|
+   | EntityPointer entityPointer (const EntitySeed &seed) const                                             | *this                   | shared      |
+   |                                                                                                        | any cache               | none        |
+   |                                                                                                        | ref marks               | none        |
+   |                                                                                                        | mpi                     | none        |
+   |                                                                                                        | seed                    | shared      |
+   |--------------------------------------------------------------------------------------------------------+-------------------------+-------------|
+   | Partition< pitype >::LevelGridView levelView (int level) const                                         | *this                   | shared      |
+   | LevelGridView levelView (int level) const                                                              | level/pitype view cache | init        |
+   |                                                                                                        | other caches            | may-init    |
+   |                                                                                                        | ref marks               | none        |
+   |                                                                                                        | mpi                     | none        |
+   |--------------------------------------------------------------------------------------------------------+-------------------------+-------------|
+   | Partition< pitype >::LeafGridView leafView () const                                                    | *this                   | shared      |
+   | LeafGridView leafView () const                                                                         | pitype leaf view cache  | init        |
+   |                                                                                                        | other caches            | may-init    |
+   |                                                                                                        | ref marks               | none        |
+   |                                                                                                        | mpi                     | none        |
+   |--------------------------------------------------------------------------------------------------------+-------------------------+-------------|
+   | const GlobalIdSet &globalIdSet () const                                                                | *this                   | shared      |
+   |                                                                                                        | global id set cache     | init        |
+   |                                                                                                        | other caches            | may-init    |
+   |                                                                                                        | ref marks               | none        |
+   |                                                                                                        | mpi                     | none        |
+   |--------------------------------------------------------------------------------------------------------+-------------------------+-------------|
+   | const LocalIdSet &localIdSet () const                                                                  | *this                   | shared      |
+   |                                                                                                        | local id set cache      | init        |
+   |                                                                                                        | other caches            | may-init    |
+   |                                                                                                        | ref marks               | none        |
+   |                                                                                                        | mpi                     | none        |
+   |--------------------------------------------------------------------------------------------------------+-------------------------+-------------|
+   | void globalRefine (int refCount)                                                                       | *this                   | exclusive   |
+   |                                                                                                        | caches                  | invalidate  |
+   |                                                                                                        | ref marks               | exclusive   |
+   |                                                                                                        | mpi                     | none        |
+   |--------------------------------------------------------------------------------------------------------+-------------------------+-------------|
+   | bool mark (int refCount, const Codim< 0 >::Entity &e)                                                  | *this                   | shared      |
+   |                                                                                                        | caches                  | may-init    |
+   |                                                                                                        | ref marks               | exclusive   |
+   |                                                                                                        | mpi                     | none        |
+   |                                                                                                        | e                       | shared      |
+   |--------------------------------------------------------------------------------------------------------+-------------------------+-------------|
+   | int getMark (const Codim< 0 >::Entity &e) const                                                        | *this                   | shared      |
+   |                                                                                                        | caches                  | may-init    |
+   |                                                                                                        | ref marks marks         | shared      |
+   |                                                                                                        | mpi                     | none        |
+   |                                                                                                        | e                       | shared      |
+   |--------------------------------------------------------------------------------------------------------+-------------------------+-------------|
+   | bool adapt ()                                                                                          | *this                   | exclusive   |
+   | bool preAdapt ()                                                                                       | caches                  | invalidate  |
+   | void postAdapt ()                                                                                      | ref marks               | exclusive   |
+   |                                                                                                        | mpi                     | unspecified |
+   |--------------------------------------------------------------------------------------------------------+-------------------------+-------------|
+   | const CollectiveCommunication & comm () const                                                          | grid                    | shared      |
+   |                                                                                                        | caches                  | none        |
+   |                                                                                                        | ref marks               | none        |
+   |                                                                                                        | mpi                     | none        |
+   |--------------------------------------------------------------------------------------------------------+-------------------------+-------------|
+   | Partition< pitype >::LevelIterator lbegin (int level) const                                            | grid                    | exclusive   |
+   | Partition< pitype >::LevelIterator lend (int level) const                                              | caches                  | may-init    |
+   | LevelIterator lbegin (int level) const                                                                 | ref marks               | none        |
+   | LevelIterator lend (int level) const                                                                   | mpi                     | none        |
+   | Partition< pitype >::LeafIterator leafbegin () const                                                   |                         |             |
+   | Partition< pitype >::LeafIterator leafend () const                                                     |                         |             |
+   | LeafIterator leafbegin () const                                                                        |                         |             |
+   | LeafIterator leafend () const                                                                          |                         |             |
+   |--------------------------------------------------------------------------------------------------------+-------------------------+-------------|
+   | const LevelIndexSet &levelIndexSet (int level) const                                                   | grid                    | exclusive   |
+   | const LeafIndexSet & leafIndexSet () const                                                             | resp index set cache    | init        |
+   |                                                                                                        | other caches            | may-init    |
+   |                                                                                                        | ref marks               | none        |
+   |                                                                                                        | mpi                     | none        |
+   |--------------------------------------------------------------------------------------------------------+-------------------------+-------------|
+   | void communicate (DataHandle &data, InterfaceType iftype, CommunicationDirection dir, int level) const | grid                    | exclusive   |
+   | void communicate (DataHandle &data, InterfaceType iftype, CommunicationDirection dir) const            | caches                  | may-init    |
+   |                                                                                                        | ref marks               | none        |
+   |                                                                                                        | mpi                     | exclusive   |
+
+** Grid Factory
+   Building the grid is inherently not thread safe, but obtaining insertion
+   indices is.
+
+   | method                                                                                                                           | argument | access    |
+   |----------------------------------------------------------------------------------------------------------------------------------+----------+-----------|
+   | GridFactory ()                                                                                                                   | *this    | exclusive |
+   | Grid * createGrid ()                                                                                                             | grid     | exclusive |
+   |                                                                                                                                  | mpi      | exclusive |
+   |----------------------------------------------------------------------------------------------------------------------------------+----------+-----------|
+   | void insertVertex (const FieldVector< ctype, dimworld > &pos)                                                                    | *this    | exclusive |
+   | void insertElement (GeometryType type, const vector< unsigned > &vertices)                                                       | grid     | exclusive |
+   | void insertBoundarySegment (const vector< unsigned > &vertices)                                                                  | mpi      | none      |
+   | void insertElement (GeometryType type, const vector< unsigned > &vertices, shared_ptr< VirtualFunction > elementParametrization) |          |           |
+   | void insertBoundarySegment (const vector< unsigned > &vertices, shared_ptr< BoundarySegment > boundarySegment)                   |          |           |
+   |----------------------------------------------------------------------------------------------------------------------------------+----------+-----------|
+   | unsigned int insertionIndex (const Entity &entity) const                                                                         | *this    | shared    |
+   | unsigned int insertionIndex (const LeafIntersection &intersection) const                                                         | grid     | shared    |
+   | bool wasInserted (const LeafIntersection &intersection) const                                                                    | mpi      | none      |
+
+** GridView
+   The most tricky thing about the grid views is the index set cache.
+   Non-custom grid views that cover the same set of entities should share a
+   cache for the index set.  Obtaining the index set initializes this cache,
+   but it may also initialize other caches in the grid.
+
+   On the other hand, custom grid views cannot always share the same index set
+   cache when they are created independently.  Only custom grid views that are
+   copies of each other share the same index set cache.
+
+   When it is unknown whether a grid view is custom and it's index set is
+   used, the only correct use is to initialize the cache explicitly, making
+   sure that no other cache of the grid is potentially initialized concurently
+   e.g. via other grid views, access to the id sets, or communication.
+
+   When creating intersection iterators, note that the returned iterator may
+   conceptually hold a reference to the provided entity object; this entity
+   object may later be read by methods on the intersection iterator or the
+   intersection.
+
+   Caches:
+   - index set (shared between copies or in the grid)
+   - other caches of the grid
+
+   | method                                                                                      | argument        | access    |
+   |---------------------------------------------------------------------------------------------+-----------------+-----------|
+   | GridView (const ThisType &other)                                                            | *this           | exclusive |
+   | GridView & operator= (const GridView &other)                                                | index set cache | none      |
+   |                                                                                             | other           | shared    |
+   |                                                                                             | grid            | shared    |
+   |                                                                                             | mpi             | none      |
+   |---------------------------------------------------------------------------------------------+-----------------+-----------|
+   | const Grid & grid () const                                                                  | *this           | shared    |
+   | Iterator begin () const                                                                     | index set cache | none      |
+   | Iterator end () const                                                                       | grid            | shared    |
+   | Partition< pitype >::Iterator begin () const                                                | mpi             | none      |
+   | Partition< pitype >::Iterator end () const                                                  |                 |           |
+   | IntersectionIterator ibegin (const Entity &entity) const                                    |                 |           |
+   | IntersectionIterator iend (const Entity &entity) const                                      |                 |           |
+   | int overlapSize (int codim) const                                                           |                 |           |
+   | int ghostSize (int codim) const                                                             |                 |           |
+   | const CollectiveCommunication & comm () const                                               |                 |           |
+   |---------------------------------------------------------------------------------------------+-----------------+-----------|
+   | const IndexSet & indexSet () const                                                          | *this           | shared    |
+   |                                                                                             | index set cache | init      |
+   |                                                                                             | grid            | shared    |
+   |                                                                                             | mpi             | none      |
+   |---------------------------------------------------------------------------------------------+-----------------+-----------|
+   | int size (int codim) const                                                                  | *this           | shared    |
+   | int size (const GeometryType &type) const                                                   | index set cache | may-init  |
+   | bool contains (const EntityType &e) const                                                   | grid            | shared    |
+   |                                                                                             | mpi             | none      |
+   |---------------------------------------------------------------------------------------------+-----------------+-----------|
+   | void communicate (DataHandle &data, InterfaceType iftype, CommunicationDirection dir) const | *this           | shared    |
+   |                                                                                             | index set cache | may-init  |
+   |                                                                                             | grid            | shared    |
+   |                                                                                             | mpi             | exclusive |
+
+** Index and Id Sets
+   Fully thread safe once they are obtained.
+
+   Id sets:
+   | method                                                                      | argument | access |
+   |-----------------------------------------------------------------------------+----------+--------|
+   | IdType id (const Entity &e) const                                           | *this    | shared |
+   | IdType subId (const Codim< 0 >::Entity &e, int i, unsigned int codim) const | e        | shared |
+   |                                                                             | grid     | shared |
+
+   Index sets:
+   | method                                                                | argument  | access |
+   |-----------------------------------------------------------------------+-----------+--------|
+   | IndexType index (const Entity &e) const                               | *this     | shared |
+   | IndexType subIndex (const Entity &e, int i, unsigned int codim) const | e         | shared |
+   | const std::vector< GeometryType > & geomTypes (int codim) const       | grid view | shared |
+   | IndexType size (GeometryType type) const                              | grid      | shared |
+   | IndexType size (int codim) const                                      |           |        |
+   | bool contains (const Entity &e) const                                 |           |        |
+  
+** Intersections and Intersection Iterators
+   Just like for Entities, if to different intersection objects A and B denote
+   the same intersection in the grid, either with the same orientation or
+   flipped, A and B may be access concurently and their caches are seperate.
+
+   Conceptually, the intersection and the intersection iterator may hold a
+   reference to the inside entity object the intersection iterator was started
+   with, this inside entity object is denoted as "inside" below.
+
+   Intersection caches:
+   - geometry
+   - geometry in inside
+   - geoemtry in outside
+
+   | method                                                                       | argument     | access   |
+   |------------------------------------------------------------------------------+--------------+----------|
+   | bool boundary () const                                                       | *this        | shared   |
+   | int boundaryId () const                                                      | caches       | none     |
+   | size_t boundarySegmentIndex () const                                         | inside       | shared   |
+   | bool neighbor () const                                                       | grid view    | shared   |
+   | EntityPointer inside () const                                                | grid         | shared   |
+   | EntityPointer outside () const                                               |              |          |
+   | bool conforming () const                                                     |              |          |
+   |------------------------------------------------------------------------------+--------------+----------|
+   | GeometryType type () const                                                   | *this        | shared   |
+   | int indexInInside () const                                                   | caches       | none     |
+   | int indexInOutside () const                                                  | inside       | shared   |
+   |                                                                              | grid view    | shared   |
+   |                                                                              | grid         | shared   |
+   |------------------------------------------------------------------------------+--------------+----------|
+   | LocalGeometry geometryInInside () const                                      | *this        | shared   |
+   | LocalGeometry geometryInOutside () const                                     | method cache | init     |
+   | Geometry geometry () const                                                   | other caches | may-init |
+   |                                                                              | inside       | shared   |
+   |                                                                              | grid view    | shared   |
+   |                                                                              | grid         | shared   |
+   |------------------------------------------------------------------------------+--------------+----------|
+   | GlobalCoordinate outerNormal (const LocalCoordinate &local) const            | *this        | shared   |
+   | GlobalCoordinate integrationOuterNormal (const LocalCoordinate &local) const | caches       | may-init |
+   | GlobalCoordinate unitOuterNormal (const LocalCoordinate &local) const        | inside       | shared   |
+   | GlobalCoordinate centerUnitOuterNormal () const                              | grid view    | shared   |
+   |                                                                              | grid         | shared   |
+
+
+   Intersection Iterator Caches:
+   - intersection
+
+   | method                                                           | argument                  | access     |
+   |------------------------------------------------------------------+---------------------------+------------|
+   | IntersectionIterator (const IntersectionIterator &rhs)           | *this                     | exclusive  |
+   | IntersectionIterator &operator=(const IntersectionIterator &rhs) | intersection cache[*this] | invalidate |
+   |                                                                  | rhs                       | shared     |
+   |                                                                  | intersection cache[rhs]   | none       |
+   |                                                                  | inside                    | shared     |
+   |                                                                  | grid view                 | shared     |
+   |                                                                  | grid                      | shared     |
+   |------------------------------------------------------------------+---------------------------+------------|
+   | IntersectionIterator & operator++ ()                             | *this                     | exclusive  |
+   |                                                                  | intersection cache        | invalidate |
+   |                                                                  | inside                    | shared     |
+   |                                                                  | grid view                 | shared     |
+   |                                                                  | grid                      | shared     |
+   |------------------------------------------------------------------+---------------------------+------------|
+   | const Intersection & operator* () const                          | *this                     | shared     |
+   | const Intersection * operator-> () const                         | intersection cache        | init       |
+   |                                                                  | inside                    | shared     |
+   |                                                                  | grid view                 | shared     |
+   |                                                                  | grid                      | shared     |
+   |------------------------------------------------------------------+---------------------------+------------|
+   | bool operator== (const IntersectionIterator &rhs) const          | *this                     | shared     |
+   | bool operator!= (const IntersectionIterator &rhs) const          | intersection cache        | none       |
+   |                                                                  | inside                    | shared     |
+   |                                                                  | grid view                 | shared     |
+   |                                                                  | grid                      | shared     |
+* Advice to Programmers
+  To use a grid that declares itself viewThreadSafe in a safe manner, observe
+  the following guide lines:
+** Prefer Operations on the Grid Views over Opperations on the Grid
+   This applies to obtaining iterators and index sets as well as communicating.
+
+   These methods are deprecated on the grid, and the interaction with
+   concurently obtained iterators, grid views, index sets, and id sets as well
+   as concurent communication is complex.
+** Avoid Re-Obtaining the Same Grid View.
+   Obtain the needed grid view objects(s) once in a serial section, and try to
+   stick to them, or their copies.
+
+   The index set may be cached in the grid or in the grid view.  Re-obtaining
+   the grid view from the grid may make it necessary to reinitialize a new
+   index set.  Copying a grid view is OK, the copies will share the same index
+   set, such that initializing the index set via one grid view copy also
+   initializes the index sets of the other copies.
+
+   Creating the grid view as seldom as possible also plays nice with custom
+   grid views -- if those cache the index set, independendly created instances
+   of the same custom grid view cannot share their index set cache, but copies
+   can.
+** You may do one communication concurently with many other threadsafe operations
+   Communication means any method on a collective communication object, except
+   as noted below.  It also means the communicate() methods on the grid view
+   (or grid).
+
+   Obtaining the collective communication from the grid or grid view does not
+   constitute a communication in itself, and neither does calling size() or
+   rank() on the collective communication.
+** Explicitly Initialize any potentially used Index/ID Sets in Serial Section
+   This can be done by obtaining the index/id set once.
+
+   Even different index/id sets should not be initialized concurently, since
+   they may share the same cache.  Observe that communication may implicitly
+   initialize the index/id set, so communication should not be attempted
+   concurently to initialization.
+** You are free to obtain entity iterators concurently
+   You may obtain iterators from the same grid view in different threads
+   concurently.  Alternatively, each thread may have it's own copy of the grid
+   view, and may obtain iterators from it.
+** Take care with intersection iterators and the inside entity
+   Intersection iterators may hold a reference to the inside entity object.
+   Ownership of the intersection iterator and the entity object it was
+   obtained from should alsways be kept together in the same thread.
+** Don't obtain father, inside, or outside entity pointers concurently
+   The intersection (for inside and outside) or the entity (for father) may
+   cache information internally to provide these entity pointers.
+** Entity iterators and pointers may be concurently copied
+   This applies to the source of the copy only, of course, the target is
+   modified and that needs exclusive access.  But copying does not access any
+   caches in the source object, and thus may happen concurently with other
+   operations that may initialize the cache.  This applies also to
+   constructing an entity pointer from an entity.
+** Keep operations on an entity object in the same thread
+   This applies to dereferencing the entity pointer or iterator to obtain the
+   entity, obtaining, iterating and dereferencing intersection iterators from
+   that entity, obtaining geometries from the entity and intersections,
+   obtaining father from the entity, and obtaining inside and outside from the
+   intersections.
+
+   If necessary some of these objects may be copied as noted above and passed
+   to other threads.
+
+   Concurent operations on the same entity are possible, but may be
+   complicated.
+* 
