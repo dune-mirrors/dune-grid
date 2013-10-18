@@ -3,21 +3,21 @@
    Each call of a method of some object associated with a grid operates on the
    provided method parameters and possibly on *this.  These constitute the
    /explicit/ call arguments.  Operation on such an argument may be exclusive,
-   which prohibits any concurent calls that operate on the same argument, or
-   shared, which allows other concurent shared operations.  Sometimes and
+   which prohibits any concurrent calls that operate on the same argument, or
+   shared, which allows other concurrent shared operations.  Sometimes and
    argument is provided to a call but not actually used.  These cases are
    listed with "none" access below, they have no restriction with regard to
    other operations on the same argument.
 
 ** Access Modes
    Each argument may be accessed by a certain call in a certain way.
-   - none :: The call does not access this argument in any way.  Concurent
+   - none :: The call does not access this argument in any way.  Concurrent
              calls using this argument may happen in any mode.
    - shared :: The call reads the argument, but does not modify it, or
-               otherwise ensures that multiple concurent shared calls are
+               otherwise ensures that multiple concurrent shared calls are
                safe.
-   - exclusive :: The call modifies the argument.  No concurent exclusive or
-                  shared accesses are permissible, but concurent calls with
+   - exclusive :: The call modifies the argument.  No concurrent exclusive or
+                  shared accesses are permissible, but concurrent calls with
                   none access are allowed.
    - unspecified :: The type of access is explicitly not specified.  Usually,
                     access to some other argument already prohibits thread
@@ -49,7 +49,7 @@
    Often, when an object has more than one cache, these caches are potentially
    joined.  This means that initializing one cache may actually initialize
    another cache too.  These cases are denoted as "may-init" access on the row
-   of the other cache below, since this may race with concurent "may-init" or
+   of the other cache below, since this may race with concurrent "may-init" or
    "init" operation on this cache, unless it is known that the other cache has
    already been initialized.
 
@@ -85,15 +85,15 @@
 
 ** Communication
    There is currently no provision in Dune to handle multiple MPI
-   communications concurently.  The rule therefore is: there may be at most
+   communications concurrently.  The rule therefore is: there may be at most
    one communication happening at any one time, and this applies to
    viewThreadSafe grids too.  However, if the grid is viewThreadSafe, you can
-   do many other things concurently to to communication, and thus attempt
+   do many other things concurrently to to communication, and thus attempt
    latency hiding.  We formulate this by declaring that communication methods
    have an implicit static "mpi" argument and need exclusive access to it.
 
    Methods such as size() and rank() can always be called, even if a
-   communication is happening concurently.  To express this, such calls are
+   communication is happening concurrently.  To express this, such calls are
    listed with "none" access with regard to their "mpi" argument, even though
    they may actually read mpi state.
 
@@ -443,8 +443,9 @@
 
    When it is unknown whether a grid view is custom and it's index set is
    used, the only correct use is to initialize the cache explicitly, making
-   sure that no other cache of the grid is potentially initialized concurently
-   e.g. via other grid views, access to the id sets, or communication.
+   sure that no other cache of the grid is potentially initialized
+   concurrently e.g. via other grid views, access to the id sets, or
+   communication.
 
    When creating intersection iterators, note that the returned iterator may
    conceptually hold a reference to the provided entity object; this entity
@@ -512,7 +513,7 @@
 ** Intersections and Intersection Iterators
    Just like for Entities, if to different intersection objects A and B denote
    the same intersection in the grid, either with the same orientation or
-   flipped, A and B may be access concurently and their caches are seperate.
+   flipped, A and B may be access concurrently and their caches are seperate.
 
    Conceptually, the intersection and the intersection iterator may hold a
    reference to the inside entity object the intersection iterator was started
@@ -590,8 +591,8 @@
    This applies to obtaining iterators and index sets as well as communicating.
 
    These methods are deprecated on the grid, and the interaction with
-   concurently obtained iterators, grid views, index sets, and id sets as well
-   as concurent communication is complex.
+   concurrently obtained iterators, grid views, index sets, and id sets as
+   well as concurrent communication is complex.
 ** Avoid Re-Obtaining the Same Grid View.
    Obtain the needed grid view objects(s) once in a serial section, and try to
    stick to them, or their copies.
@@ -606,7 +607,7 @@
    grid views -- if those cache the index set, independendly created instances
    of the same custom grid view cannot share their index set cache, but copies
    can.
-** You may do one communication concurently with many other threadsafe operations
+** You may do one communication concurrently with many other threadsafe operations
    Communication means any method on a collective communication object, except
    as noted below.  It also means the communicate() methods on the grid view
    (or grid).
@@ -617,25 +618,25 @@
 ** Explicitly Initialize any potentially used Index/ID Sets in Serial Section
    This can be done by obtaining the index/id set once.
 
-   Even different index/id sets should not be initialized concurently, since
+   Even different index/id sets should not be initialized concurrently, since
    they may share the same cache.  Observe that communication may implicitly
    initialize the index/id set, so communication should not be attempted
-   concurently to initialization.
-** You are free to obtain entity iterators concurently
+   concurrently to initialization.
+** You are free to obtain entity iterators concurrently
    You may obtain iterators from the same grid view in different threads
-   concurently.  Alternatively, each thread may have it's own copy of the grid
-   view, and may obtain iterators from it.
+   concurrently.  Alternatively, each thread may have it's own copy of the
+   grid view, and may obtain iterators from it.
 ** Take care with intersection iterators and the inside entity
    Intersection iterators may hold a reference to the inside entity object.
    Ownership of the intersection iterator and the entity object it was
    obtained from should alsways be kept together in the same thread.
-** Don't obtain father, inside, or outside entity pointers concurently
+** Don't obtain father, inside, or outside entity pointers concurrently
    The intersection (for inside and outside) or the entity (for father) may
    cache information internally to provide these entity pointers.
-** Entity iterators and pointers may be concurently copied
+** Entity iterators and pointers may be concurrently copied
    This applies to the source of the copy only, of course, the target is
    modified and that needs exclusive access.  But copying does not access any
-   caches in the source object, and thus may happen concurently with other
+   caches in the source object, and thus may happen concurrently with other
    operations that may initialize the cache.  This applies also to
    constructing an entity pointer from an entity.
 ** Keep operations on an entity object in the same thread
@@ -648,6 +649,6 @@
    If necessary some of these objects may be copied as noted above and passed
    to other threads.
 
-   Concurent operations on the same entity are possible, but may be
+   Concurrent operations on the same entity are possible, but may be
    complicated.
 * 
