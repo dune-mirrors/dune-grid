@@ -626,29 +626,23 @@
    You may obtain iterators from the same grid view in different threads
    concurrently.  Alternatively, each thread may have it's own copy of the
    grid view, and may obtain iterators from it.
-** Take care with intersection iterators and the inside entity
-   Intersection iterators may hold a reference to the inside entity object.
-   Ownership of the intersection iterator and the entity object it was
-   obtained from should alsways be kept together in the same thread.
-** Don't obtain father, inside, or outside entity pointers concurrently
-   The intersection (for inside and outside) or the entity (for father) may
-   cache information internally to provide these entity pointers.
+** Operations on objects obtained from iterators/pointers are exclusive
+   Specifically, this means: when you have dereference an entity
+   iterator/pointer, keep all subsequent operations on the entity and objects
+   derived from the entity in the same thread, until you are done with the
+   entity for the time being.  "Objects derived from the entity" means the
+   entity itself, any intersection iterators and intersections, any
+   geometries, any hierarchic iterators and entities obtained from the
+   hierarchic iterators via dereferencing.
+
+   The exception to this rule are entity pointers obtained through father,
+   inside, and outside, as well as entity pointers constructed with an entity
+   as argument.  Such entity pointers should still be constructed in the same
+   thread, but with sufficient synchronization they may be passed to a
+   different thread.
 ** Entity iterators and pointers may be concurrently copied
-   This applies to the source of the copy only, of course, the target is
-   modified and that needs exclusive access.  But copying does not access any
-   caches in the source object, and thus may happen concurrently with other
-   operations that may initialize the cache.  This applies also to
-   constructing an entity pointer from an entity.
-** Keep operations on an entity object in the same thread
-   This applies to dereferencing the entity pointer or iterator to obtain the
-   entity, obtaining, iterating and dereferencing intersection iterators from
-   that entity, obtaining geometries from the entity and intersections,
-   obtaining father from the entity, and obtaining inside and outside from the
-   intersections.
-
-   If necessary some of these objects may be copied as noted above and passed
-   to other threads.
-
-   Concurrent operations on the same entity are possible, but may be
-   complicated.
+   This is true as long as only copy operations with the same source
+   entity object/entity pointer object/entity iterator object happen
+   concurrently.  Other operations on the source, such as obtaining the
+   geometry or intersection iterators should not be attempted concurrently.
 * 
