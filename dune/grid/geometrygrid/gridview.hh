@@ -117,6 +117,11 @@ namespace Dune
           hostGridView_( hostGridView )
       {}
 
+      GridView ( const Grid &grid)
+        : grid_( &grid ),
+          hostGridView_( grid.hostGrid().leafGridView() )
+      {}
+
       const Grid &grid () const
       {
         assert( grid_ );
