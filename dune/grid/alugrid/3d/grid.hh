@@ -858,10 +858,10 @@ namespace Dune
 
 
     template< class T >
-    struct ReturnImplemenetationType
-    : public template BaseType :: ReturnImplemenetationType < T >
+    struct ReturnImplementationType
+    : public BaseType :: template ReturnImplementationType < T >
     {
-      typedef typename BaseType :: ReturnImplemenetationType < T > :: ImplementationType ImplementationType;
+      typedef typename BaseType :: template ReturnImplementationType < T > :: ImplementationType ImplementationType;
     };
 
     template< class IntersectionType >

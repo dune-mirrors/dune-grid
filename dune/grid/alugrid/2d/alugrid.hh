@@ -170,7 +170,7 @@ namespace Dune
     typename Partition< pitype >::LeafGridView leafGridView () const
     {
       typedef typename Partition< pitype >::LeafGridView LeafGridView;
-      typedef typename BaseType::template ReturnImplementationType< LeafGridView >::ImplementationType LeaflGridViewImp;
+      typedef typename BaseType::template ReturnImplementationType< LeafGridView >::ImplementationType LeafGridViewImp;
       return LeafGridView( LeafGridViewImp( *this ) );
     }
 
@@ -182,7 +182,7 @@ namespace Dune
 
     LeafGridView leafGridView () const
     {
-      typedef typename BaseType::template ReturnImplementationType< LeafGridView >::ImplementationType LeaflGridViewImp;
+      typedef typename BaseType::template ReturnImplementationType< LeafGridView >::ImplementationType LeafGridViewImp;
       return LeafGridView( LeafGridViewImp( *this ) );
     }
 
