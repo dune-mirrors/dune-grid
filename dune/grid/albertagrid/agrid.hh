@@ -391,7 +391,7 @@ namespace Dune
     levelGridView ( int level ) const
     {
       typedef typename Traits::template Partition< pitype >::LevelGridView View;
-      typedef typename View::GridViewImp ViewImp;
+      typedef typename Base::template ReturnImplementationType< View >::ImplementationType ViewImp;
       return View( ViewImp( *this, level ) );
     }
 
@@ -400,7 +400,7 @@ namespace Dune
     typename Traits::template Partition< pitype >::LeafGridView leafGridView () const
     {
       typedef typename Traits::template Partition< pitype >::LeafGridView View;
-      typedef typename View::GridViewImp ViewImp;
+      typedef typename Base::template ReturnImplementationType< View >::ImplementationType ViewImp;
       return View( ViewImp( *this ) );
     }
 
@@ -409,7 +409,7 @@ namespace Dune
     levelGridView ( int level ) const
     {
       typedef typename Traits::template Partition< All_Partition >::LevelGridView View;
-      typedef typename View::GridViewImp ViewImp;
+      typedef typename Base::template ReturnImplementationType< View >::ImplementationType ViewImp;
       return View( ViewImp( *this, level ) );
     }
 
@@ -417,7 +417,7 @@ namespace Dune
     typename Traits::template Partition< All_Partition >::LeafGridView leafGridView () const
     {
       typedef typename Traits::template Partition< All_Partition >::LeafGridView View;
-      typedef typename View::GridViewImp ViewImp;
+      typedef typename Base::template ReturnImplementationType< View >::ImplementationType ViewImp;
       return View( ViewImp( *this ) );
     }
 

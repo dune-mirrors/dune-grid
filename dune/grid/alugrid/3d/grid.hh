@@ -856,10 +856,16 @@ namespace Dune
 
     using BaseType :: getRealImplementation ;
 
+
+    template< class T >
+    struct ReturnImplemenetationType
+    : public template BaseType :: ReturnImplemenetationType < T >
+    {
+      typedef typename BaseType :: ReturnImplemenetationType < T > :: ImplementationType ImplementationType;
+    };
+
     template< class IntersectionType >
-    static const typename BaseType
-    :: template ReturnImplementationType< IntersectionType >
-    :: ImplementationType &
+    static const typename ReturnImplementationType< IntersectionType > :: ImplementationType &
     getRealIntersection ( const IntersectionType &intersection )
     {
       return getRealImplementation( intersection );

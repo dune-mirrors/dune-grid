@@ -134,7 +134,7 @@ namespace Dune
     typename Partition< pitype >::LevelGridView levelView ( int level ) const
     {
       typedef typename Partition< pitype >::LevelGridView LevelGridView;
-      typedef typename LevelGridView::GridViewImp LevelGridViewImp;
+      typedef typename BaseType::template ReturnImplementationType< LevelGridView >::ImplementationType LevelGridViewImp;
       return LevelGridView( LevelGridViewImp( *this, level ) );
     }
 
@@ -142,19 +142,19 @@ namespace Dune
     typename Partition< pitype >::LeafGridView leafView () const
     {
       typedef typename Partition< pitype >::LeafGridView LeafGridView;
-      typedef typename LeafGridView::GridViewImp LeafGridViewImp;
+      typedef typename BaseType::template ReturnImplementationType< LeafGridView >::ImplementationType LeaflGridViewImp;
       return LeafGridView( LeafGridViewImp( *this ) );
     }
 
     LevelGridView levelView ( int level ) const
     {
-      typedef typename LevelGridView::GridViewImp LevelGridViewImp;
+      typedef typename BaseType::template ReturnImplementationType< LevelGridView >::ImplementationType LevelGridViewImp;
       return LevelGridView( LevelGridViewImp( *this, level ) );
     }
 
     LeafGridView leafView () const
     {
-      typedef typename LeafGridView::GridViewImp LeafGridViewImp;
+      typedef typename BaseType::template ReturnImplementationType< LeafGridView >::ImplementationType LeaflGridViewImp;
       return LeafGridView( LeafGridViewImp( *this ) );
     }
 
@@ -162,7 +162,7 @@ namespace Dune
     typename Partition< pitype >::LevelGridView levelGridView ( int level ) const
     {
       typedef typename Partition< pitype >::LevelGridView LevelGridView;
-      typedef typename LevelGridView::GridViewImp LevelGridViewImp;
+      typedef typename BaseType::template ReturnImplementationType< LevelGridView >::ImplementationType LevelGridViewImp;
       return LevelGridView( LevelGridViewImp( *this, level ) );
     }
 
@@ -170,19 +170,19 @@ namespace Dune
     typename Partition< pitype >::LeafGridView leafGridView () const
     {
       typedef typename Partition< pitype >::LeafGridView LeafGridView;
-      typedef typename LeafGridView::GridViewImp LeafGridViewImp;
+      typedef typename BaseType::template ReturnImplementationType< LeafGridView >::ImplementationType LeaflGridViewImp;
       return LeafGridView( LeafGridViewImp( *this ) );
     }
 
     LevelGridView levelGridView ( int level ) const
     {
-      typedef typename LevelGridView::GridViewImp LevelGridViewImp;
+      typedef typename BaseType::template ReturnImplementationType< LevelGridView >::ImplementationType LevelGridViewImp;
       return LevelGridView( LevelGridViewImp( *this, level ) );
     }
 
     LeafGridView leafGridView () const
     {
-      typedef typename LeafGridView::GridViewImp LeafGridViewImp;
+      typedef typename BaseType::template ReturnImplementationType< LeafGridView >::ImplementationType LeaflGridViewImp;
       return LeafGridView( LeafGridViewImp( *this ) );
     }
 
