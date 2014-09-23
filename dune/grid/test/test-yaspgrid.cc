@@ -18,6 +18,7 @@
 #include "checkiterators.cc"
 #include "checkadaptation.cc"
 #include "checkpartition.cc"
+#include "checkrandomaccessiterators.hh"
 
 template<int dim, class CC>
 struct YaspFactory
@@ -105,6 +106,10 @@ void check_yasp() {
   // check grid adaptation interface
   checkAdaptRefinement(*grid);
   checkPartitionType( grid->leafGridView() );
+
+  // check any random access iterators
+  checkRandomAccessIterators( grid->leafGridView() );
+  checkRandomAccessIterators( grid->levelGridView(0) );
 
   std::ofstream file;
   std::ostringstream filename;
