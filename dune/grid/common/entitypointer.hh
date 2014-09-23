@@ -157,7 +157,7 @@ namespace Dune
     /** \brief Constructor from type of entity implementation that
         this entity pointer points to. This constructor is only
         used in the EntityDefaultImplementation to implement the method
-        seed() by default when the type of EntitySeed and EntityPointer coniside.
+        seed() by default when the type of EntitySeed and EntityPointer coincide.
      */
     EntityPointer ( const typename Entity::Implementation &entityImp )
       : realIterator( entityImp )
