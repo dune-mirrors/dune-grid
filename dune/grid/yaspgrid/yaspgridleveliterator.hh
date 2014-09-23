@@ -7,6 +7,9 @@
  * \brief The YaspLevelIterator class
  */
 
+#include <cstddef>
+#include <iterator>
+
 namespace Dune {
 
 
@@ -25,6 +28,7 @@ namespace Dune {
     typedef typename GridImp::template Codim<codim>::Entity Entity;
     typedef typename GridImp::YGridLevelIterator YGLI;
     typedef typename GridImp::YGrid::Iterator I;
+    typedef std::random_access_iterator_tag iterator_category;
 
     //! default constructor
     YaspLevelIterator ()
@@ -42,6 +46,16 @@ namespace Dune {
     void increment()
     {
       ++(this->_it);
+    }
+
+    void advance(std::ptrdiff_t distance)
+    {
+      this->_it += distance;
+    }
+
+    int distanceTo(const YaspLevelIterator &other) const
+    {
+      return this->_it - other._it;
     }
   };
 
