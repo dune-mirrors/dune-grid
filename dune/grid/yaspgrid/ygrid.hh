@@ -589,7 +589,7 @@ namespace Dune {
       {}
 
       //! construct an iterator from coordinates and component
-      Iterator (const YGrid<CC>& yg, const Dune::array<int,dim>& coords, int which = 0)
+      Iterator (const YGrid<CC>& yg, const Dune::array<int,dim>& coords, unsigned which = 0)
         : _which(which), _yg(&yg)
       {
         _it = typename YGridComponent<CC>::Iterator(*(_yg->dataBegin()+which),coords);
@@ -611,7 +611,7 @@ namespace Dune {
       }
 
       //! reinitializes an iterator, as if it was just constructed.
-      void reinit(const YGrid<CC>& yg, const Dune::array<int,dim>& coords, int which = 0)
+      void reinit(const YGrid<CC>& yg, const Dune::array<int,dim>& coords, unsigned which = 0)
       {
         _yg = &yg;
         _which = which;
@@ -710,7 +710,7 @@ namespace Dune {
       }
 
       //! return the current component number
-      int which() const
+      unsigned which() const
       {
         return _which;
       }
@@ -728,7 +728,7 @@ namespace Dune {
 
 
       private:
-      int _which;
+      unsigned _which;
       const YGrid<CC>* _yg;
       typename YGridComponent<CC>::Iterator _it;
     };
@@ -740,7 +740,7 @@ namespace Dune {
     }
 
     //! return iterator pointint to a specified position
-    Iterator begin(const Dune::array<int, dim>& coord, int which = 0) const
+    Iterator begin(const Dune::array<int, dim>& coord, unsigned which = 0) const
     {
       return Iterator(*this, coord, which);
     }
@@ -751,7 +751,7 @@ namespace Dune {
       return Iterator(*this,true);
     }
 
-    int superindex(const iTupel& coord, int which) const
+    int superindex(const iTupel& coord, unsigned which) const
     {
       return _indexOffset[which] + (dataBegin()+which)->superindex(coord);
     }
