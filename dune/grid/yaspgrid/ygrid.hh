@@ -368,7 +368,8 @@ namespace Dune {
         for (int i=0; i<d; i++)         // check for wrap around
         {
           _superindex += _grid->superincrement(i);   // move on cell in direction i
-          if (++_coord[i] <= _grid->max(i))
+          ++_coord[i];
+          if (_coord[i] <= _grid->max(i))
             return *this;
           else
           {
@@ -681,8 +682,12 @@ namespace Dune {
       //! increment to the next entity jumping to next component if necessary
       Iterator& operator++ ()
       {
-        if ((++_it == _yg->_itends[_which]) && (_which < _yg->_itends.size()-1))
-          _it = _yg->_itbegins[++_which];
+        ++_it;
+        if ((_it == _yg->_itends[_which]) && (_which < _yg->_itends.size()-1))
+        {
+          ++_which;
+          _it = _yg->_itbegins[_which];
+        }
         return *this;
       }
 
