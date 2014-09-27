@@ -253,7 +253,7 @@ namespace Dune
   bool checkIfMonotonous(const Dune::array<std::vector<ctype>, dim>& coords)
   {
     for (std::size_t i=0; i<dim; i++)
-      for (int j=1; j<coords[i].size(); j++)
+      for (std::size_t j=1; j<coords[i].size(); j++)
         if (coords[i][j] < coords[i][j-1])
           return false;
     return true;

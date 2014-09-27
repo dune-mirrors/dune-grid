@@ -393,7 +393,7 @@ namespace Dune {
         {
           // check whether the given shift is of our codimension
           std::bitset<dim> r(index);
-          if (r.count() != dim-codim)
+          if (r.count() + codim != dim)
             continue;
 
           // get an origin and a size array for subsequent modification
