@@ -203,6 +203,10 @@ namespace Dune {
     }
 
     //! Return total size of index set which is the product of all size per direction.
+    /**
+     * The index for a given integral position in the grid can be obtained by
+     * index().
+     */
     int totalsize () const
     {
       int s=1;
@@ -246,6 +250,16 @@ namespace Dune {
     }
 
     //! given a tupel compute its index in the lexicographic numbering
+    /**
+     * This is the index inside this component, in iteration order.  It
+     * returns the same index as the iterators index method.  The total number
+     * of indices is given by totalsize().
+     *
+     * This is the inverse of coord(int).
+     *
+     * \note This will yield totalsize() if the coordinate corresponding to
+     *       the passed-the-end iterator is provided here.
+     */
     int index (const iTupel& coord) const
     {
       int index = (coord[d-1]-_origin[d-1]);
@@ -254,6 +268,31 @@ namespace Dune {
         index = index*_size[i] + (coord[i]-_origin[i]);
 
       return index;
+    }
+
+    //! get the coord of a given index
+    /**
+     * This is the inverse of index(const iTupel&).
+     *
+     * \note index == totalsize() is treated specially and will return the
+     *       coordinate of the passed-the-end iterator.
+     */
+    iTupel coord(int index) const
+    {
+      iTupel c;
+      if(index == totalsize())
+      {
+        for (int i=0; i<d; i++)
+          c[i] = max(i);
+        c[0] += 1;
+      }
+      else
+        for(int i = 0; i < d; ++i)
+        {
+          c[i] = index % _size[i] + _origin[i];
+          index /= _size[i];
+        }
+      return c;
     }
 
     //! return grid moved by the vector v
@@ -343,6 +382,15 @@ namespace Dune {
         return _superindex;
       }
 
+      //! Return index inside this component
+      /**
+       * This index increments in iteration order
+       */
+      int index () const
+      {
+        return _grid->index(_coord);
+      }
+
       //! Return coordinate of the cell in direction i.
       int coord (int i) const
       {
@@ -387,6 +435,19 @@ namespace Dune {
           _superindex += _grid->superincrement(0);
         }
         return *this;
+      }
+
+      //! advance iterator by an arbitrary amount
+      Iterator &operator+=(int n)
+      {
+        reinit(*_grid, _grid->coord(index() + n));
+        return *this;
+      }
+
+      //! compute distance between two iterators
+      int operator-(const Iterator &other) const
+      {
+        return index() - other.index();
       }
 
       //! Return ith component of lower left corner of the entity associated with the current coordinates and shift.
@@ -488,11 +549,7 @@ namespace Dune {
     //! return subiterator to last element of index set
     Iterator end () const
     {
-      iTupel last;
-      for (int i=0; i<d; i++)
-        last[i] = max(i);
-      last[0] += 1;
-      return Iterator(*this,last);
+      return Iterator(*this,coord(totalsize()));
     }
 
   private:
