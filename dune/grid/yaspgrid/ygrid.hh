@@ -3,6 +3,7 @@
 #ifndef DUNE_GRID_YASPGRID_YGRID_HH
 #define DUNE_GRID_YASPGRID_YGRID_HH
 
+#include <algorithm>
 #include <vector>
 #include <bitset>
 #include <deque>
@@ -738,6 +739,13 @@ namespace Dune {
           return _yg->_indexOffset[_which] + _it.superindex();
       }
 
+      //! return the index
+      int index() const
+      {
+        // the offset of the current component has to be taken into account
+        return _yg->_indexOffset[_which] + _it.index();
+      }
+
       //! increment to the next entity jumping to next component if necessary
       Iterator& operator++ ()
       {
@@ -748,6 +756,27 @@ namespace Dune {
           _it = _yg->_itbegins[_which];
         }
         return *this;
+      }
+
+      //! advance by an arbitrary amount
+      Iterator& operator+= (std::ptrdiff_t n)
+      {
+        int newindex = index() + n;
+        // binary search
+        _which = std::upper_bound(_yg->_indexOffset.begin(),
+                                  _yg->_indexOffset.end(), newindex)
+               - _yg->_indexOffset.begin() - 1;
+        _it = _yg->_itbegins[_which];
+        _it += newindex - _yg->_indexOffset[_which];
+        return *this;
+      }
+
+      //! increment to the next entity jumping to next component if necessary
+      std::ptrdiff_t operator- (const Iterator& other) const
+      {
+        // make sure both iterators point into the same container
+        assert(_yg == other._yg);
+        return index() - other.index();
       }
 
       //! compare two iterators: component has to match
