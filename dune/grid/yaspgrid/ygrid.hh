@@ -380,8 +380,10 @@ namespace Dune {
         // if we wrapped around, back to to begin(), we must put the iterator to end()
         if (_coord == _grid->origin())
         {
+          // _superindex is at origin, move to last...
           for (int i=0; i<d; i++)
             _superindex += (_grid->size(i)-1) * _grid->superincrement(i);
+          // ... and add 1
           _superindex += _grid->superincrement(0);
         }
         return *this;
@@ -451,7 +453,7 @@ namespace Dune {
       }
 
     protected:
-      iTupel _coord;       //!< current position in index set
+      iTupel _coord;       //!< current position in component
       int _superindex;        //!< consecutive index in enclosing grid
       const YGridComponent<CC>* _grid;
     };
@@ -781,11 +783,13 @@ namespace Dune {
     private:
 
     friend typename YGrid<CC>::Iterator;
+    // begin and passed-the-end iterator for the components
     DAI _begin;
     DAI _end;
     Dune::array<int,StaticPower<2,dim>::power> _shiftmapping;
     std::vector<typename YGridComponent<CC>::Iterator> _itbegins;
     std::vector<typename YGridComponent<CC>::Iterator> _itends;
+    // stores the offsets of each component into the superindex
     std::vector<int> _indexOffset;
   };
 
