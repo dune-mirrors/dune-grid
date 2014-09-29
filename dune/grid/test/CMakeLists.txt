@@ -127,6 +127,7 @@ set(SOURCES
   checkintersectionit.cc
   checkiterators.cc
   checkpartition.cc
+  checkrandomaccessiterators.hh
   checktwists.cc
   functions.hh
   gridcheck.cc
