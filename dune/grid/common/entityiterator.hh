@@ -191,7 +191,7 @@ namespace Dune
     /** \brief prefix decrement operator */
     MostDerived &operator-- ()
     {
-      realIterator.increment(-1);
+      realIterator.advance(-1);
       return static_cast<MostDerived&>(*this);
     }
 
@@ -238,31 +238,31 @@ namespace Dune
     // /** \brief operator[] */
     // const Entity &operator[] (difference_type n) const
     // {
-    //   return realIterator.difference(other.realIterator);
+    //   return realIterator.distanceTo(other.realIterator);
     // }
 
     /** \brief operator< */
     bool operator< (const EntityIteratorBase &other) const
     {
-      return realIterator.difference(other.realIterator) < 0;
+      return realIterator.distanceTo(other.realIterator) < 0;
     }
 
     /** \brief operator> */
     bool operator> (const EntityIteratorBase &other) const
     {
-      return realIterator.difference(other.realIterator) > 0;
+      return realIterator.distanceTo(other.realIterator) > 0;
     }
 
     /** \brief operator< */
     bool operator<= (const EntityIteratorBase &other) const
     {
-      return realIterator.difference(other.realIterator) <= 0;
+      return realIterator.distanceTo(other.realIterator) <= 0;
     }
 
     /** \brief operator> */
     bool operator>= (const EntityIteratorBase &other) const
     {
-      return realIterator.difference(other.realIterator) >= 0;
+      return realIterator.distanceTo(other.realIterator) >= 0;
     }
 
     /** \brief default construct (undefined) iterator */
