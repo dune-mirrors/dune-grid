@@ -10,8 +10,107 @@
 
 #include <dune/common/forloop.hh>
 #include <dune/common/typetraits.hh>
+#include <dune/common/test/iteratortest.hh>
 
 #include <dune/grid/common/capabilities.hh>
+
+// This is a copy of
+// dune/common/test/iteratortest.hh:testRandomAccessIterator(), with the test
+// for subscription turned into a test for *(iterator+value)
+template<class Iter, class Opt>
+int testRandomAccessIteratorNoSubscription(Iter begin, Iter end, Opt opt){
+  int ret=testBidirectionalIterator(begin, end, opt);
+
+  typename Iter::difference_type size = end-begin;
+
+  srand(300);
+
+  int no= (size>10) ? 10 : size;
+
+  for(int i=0; i < no; i++)
+  {
+    int index = static_cast<int>(size*(rand()/(RAND_MAX+1.0)));
+    opt(*(begin+index));
+  }
+
+  // Test the less than operator
+  if(begin != end &&!( begin<end))
+  {
+    std::cerr<<"! (begin()<end())"<<std::endl;
+    ret++;
+  }
+
+  if(begin != end) {
+    if(begin-end >= 0) {
+      std::cerr<<"begin!=end, but begin-end >= 0!"<<std::endl;
+      ret++;
+    }
+    if(end-begin <= 0) {
+      std::cerr<<"begin!=end, but end-begin <= 0!"<<std::endl;
+      ret++;
+    }
+  }
+
+  for(int i=0; i < no; i++)
+  {
+    int index = static_cast<int>(size*(rand()/(RAND_MAX+1.0)));
+    Iter rand(begin), test(begin), res;
+    rand+=index;
+
+    if((res=begin+index) != rand)
+    {
+      std::cerr << " i+n should have the result i+=n, where i is the "
+                <<"iterator and n is the difference type!" <<std::endl;
+      ret++;
+    }
+    for(int i=0; i< index; i++) ++test;
+
+    if(test != rand)
+    {
+      std::cerr << "i+=n should have the same result as applying the"
+                << "increment ooperator n times!"<< std::cerr;
+      ret++;
+    }
+
+    rand=end, test=end;
+    rand-=index;
+
+
+    if((end-index) != rand)
+    {
+      std::cerr << " i-n should have the result i-=n, where i is the "
+                <<"iterator and n is the difference type!" <<std::endl;
+      ret++;
+    }
+    for(int i=0; i< index; i++) --test;
+
+    if(test != rand)
+    {
+      std::cerr << "i+=n should have the same result as applying the"
+                << "increment ooperator n times!"<< std::cerr;
+      ret++;
+    }
+  }
+
+  for(int i=0; i < no; i++)
+  {
+    Iter iter1 = begin+static_cast<int>(size*(rand()/(RAND_MAX+1.0)));
+    Iter iter2 = begin+static_cast<int>(size*(rand()/(RAND_MAX+1.0)));
+    typename Iter::difference_type diff = iter2 -iter1;
+    if((iter1+diff)!=iter2) {
+      std::cerr<< "i+(j-i) = j should hold, where i,j are iterators!"<<std::endl;
+      ret++;
+    }
+  }
+
+  return ret;
+}
+
+struct NoOp {
+  template<class T>
+  void operator()(const T &)
+  {}
+};
 
 // CheckCodimIterators
 // -------------------
@@ -94,6 +193,11 @@ struct RACheckCodimIterators<
         result = false;
       };
     }
+
+    if(testRandomAccessIteratorNoSubscription(gv.template begin<codim>(),
+                                              gv.template end<codim>(),
+                                              NoOp()))
+      result = false;
   }
 };
 
