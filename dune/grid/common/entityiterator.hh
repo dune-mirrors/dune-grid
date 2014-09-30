@@ -5,7 +5,6 @@
 
 #include <cstddef>
 #include <iterator>
-#include <type_traits>
 
 #include <dune/common/dotproduct.hh> // for AlwaysVoid
 
