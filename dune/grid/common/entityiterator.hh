@@ -235,9 +235,9 @@ namespace Dune
     // methods and converts to Entity&.
     //
     // /** \brief operator[] */
-    // const Entity &operator[] (difference_type n) const
+    // const Entity operator[] (difference_type n) const
     // {
-    //   return realIterator.distanceTo(other.realIterator);
+    //   return *(*this+n);
     // }
 
     /** \brief operator< */
