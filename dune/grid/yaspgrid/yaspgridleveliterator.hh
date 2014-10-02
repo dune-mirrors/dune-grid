@@ -48,11 +48,19 @@ namespace Dune {
       ++(this->_it);
     }
 
+    //! decrement
+    void decrement()
+    {
+      --(this->_it);
+    }
+
+    //! advance iterator by given amount, forward or backward
     void advance(std::ptrdiff_t distance)
     {
       this->_it += distance;
     }
 
+    //! compute distance from this iterator to another
     int distanceTo(const YaspLevelIterator &other) const
     {
       return other._it - this->_it;

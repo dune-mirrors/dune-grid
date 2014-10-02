@@ -758,6 +758,19 @@ namespace Dune {
         return *this;
       }
 
+      //! decrement to the previous entity jumping to previous component if necessary
+      Iterator& operator-- ()
+      {
+        // a component can never be empty, so 'if' is sufficient here
+        if(_it == _yg->_itbegins[_which])
+        {
+          --_which;
+          _it = _yg->_itends[_which];
+        }
+        _it += -1;
+        return *this;
+      }
+
       //! advance by an arbitrary amount
       Iterator& operator+= (std::ptrdiff_t n)
       {
