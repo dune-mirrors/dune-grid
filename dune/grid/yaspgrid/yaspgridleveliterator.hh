@@ -55,7 +55,7 @@ namespace Dune {
 
     int distanceTo(const YaspLevelIterator &other) const
     {
-      return this->_it - other._it;
+      return other._it - this->_it;
     }
   };
 
