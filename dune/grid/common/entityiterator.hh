@@ -146,6 +146,7 @@ namespace Dune
    * random access iterator.  The implementation IteratorImp must
    * - fulfill all the requirements for EntityIteratorBase<codim, Grid,
    *   IteratorImp, MostDerived, std::forward_iterator_tag>,
+   * - provide the method decrement() to decrement the iterator,
    * - provide the method advance(n) to advance the iterator by an arbitrary
    *   (positive or negative) amount, and
    * - provide the method distanceTo(otherIT) to compute the distance between
@@ -191,8 +192,16 @@ namespace Dune
     /** \brief prefix decrement operator */
     MostDerived &operator-- ()
     {
-      realIterator.advance(-1);
+      realIterator.decrement();
       return static_cast<MostDerived&>(*this);
+    }
+
+    /** \brief postfix decrement operator */
+    MostDerived operator-- (int)
+    {
+      MostDerived tmp(static_cast<MostDerived&>(*this));
+      realIterator.decrement();
+      return tmp;
     }
 
     /** \brief operator+= */
