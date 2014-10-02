@@ -148,8 +148,9 @@ namespace Dune
    *   IteratorImp, MostDerived, std::forward_iterator_tag>,
    * - provide the method advance(n) to advance the iterator by an arbitrary
    *   (positive or negative) amount, and
-   * - provide the method distanceTo(otherIT) to compute the distance
-   *   between two iterators.
+   * - provide the method distanceTo(otherIT) to compute the distance between
+   *   two iterators.  The sematic of distanceTo() is "other - *this", just as
+   *   for the iterator faceades.
    * .
    *
    * \tparam codim       Codimention to iterate over.
@@ -227,7 +228,7 @@ namespace Dune
     /** \brief operator- */
     difference_type operator- (const EntityIteratorBase &other) const
     {
-      return realIterator.distanceTo(other.realIterator);
+      return other.realIterator.distanceTo(realIterator);
     }
 
     // Can't really implement this: would need Entities as first class objects
@@ -243,25 +244,25 @@ namespace Dune
     /** \brief operator< */
     bool operator< (const EntityIteratorBase &other) const
     {
-      return realIterator.distanceTo(other.realIterator) < 0;
+      return other.realIterator.distanceTo(realIterator) < 0;
     }
 
     /** \brief operator> */
     bool operator> (const EntityIteratorBase &other) const
     {
-      return realIterator.distanceTo(other.realIterator) > 0;
+      return other.realIterator.distanceTo(realIterator) > 0;
     }
 
     /** \brief operator< */
     bool operator<= (const EntityIteratorBase &other) const
     {
-      return realIterator.distanceTo(other.realIterator) <= 0;
+      return other.realIterator.distanceTo(realIterator) <= 0;
     }
 
     /** \brief operator> */
     bool operator>= (const EntityIteratorBase &other) const
     {
-      return realIterator.distanceTo(other.realIterator) >= 0;
+      return other.realIterator.distanceTo(realIterator) >= 0;
     }
 
     /** \brief default construct (undefined) iterator */
