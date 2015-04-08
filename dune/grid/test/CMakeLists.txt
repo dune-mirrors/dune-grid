@@ -55,7 +55,6 @@ add_executable(test-oned EXCLUDE_FROM_ALL test-oned.cc)
 add_executable(test-mcmg-geogrid EXCLUDE_FROM_ALL test-mcmg-geogrid.cc)
 add_executable(test-sgrid EXCLUDE_FROM_ALL test-sgrid.cc)
 add_executable(test-yaspgrid EXCLUDE_FROM_ALL test-yaspgrid.cc)
-add_dune_mpi_flags(test-yaspgrid)
 
 set_property(TARGET test-sgrid test-oned test-yaspgrid test-geogrid APPEND
   PROPERTY COMPILE_DEFINITIONS "GRIDDIM=${GRIDDIM}" "WORLDDIM=${GRIDDIM}" "YASPGRID")
@@ -84,32 +83,22 @@ endif(ALBERTA_FOUND)
 
 if(ALUGRID_FOUND)
   add_executable(test-alugrid EXCLUDE_FROM_ALL test-alugrid.cc)
-  add_dune_alugrid_flags(test-alugrid)
 endif(ALUGRID_FOUND)
 
 if(UG_FOUND)
   add_executable(test-ug EXCLUDE_FROM_ALL test-ug.cc)
-  add_dune_ug_flags(test-ug)
   add_executable(test-parallel-ug EXCLUDE_FROM_ALL test-parallel-ug.cc)
-  add_dune_ug_flags(test-parallel-ug)
   # test-loadbalancing
   add_executable(test-loadbalancing EXCLUDE_FROM_ALL test-loadbalancing.cc)
-  add_dune_ug_flags(test-loadbalancing)
-  add_dune_parmetis_flags(test-loadbalancing)
 endif(UG_FOUND)
 
 if(ALUGRID_FOUND AND UG_FOUND)
   add_executable(test-dgfalu-uggrid-combination EXCLUDE_FROM_ALL test-dgfalu-uggrid-combination.cc)
-  add_dune_ug_flags(test-dgfalu-uggrid-combination)
-  add_dune_alugrid_flags(test-dgfalu-uggrid-combination)
 endif(ALUGRID_FOUND AND UG_FOUND)
 
 add_executable(testiteratorranges EXCLUDE_FROM_ALL testiteratorranges.cc)
-add_dune_mpi_flags(testiteratorranges)
-
 
 foreach(_exe ${TESTS})
-  target_link_libraries(${_exe} "dunegrid" ${DUNE_LIBS})
   add_test(${_exe} ${_exe})
 endforeach(_exe ${TESTS})
 

@@ -35,7 +35,6 @@ set(ALLTESTS ${BUILD_TESTS}  ${ALUGRID_TESTS} ${ALBERTA_TESTS})
 
 foreach(_test ${BUILD_TESTS})
   add_executable(${_test} ${_test}.cc)
-  target_link_libraries(${_test} dunegrid ${DUNE_LIBS})
 endforeach(_test ${BUILD_TESTS})
 
 add_executable(subsamplingvtktest subsamplingvtktest.cc test-linking.cc)
@@ -50,17 +49,10 @@ if(MPI_FOUND)
 endif(MPI_FOUND)
 
 foreach(_test ${AMIRAMESH_TESTS})
-  add_dune_amiramesh_flags(${_test})
-  add_dune_ug_flags(${_test})
-  add_dune_alugrid_flags(${_test})
   add_dune_alberta_flags(${_test} GRIDDIM 2)
-  add_dune_psurface_flags(${_test})
 endforeach(_test ${AMIRAMESH_TESTS})
 
-add_dune_mpi_flags(${VTK_TESTS})
-
 add_executable(gmshtest-alugrid gmshtest.cc)
-add_dune_alugrid_flags(gmshtest-alugrid)
 
 add_executable(gmshtest-alberta2d gmshtest.cc)
 add_dune_alberta_flags(gmshtest-alberta2d WORLDDIM 2)
@@ -71,10 +63,6 @@ set_property(TARGET gmshtest-alberta2d APPEND_STRING
 add_executable(gmshtest-alberta3d gmshtest.cc)
 add_dune_alberta_flags(gmshtest-alberta3d WORLDDIM 3)
 add_dune_grape_flags(gmshtest-alberta3d)
-
-foreach(_test ${UG_TESTS})
-  add_dune_ug_flags(${_test})
-endforeach(_test ${UG_TESTS})
 
 # We do not want want to build the tests during make all,
 # but just build them on demand

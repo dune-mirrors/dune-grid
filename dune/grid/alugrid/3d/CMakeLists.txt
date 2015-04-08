@@ -3,8 +3,10 @@ if(ALUGRID_FOUND)
 else(ALUGRID_FOUND)
   set(SOURCES "")
 endif(ALUGRID_FOUND)
-add_dune_alugrid_flags(SOURCE_ONLY ${SOURCES})
-dune_add_library(alu3d OBJECT ${SOURCES})
+
+dune_library_add_sources(
+  dunegrid
+  SOURCES ${SOURCES})
 
 set(HEADERS
   alu3dinclude.hh

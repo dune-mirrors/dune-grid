@@ -1,5 +1,7 @@
 if(UG_FOUND)
-  dune_add_library("uggrid" OBJECT
+  dune_library_add_sources(
+    dunegrid
+    SOURCES
     uggridintersections.cc
     uggrid.cc
     uggridentity.cc

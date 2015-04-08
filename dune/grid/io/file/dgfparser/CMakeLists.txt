@@ -2,7 +2,12 @@ add_subdirectory(blocks)
 add_subdirectory(test EXCLUDE_FROM_ALL)
 add_subdirectory(utils)
 
-dune_add_library(dgfparser OBJECT dgfparser.cc dgfug.cc)
+dune_library_add_sources(
+  dunegrid
+  SOURCES
+  dgfparser.cc
+  dgfug.cc
+  )
 
 set(HEADERS
   dgfalu.cc

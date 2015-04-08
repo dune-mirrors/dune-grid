@@ -16,7 +16,6 @@ endif(UG_FOUND)
 
 foreach(_test ${TESTS})
   add_executable(${_test} test-dgf.cc)
-  target_link_libraries(${_test} dunegrid ${DUNE_LIBS})
   add_test(${_test} ${_test})
 endforeach(_test ${TESTS})
 
@@ -28,7 +27,6 @@ set_property(TARGET test-dgf-oned APPEND PROPERTY
     COMPILE_DEFINITIONS GRIDDIM=1 ONEDGRID HAVE_DUNE_GRID=1)
 
 if(ALUGRID_FOUND)
-  add_dune_alugrid_flags(test-dgf-alu)
   set_property(TARGET test-dgf-alu APPEND PROPERTY
     COMPILE_DEFINITIONS ALUGRID_CUBE GRIDDIM=3 HAVE_DUNE_GRID=1)
 endif(ALUGRID_FOUND)
@@ -40,14 +38,9 @@ if(ALBERTA_FOUND)
 endif(ALBERTA_FOUND)
 
 if(UG_FOUND)
-  add_dune_ug_flags(test-dgf-ug)
   set_property(TARGET test-dgf-ug APPEND PROPERTY
     COMPILE_DEFINITIONS UGGRID GRIDDIM=3  HAVE_DUNE_GRID=1)
 endif(UG_FOUND)
-
-foreach(_test ${TESTS})
-  add_dune_mpi_flags(${_test})
-endforeach(_test ${TESTS})
 
 # We do not want want to build the tests during make all,
 # but just build them on demand

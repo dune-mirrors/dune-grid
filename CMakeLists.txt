@@ -21,6 +21,10 @@ include(DuneMacros)
 # start a dune project with information from dune.module
 dune_project()
 
+dune_enable_all_packages(
+  MODULE_LIBRARIES dunegrid
+  )
+
 add_subdirectory("m4")
 add_subdirectory("dune")
 add_subdirectory("doc")

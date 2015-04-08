@@ -11,10 +11,6 @@ add_subdirectory(uggrid)
 add_subdirectory(utility)
 add_subdirectory(yaspgrid)
 
-if(UG_FOUND)
-  set(UGLIB $<TARGET_OBJECTS:uggrid>)
-endif(UG_FOUND)
-
 set(HEADERS
   albertagrid.hh
   alugrid.hh

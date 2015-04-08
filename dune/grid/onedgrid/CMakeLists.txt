@@ -14,7 +14,10 @@ set(HEADERS nulliteratorfactory.hh
 
 install(FILES ${HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/grid/onedgrid/)
 
-dune_add_library(onedgrid OBJECT
+dune_library_add_sources(
+  dunegrid
+  SOURCES
   onedgrid.cc
   onedgridfactory.cc
-  nulliteratorfactory.cc)
+  nulliteratorfactory.cc
+  )
