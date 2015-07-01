@@ -37,13 +37,15 @@ namespace Dune
       static const bool v = true;
     };
 
+    namespace deprecated {
 
-    template< class HostGrid, class CoordFunction, class Allocator >
-    struct DUNE_DEPRECATED_MSG("Capabilities::isParallel will be removed after dune-grid-2.4.") isParallel< GeometryGrid< HostGrid, CoordFunction, Allocator > >
-    {
-      static const bool DUNE_DEPRECATED_MSG("Capabilities::isParallel will be removed after dune-grid-2.4.") v = isParallel< HostGrid >::v;
-    };
+      template< class HostGrid, class CoordFunction, class Allocator >
+      struct isParallel< GeometryGrid< HostGrid, CoordFunction, Allocator > >
+      {
+        static const bool v = isParallel< HostGrid >::v;
+      };
 
+    }
 
     template< class HostGrid, class CoordFunction, class Allocator, int codim >
     struct canCommunicate< GeometryGrid< HostGrid, CoordFunction, Allocator >, codim >

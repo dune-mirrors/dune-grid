@@ -464,22 +464,18 @@ namespace Dune {
       static const bool v = true;
     };
 
-    /** \brief OneDGrid is not parallel
-       \ingroup OneDGrid
-     */
-    template<>
-    struct
-#ifndef DUNE_AVOID_CAPABILITIES_IS_PARALLEL_DEPRECATION_WARNING
-    DUNE_DEPRECATED_MSG("Capabilities::isParallel will be removed after dune-grid-2.4.")
-#endif
-    isParallel< OneDGrid >
-    {
-      static const bool
-#ifndef DUNE_AVOID_CAPABILITIES_IS_PARALLEL_DEPRECATION_WARNING
-      DUNE_DEPRECATED_MSG("Capabilities::isParallel will be removed after dune-grid-2.4.")
-#endif
-      v = false;
-    };
+    namespace deprecated {
+
+      /** \brief OneDGrid is not parallel
+          \ingroup OneDGrid
+      */
+      template<>
+      struct isParallel< OneDGrid >
+      {
+        static const bool v = false;
+      };
+
+    }
 
     /** \brief OneDGrid is levelwise conforming
        \ingroup OneDGrid
