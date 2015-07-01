@@ -59,6 +59,25 @@ namespace Dune
       static const bool v = false;
     };
 
+
+    namespace deprecated {
+
+      template<class Grid>
+      struct isParallel
+      {
+        static const bool v = false;
+      };
+
+      // Forward const grid to non-const specialization
+      template<class Grid>
+      struct isParallel<const Grid>
+      {
+        static const bool v = isParallel<Grid>::v;
+      };
+
+
+    }
+
     /** \brief Specialize with 'true' if implementation supports parallelism. (default=false)
      *
      * \deprecated This capability will be removed after dune-grid 2.4.
@@ -66,16 +85,12 @@ namespace Dune
      */
     template<class Grid>
     struct
-#ifndef DUNE_AVOID_CAPABILITIES_IS_PARALLEL_DEPRECATION_WARNING
     DUNE_DEPRECATED_MSG("Capabilities::isParallel will be removed after dune-grid-2.4.")
-#endif
     isParallel
     {
       static const bool
-#ifndef DUNE_AVOID_CAPABILITIES_IS_PARALLEL_DEPRECATION_WARNING
       DUNE_DEPRECATED_MSG("Capabilities::isParallel will be removed after dune-grid-2.4.")
-#endif
-      v = false;
+        v = deprecated::isParallel<Grid>::v;
     };
 
     /** \brief specialize with 'true' for all codims that a grid can communicate data on (default=false)
@@ -188,16 +203,6 @@ namespace Dune
     struct hasEntity<const Grid, codim>
     {
       static const bool v = Dune::Capabilities::hasEntity<Grid,codim>::v;
-    };
-
-    template<class Grid>
-    struct
-#ifndef DUNE_AVOID_CAPABILITIES_IS_PARALLEL_DEPRECATION_WARNING
-    DUNE_DEPRECATED_MSG("Will be removed after dune-grid-2.4.")
-#endif
-    isParallel<const Grid>
-    {
-      static const bool v = Dune::Capabilities::isParallel<Grid>::v;
     };
 
     template< class Grid, int codim >
