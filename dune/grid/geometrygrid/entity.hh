@@ -508,7 +508,7 @@ namespace Dune
       /** \brief obtain the partition type of this entity */
       PartitionType partitionType () const
       {
-        if( !(Capabilities::isParallel< HostGrid >::v) )
+        if( !(Capabilities::deprecated::isParallel< HostGrid >::v) )
           return InteriorEntity;
 
         const ReferenceElement< ctype, dimension > &refElement
