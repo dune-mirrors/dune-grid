@@ -7,14 +7,13 @@
 
 #include <dune/common/proxymemberaccess.hh>
 #include <dune/common/iteratorfacades.hh>
-#include <dune/common/deprecated.hh>
 #include <dune/grid/common/grid.hh>
 
 /** \file
     \brief Wrapper and interface class for a static iterator (EntityPointer)
  */
 
-#define DUNE_ENTITYPOINTER_DEPRECATED_MSG  DUNE_DEPRECATED_MSG("EntityPointer is deprecated and will be removed after the release of dune-grid-2.4. Instead, you can copy and store entities directly now. Note, this might lead to a decreased performance until all grid implementations properly addressed this interface change.")
+#define DUNE_ENTITYPOINTER_DEPRECATED_MSG  [[deprecated("EntityPointer is deprecated and will be removed after the release of dune-grid-2.4. Instead, you can copy and store entities directly now. Note, this might lead to a decreased performance until all grid implementations properly addressed this interface change.")]]
 namespace Dune
 {
 
@@ -221,28 +220,28 @@ namespace Dune
 #ifdef DOXYGEN
 
     /** \brief Dereferencing operator. */
-    Entity operator*() const
-    DUNE_ENTITYPOINTER_DEPRECATED_MSG;
+    DUNE_ENTITYPOINTER_DEPRECATED_MSG
+    Entity operator*() const;
 
 
     /** \brief Pointer operator. */
-    const Entity* operator->() const
-    DUNE_ENTITYPOINTER_DEPRECATED_MSG;
+    DUNE_ENTITYPOINTER_DEPRECATED_MSG
+    const Entity* operator->() const;
 
 #else // DOXYGEN
 
     /** \brief Dereferencing operator. */
+    DUNE_ENTITYPOINTER_DEPRECATED_MSG
     Reference
     operator*() const
-    DUNE_ENTITYPOINTER_DEPRECATED_MSG
     {
       return realIterator.dereference();
     }
 
     /** \brief Pointer operator. */
+    DUNE_ENTITYPOINTER_DEPRECATED_MSG
     decltype(handle_proxy_member_access(realIterator.dereference()))
     operator->() const
-    DUNE_ENTITYPOINTER_DEPRECATED_MSG
     {
       return handle_proxy_member_access(realIterator.dereference());
     }
@@ -251,7 +250,7 @@ namespace Dune
     // this construction, where the deprecation warning is triggered by a separate function,
     // is slightly convoluted, but I could not get the warning to trigger reliably when attached
     // directly to the cast operator.
-    DUNE_DEPRECATED_MSG("The implicit cast from EntityPointer to an Entity reference is DANGEROUS. It's mainly there for writing backwards compatible code that doesn't trigger a deprecation warning for ported grids and must ONLY be used if the returned reference is used in an rvalue-like setting!")
+    [[deprecated("The implicit cast from EntityPointer to an Entity reference is DANGEROUS. It's mainly there for writing backwards compatible code that doesn't trigger a deprecation warning for ported grids and must ONLY be used if the returned reference is used in an rvalue-like setting!")]]
     void trigger_entity_cast_warning() const
     {}
 
@@ -334,8 +333,8 @@ namespace Dune
        \deprecated Will be removed after the release of dune-grid-2.4. Use the
                    method level() from the dereferenced Entity instead.
      */
-    int level () const
     DUNE_ENTITYPOINTER_DEPRECATED_MSG
+    int level () const
     {
       return realIterator.level();
     }

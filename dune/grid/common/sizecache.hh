@@ -349,7 +349,7 @@ namespace Dune {
   template <class GridImp>
   struct SingleTypeSizeCache : public SizeCache< GridImp >
   {
-    DUNE_DEPRECATED SingleTypeSizeCache( const GridImp& grid, bool isSimplex , bool isCube, bool notWorry = false ) : SizeCache< GridImp >( grid ) {}
+    [[deprecated]] SingleTypeSizeCache( const GridImp& grid, bool isSimplex , bool isCube, bool notWorry = false ) : SizeCache< GridImp >( grid ) {}
   };
 
 } // end namespace Dune

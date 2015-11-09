@@ -4,7 +4,6 @@
 #ifndef DUNE_VTKSEQUENCE_HH
 #define DUNE_VTKSEQUENCE_HH
 
-#include <dune/common/deprecated.hh>
 #include <dune/grid/io/file/vtk/vtksequencewriterbase.hh>
 
 #include <dune/grid/io/file/vtk/vtkwriter.hh>
@@ -106,7 +105,7 @@ namespace Dune {
    */
   template< class GridView >
   class
-  DUNE_DEPRECATED_MSG("Use VTKSequenceWriter together with a SubsamplingVTKWriter instead of SubsamplingVTKSequenceWriter!")
+  [[deprecated("Use VTKSequenceWriter together with a SubsamplingVTKWriter instead of SubsamplingVTKSequenceWriter!")]]
   SubsamplingVTKSequenceWriter :
     public VTKSequenceWriterBase<GridView>
   {

@@ -19,7 +19,6 @@
 #include <vector>
 
 // Dune includes
-#include <dune/common/deprecated.hh>
 #include <dune/common/fvector.hh>
 #include <dune/common/fmatrix.hh>
 #include <dune/common/stdstreams.hh>
@@ -455,7 +454,7 @@ namespace Dune
      *             dune-grid 2.4 has been released.
      */
     template< class EntitySeed >
-    DUNE_DEPRECATED_MSG("entityPointer() is deprecated and will be removed after the release of dune-grid 2.4. Use entity() instead to directly obtain an Entity object.")
+    [[deprecated("entityPointer() is deprecated and will be removed after the release of dune-grid 2.4. Use entity() instead to directly obtain an Entity object.")]]
     typename Traits::template Codim< EntitySeed::codimension >::EntityPointer
     entityPointer ( const EntitySeed &seed ) const
     {
@@ -544,13 +543,13 @@ namespace Dune
     }
 
     // write ALBERTA mesh file
+    [[deprecated("Deprecated in Dune 3.0, use writeGrid instead.")]]
     bool
-    DUNE_DEPRECATED_MSG("Deprecated in Dune 3.0, use writeGrid instead.")
     writeGridXdr ( const std::string &filename, ctype time ) const;
 
     //! reads ALBERTA mesh file
+    [[deprecated("Deprecated in Dune 3.0, use readGrid instead.")]]
     bool
-    DUNE_DEPRECATED_MSG("Deprecated in Dune 3.0, use readGrid instead.")
     readGridXdr ( const std::string &filename, ctype &time );
 
   private:

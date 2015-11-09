@@ -169,7 +169,7 @@ namespace Dune
      *             release cycle and will be removed after dune-grid-2.4 is released.
      */
     template<typename ItImp>
-    DUNE_DEPRECATED_MSG("EntityPointer is deprecated and will be removed after the release of dune-grid-2.4. Instead, you can copy and store entities directly now.")
+    [[deprecated("EntityPointer is deprecated and will be removed after the release of dune-grid-2.4. Instead, you can copy and store entities directly now.")]]
     bool operator==(const Dune::EntityPointer<GridImp,ItImp>& other) const
     {
       return (*this) == (*other);
@@ -181,7 +181,7 @@ namespace Dune
      *             release cycle and will be removed after dune-grid-2.4 is released.
      */
     template<typename ItImp>
-    DUNE_DEPRECATED_MSG("EntityPointer is deprecated and will be removed after the release of dune-grid-2.4. Instead, you can copy and store entities directly now.")
+    [[deprecated("EntityPointer is deprecated and will be removed after the release of dune-grid-2.4. Instead, you can copy and store entities directly now.")]]
     bool operator!=(const Dune::EntityPointer<GridImp,ItImp>& other) const
     {
       return (*this) != (*other);
@@ -219,8 +219,8 @@ namespace Dune
      * \deprecated This method only exists to provide backwards compatibility for dune-grid-2.4.
      *             It will be removed after the release of dune-grid-2.4.
      */
+    [[deprecated("This is now an Entity instead of an EntityPointer. You do not have to dereference it anymore!")]]
     const Entity& operator*() const
-    DUNE_DEPRECATED_MSG("This is now an Entity instead of an EntityPointer. You do not have to dereference it anymore!")
     {
       return *this;
     }
@@ -230,8 +230,8 @@ namespace Dune
      * \deprecated This method only exists to provide backwards compatibility for dune-grid-2.4.
      *             It will be removed after the release of dune-grid-2.4.
      */
+    [[deprecated("This is now an Entity instead of an EntityPointer. You do not have to dereference it anymore!")]]
     const Entity* operator->() const
-    DUNE_DEPRECATED_MSG("This is now an Entity instead of an EntityPointer. You do not have to dereference it anymore!")
     {
       return this;
     }
@@ -396,7 +396,7 @@ namespace Dune
      *             release cycle and will be removed after dune-grid-2.4 is released.
      */
     template<typename ItImp>
-    DUNE_DEPRECATED_MSG("EntityPointer is deprecated and will be removed after the release of dune-grid-2.4. Instead, you can copy and store entities directly now.")
+    [[deprecated("EntityPointer is deprecated and will be removed after the release of dune-grid-2.4. Instead, you can copy and store entities directly now.")]]
     bool operator==(const Dune::EntityPointer<GridImp,ItImp>& other) const
     {
       return (*this) == (*other);
@@ -408,7 +408,7 @@ namespace Dune
      *             release cycle and will be removed after dune-grid-2.4 is released.
      */
     template<typename ItImp>
-    DUNE_DEPRECATED_MSG("EntityPointer is deprecated and will be removed after the release of dune-grid-2.4. Instead, you can copy and store entities directly now.")
+    [[deprecated("EntityPointer is deprecated and will be removed after the release of dune-grid-2.4. Instead, you can copy and store entities directly now.")]]
     bool operator!=(const Dune::EntityPointer<GridImp,ItImp>& other) const
     {
       return (*this) != (*other);
@@ -446,8 +446,8 @@ namespace Dune
      * \deprecated This method only exists to provide backwards compatibility for dune-grid-2.4.
      *             It will be removed after the release of dune-grid-2.4.
      */
+    [[deprecated("This is now an Entity instead of an EntityPointer. You do not have to dereference it anymore!")]]
     const Entity& operator*() const
-    DUNE_DEPRECATED_MSG("This is now an Entity instead of an EntityPointer. You do not have to dereference it anymore!")
     {
       return *this;
     }
@@ -457,8 +457,8 @@ namespace Dune
      * \deprecated This method only exists to provide backwards compatibility for dune-grid-2.4.
      *             It will be removed after the release of dune-grid-2.4.
      */
+    [[deprecated("This is now an Entity instead of an EntityPointer. You do not have to dereference it anymore!")]]
     const Entity* operator->() const
-    DUNE_DEPRECATED_MSG("This is now an Entity instead of an EntityPointer. You do not have to dereference it anymore!")
     {
       return this;
     }
@@ -479,7 +479,9 @@ namespace Dune
      * \deprecated This method will be removed after the release of dune-grid-2.4.
      *   Please use the method subEntities instead.
      */
-    template<int codim> int DUNE_DEPRECATED_MSG("Use subEntities(unsigned int) instead!") count () const { return realEntity.template count<codim>(); }
+    template<int codim>
+    [[deprecated("Use subEntities(unsigned int) instead!")]]
+    int count () const { return realEntity.template count<codim>(); }
 
     /**\brief Number of subentities with codimension <tt>codim</tt>.
      *
@@ -704,7 +706,7 @@ namespace Dune
     {}
 
     template<typename E>
-    DUNE_DEPRECATED_MSG("This grid still returns EntityPointers instead of Entities")
+    [[deprecated("This grid still returns EntityPointers instead of Entities")]]
     static typename std::enable_if<
       not std::is_same<
         E,

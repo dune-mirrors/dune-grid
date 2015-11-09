@@ -14,7 +14,6 @@
 // dune-common includes
 #include <dune/common/fvector.hh>
 #include <dune/common/typetraits.hh>
-#include <dune/common/deprecated.hh>
 
 // dune-geometry includes
 #include <dune/geometry/type.hh>
@@ -625,8 +624,8 @@ namespace Dune {
 
     //! Iterator to first entity of given codim on level
     template<int cd, PartitionIteratorType pitype>
+    [[deprecated("The method lbegin( level ) is superseded by levelGridView( level ).begin and will be removed after Dune 2.4.")]]
     typename Codim<cd>::template Partition<pitype>::LevelIterator
-    DUNE_DEPRECATED_MSG("The method lbegin( level ) is superseded by levelGridView( level ).begin and will be removed after Dune 2.4.")
     lbegin (int level) const
     {
       CHECK_INTERFACE_IMPLEMENTATION((asImp().template lbegin<cd,pitype>(level)));
@@ -635,8 +634,8 @@ namespace Dune {
 
     //! one past the end on this level
     template<int cd, PartitionIteratorType pitype>
+    [[deprecated("The method lend( level ) is superseded by levelGridView( level ).end and will be removed after Dune 2.4.")]]
     typename Codim<cd>::template Partition<pitype>::LevelIterator
-    DUNE_DEPRECATED_MSG("The method lend( level ) is superseded by levelGridView( level ).end and will be removed after Dune 2.4.")
     lend (int level) const
     {
       CHECK_INTERFACE_IMPLEMENTATION((asImp().template lend<cd,pitype>(level)));
@@ -645,8 +644,8 @@ namespace Dune {
 
     //! Iterator to first entity of given codim on level for PartitionType All_Partition
     template<int cd>
+    [[deprecated("The method lbegin( level ) is superseded by levelGridView( level ).begin and will be removed after Dune 2.4.")]]
     typename Codim<cd>::template Partition<All_Partition>::LevelIterator
-    DUNE_DEPRECATED_MSG("The method lbegin( level ) is superseded by levelGridView( level ).begin and will be removed after Dune 2.4.")
     lbegin (int level) const
     {
       CHECK_INTERFACE_IMPLEMENTATION((asImp().template lbegin<cd>(level)));
@@ -655,8 +654,8 @@ namespace Dune {
 
     //! one past the end on this level for PartitionType All_Partition
     template<int cd>
+    [[deprecated("The method lend( level ) is superseded by levelGridView( level ).end and will be removed after Dune 2.4.")]]
     typename Codim<cd>::template Partition<All_Partition>::LevelIterator
-    DUNE_DEPRECATED_MSG("The method lend( level ) is superseded by levelGridView( level ).end and will be removed after Dune 2.4.")
     lend (int level) const
     {
       CHECK_INTERFACE_IMPLEMENTATION((asImp().template lend<cd>(level)));
@@ -665,8 +664,8 @@ namespace Dune {
 
     //! Iterator to first entity of given codim on leaf grid
     template<int cd, PartitionIteratorType pitype>
+    [[deprecated("The method leafbegin() is superseded by leafGridView().begin and will be removed after Dune 2.4.")]]
     typename Codim<cd>::template Partition<pitype>::LeafIterator
-    DUNE_DEPRECATED_MSG("The method leafbegin() is superseded by leafGridView().begin and will be removed after Dune 2.4.")
     leafbegin () const
     {
       CHECK_INTERFACE_IMPLEMENTATION((asImp().template leafbegin<cd,pitype>()));
@@ -675,8 +674,8 @@ namespace Dune {
 
     //! one past the end on the leaf level grid
     template<int cd, PartitionIteratorType pitype>
+    [[deprecated("The method leafend() is superseded by leafGridView().end and will be removed after Dune 2.4.")]]
     typename Codim<cd>::template Partition<pitype>::LeafIterator
-    DUNE_DEPRECATED_MSG("The method leafend() is superseded by leafGridView().end and will be removed after Dune 2.4.")
     leafend () const
     {
       CHECK_INTERFACE_IMPLEMENTATION((asImp().template leafend<cd,pitype>()));
@@ -685,8 +684,8 @@ namespace Dune {
 
     //! Iterator to first entity of given codim on leaf grid for PartitionType All_Partition
     template<int cd>
+    [[deprecated("The method leafbegin() is superseded by leafGridView().begin and will be removed after Dune 2.4.")]]
     typename Codim<cd>::template Partition<All_Partition>::LeafIterator
-    DUNE_DEPRECATED_MSG("The method leafbegin() is superseded by leafGridView().begin and will be removed after Dune 2.4.")
     leafbegin () const
     {
       CHECK_INTERFACE_IMPLEMENTATION((asImp().template leafbegin<cd,All_Partition>()));
@@ -695,8 +694,8 @@ namespace Dune {
 
     //! one past the end on the leaf grid for PartitionType All_Partition
     template<int cd>
+    [[deprecated("The method leafend() is superseded by leafGridView().end and will be removed after Dune 2.4.")]]
     typename Codim<cd>::template Partition<All_Partition>::LeafIterator
-    DUNE_DEPRECATED_MSG("The method leafend() is superseded by leafGridView().end and will be removed after Dune 2.4.")
     leafend () const
     {
       CHECK_INTERFACE_IMPLEMENTATION((asImp().template leafend<cd,All_Partition>()));
@@ -931,7 +930,7 @@ namespace Dune {
      *             dune-grid 2.4 has been released.
      */
     template < class EntitySeed >
-    DUNE_DEPRECATED_MSG("entityPointer() is deprecated and will be removed after the release of dune-grid 2.4. Use entity() instead to directly obtain an Entity object.")
+    [[deprecated("entityPointer() is deprecated and will be removed after the release of dune-grid 2.4. Use entity() instead to directly obtain an Entity object.")]]
     typename Codim< EntitySeed :: codimension > :: EntityPointer
     entityPointer( const EntitySeed& seed ) const
     {
@@ -1010,21 +1009,26 @@ namespace Dune {
 
     //! Iterator to first entity of given codim on level for PartitionType All_Partition
     template< int codim >
-    typename Traits::template Codim< codim >::LevelIterator DUNE_DEPRECATED_MSG("The method lbegin( level ) is superseded by levelGridView( level ).begin.") lbegin ( int level ) const
+    [[deprecated("The method lbegin( level ) is superseded by levelGridView( level ).begin.")]]
+    typename Traits::template Codim< codim >::LevelIterator
+    lbegin ( int level ) const
     {
       return asImp().levelGridView( level ).template begin< codim >();
     }
 
     //! one past the end on this level for PartitionType All_Partition
     template< int codim >
-    typename Traits::template Codim< codim >::LevelIterator DUNE_DEPRECATED_MSG("The method lend( level ) is superseded by levelGridView( level ).end.") lend ( int level ) const
+    [[deprecated("The method lend( level ) is superseded by levelGridView( level ).end.")]]
+    typename Traits::template Codim< codim >::LevelIterator
+    lend ( int level ) const
     {
       return asImp().levelGridView( level ).template end< codim >();
     }
 
     //! Iterator to first entity of given codim on level
     template< int codim, PartitionIteratorType pitype >
-    typename Traits::template Codim< codim >::template Partition< pitype >::LevelIterator DUNE_DEPRECATED_MSG("The method lbegin( level ) is superseded by levelGridView( level ).begin.")
+    [[deprecated("The method lbegin( level ) is superseded by levelGridView( level ).begin.")]]
+    typename Traits::template Codim< codim >::template Partition< pitype >::LevelIterator
     lbegin ( int level ) const
     {
       return asImp().levelGridView( level ).template begin< codim, pitype >();
@@ -1032,7 +1036,8 @@ namespace Dune {
 
     //! one past the end on this level
     template< int codim, PartitionIteratorType pitype >
-    typename Traits::template Codim< codim >::template Partition< pitype >::LevelIterator DUNE_DEPRECATED_MSG("The method lend( level ) is superseded by levelGridView( level ).end.")
+    [[deprecated("The method lend( level ) is superseded by levelGridView( level ).end.")]]
+    typename Traits::template Codim< codim >::template Partition< pitype >::LevelIterator
     lend ( int level ) const
     {
       return asImp().levelGridView( level ).template end< codim, pitype >();
@@ -1040,21 +1045,26 @@ namespace Dune {
 
     //! Iterator to first entity of given codim on leaf grid for PartitionType All_Partition
     template< int codim >
-    typename Traits::template Codim< codim >::LeafIterator DUNE_DEPRECATED_MSG("The method leafbegin() is superseded by leafGridView().begin.") leafbegin () const
+    [[deprecated("The method leafbegin() is superseded by leafGridView().begin.")]]
+    typename Traits::template Codim< codim >::LeafIterator
+    leafbegin () const
     {
       return asImp().leafGridView().template begin< codim >();
     }
 
     //! one past the end on the leaf grid for PartitionType All_Partition
     template< int codim >
-    typename Traits::template Codim< codim >::LeafIterator DUNE_DEPRECATED_MSG("The method leafend() is superseded by leafGridView().end.") leafend () const
+    [[deprecated("The method leafend() is superseded by leafGridView().end.")]]
+    typename Traits::template Codim< codim >::LeafIterator
+    leafend () const
     {
       return asImp().leafGridView().template end< codim >();
     }
 
     //! Iterator to first entity of given codim on leaf grid
     template< int codim, PartitionIteratorType pitype >
-    typename Traits::template Codim< codim >::template Partition< pitype >::LeafIterator DUNE_DEPRECATED_MSG("The method leafbegin() is superseded by leafGridView().begin.")
+    [[deprecated("The method leafbegin() is superseded by leafGridView().begin.")]]
+    typename Traits::template Codim< codim >::template Partition< pitype >::LeafIterator
     leafbegin () const
     {
       return asImp().leafGridView().template begin< codim, pitype >();
@@ -1062,7 +1072,8 @@ namespace Dune {
 
     //! one past the end on the leaf level grid
     template< int codim, PartitionIteratorType pitype >
-    typename Traits::template Codim< codim >::template Partition< pitype >::LeafIterator DUNE_DEPRECATED_MSG("The method leafend() is superseded by leafGridView().end.")
+    [[deprecated("The method leafend() is superseded by leafGridView().end.")]]
+    typename Traits::template Codim< codim >::template Partition< pitype >::LeafIterator
     leafend () const
     {
       return asImp().leafGridView().template end< codim, pitype >();

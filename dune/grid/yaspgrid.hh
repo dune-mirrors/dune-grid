@@ -24,7 +24,6 @@ typedef unsigned char uint8_t;
 #include <dune/common/reservedvector.hh>
 #include <dune/common/parallel/collectivecommunication.hh>
 #include <dune/common/parallel/mpihelper.hh>
-#include <dune/common/deprecated.hh>
 #include <dune/geometry/genericgeometry/topologytypes.hh>
 #include <dune/geometry/axisalignedcubegeometry.hh>
 #include <dune/grid/common/indexidset.hh>
@@ -985,7 +984,7 @@ namespace Dune {
      *  @deprecated This constructor is deprecated and will be removed after
      *              the release of dune-grid-2.4
      */
-    DUNE_DEPRECATED_MSG("This Yaspgrid constructor is deprecated.")
+    [[deprecated("This Yaspgrid constructor is deprecated.")]]
     YaspGrid (Dune::MPIHelper::MPICommunicator comm,
               Dune::FieldVector<ctype, dim> L,
               std::array<int, dim> s,
@@ -1042,7 +1041,7 @@ namespace Dune {
       *  @deprecated This constructor is deprecated and will be removed after
       *              the release of dune-grid-2.4
       */
-    DUNE_DEPRECATED_MSG("This Yaspgrid constructor is deprecated.")
+    [[deprecated("This Yaspgrid constructor is deprecated.")]]
     YaspGrid (Dune::MPIHelper::MPICommunicator comm,
               std::array<std::vector<ctype>, dim> coords,
               std::bitset<dim> periodic, int overlap,
@@ -1381,7 +1380,7 @@ namespace Dune {
      *             dune-grid 2.4 has been released.
      */
     template <typename Seed>
-    DUNE_DEPRECATED_MSG("entityPointer() is deprecated and will be removed after the release of dune-grid 2.4. Use entity() instead to directly obtain an Entity object.")
+    [[deprecated("entityPointer() is deprecated and will be removed after the release of dune-grid 2.4. Use entity() instead to directly obtain an Entity object.")]]
     typename Traits::template Codim<Seed::codimension>::EntityPointer
     entityPointer(const Seed& seed) const
     {

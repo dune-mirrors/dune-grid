@@ -12,7 +12,6 @@
 #include <dune/common/parallel/collectivecommunication.hh>
 #include <dune/common/exceptions.hh>
 #include <dune/common/parallel/mpihelper.hh>
-#include <dune/common/deprecated.hh>
 
 #include <dune/grid/common/boundarysegment.hh>
 #include <dune/grid/common/capabilities.hh>
@@ -319,7 +318,7 @@ namespace Dune {
 
     /** \brief Create an EntityPointer from an EntitySeed */
     template <typename Seed>
-    DUNE_DEPRECATED_MSG("entityPointer() is deprecated and will be removed after the release of dune-grid 2.4. Use entity() instead to directly obtain an Entity object.")
+    [[deprecated("entityPointer() is deprecated and will be removed after the release of dune-grid 2.4. Use entity() instead to directly obtain an Entity object.")]]
     typename Traits::template Codim<Seed::codimension>::EntityPointer
     entityPointer(const Seed& seed) const
     {
@@ -852,7 +851,7 @@ namespace Dune {
     // This is the actual implementation of the deprecated method. We need this ugly trick of turning
     // it into a template to avoid triggering a deprecation warning every time UGGrid is used.
     template< typename T >
-    DUNE_DEPRECATED_MSG("This version of getChildrenOfSubface() uses EntityPointer and is deprecated. It will be removed after the release of Dune 2.4. Please use the new version with entities instead.")
+    [[deprecated("This version of getChildrenOfSubface() uses EntityPointer and is deprecated. It will be removed after the release of Dune 2.4. Please use the new version with entities instead.")]]
     typename std::enable_if<
       std::is_same<
         T,
@@ -934,7 +933,7 @@ namespace Dune {
     // This is the actual implementation of the deprecated method. We need this ugly trick of turning
     // it into a template to avoid triggering a deprecation warning every time UGGrid is used.
     template< typename T >
-    DUNE_DEPRECATED_MSG("This version of setPosition() uses EntityPointer and is deprecated. It will be removed after the release of Dune 2.4. Please use the new version with entities instead.")
+    [[deprecated("This version of setPosition() uses EntityPointer and is deprecated. It will be removed after the release of Dune 2.4. Please use the new version with entities instead.")]]
     typename std::enable_if<
       std::is_same<
         T,

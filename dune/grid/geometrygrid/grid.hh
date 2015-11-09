@@ -3,8 +3,6 @@
 #ifndef DUNE_GEOGRID_GRID_HH
 #define DUNE_GEOGRID_GRID_HH
 
-#include <dune/common/deprecated.hh>
-
 #include <dune/grid/common/grid.hh>
 
 #include <dune/grid/geometrygrid/backuprestore.hh>
@@ -575,8 +573,8 @@ namespace Dune
 
     /** \brief obtain EntityPointer from EntitySeed. */
     template< class EntitySeed >
+    [[deprecated("entityPointer() is deprecated and will be removed after the release of dune-grid 2.4. Use entity() instead to directly obtain an Entity object.")]]
     typename Traits::template Codim< EntitySeed::codimension >::EntityPointer
-    DUNE_DEPRECATED_MSG("entityPointer() is deprecated and will be removed after the release of dune-grid 2.4. Use entity() instead to directly obtain an Entity object.")
     entityPointer ( const EntitySeed &seed ) const
     {
       typedef typename Traits::template Codim< EntitySeed::codimension >::Entity Entity;
