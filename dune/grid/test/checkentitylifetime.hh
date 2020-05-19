@@ -18,6 +18,7 @@
 #include <dune/common/exceptions.hh>
 #include <dune/grid/common/capabilities.hh>
 #include <dune/grid/common/rangegenerators.hh>
+#include <dune/grid/concepts/grid.hh>
 
 #if not defined(DUNE_ENTITY_LIFETIME_CHECK_ELEMENT_COUNT)
 #define DUNE_ENTITY_LIFETIME_CHECK_ELEMENT_COUNT 32
@@ -39,8 +40,16 @@ bool checkEntityLifetimeForCodim(GV gv, std::size_t check_element_count, Dune::C
       check_element_count = gv.size(codim);
     }
 
+  static_assert(isGridView<GV>());
+
   auto& index_set = gv.indexSet();
+  static_assert(Dune::isIndexSet<typename GV::IndexSet>());
+
   auto& id_set = gv.grid().localIdSet();
+  static_assert(Dune::isIdSet<typename GV::Grid::LocalIdSet>());
+  static_assert(Dune::isIdSet<typename GV::Grid::GlobalIdSet>());
+  auto entity_iterator = gv.template begin<codim>();
+  static_assert(Dune::isEntityIterator<decltype(entity_iterator)>());
 
   std::vector<typename GV::IndexSet::IndexType> indices;
   std::vector<typename GV::Grid::LocalIdSet::IdType> ids;
@@ -52,6 +61,7 @@ bool checkEntityLifetimeForCodim(GV gv, std::size_t check_element_count, Dune::C
     std::size_t i = 0;
     for (const auto& e : entities(gv,Dune::Codim<codim>()))
       {
+        static_assert(Dune::isEntity<std::decay_t<decltype(e)>>());
         if (++i > check_element_count)
           break;
         indices.push_back(index_set.index(e));
@@ -80,6 +90,8 @@ bool checkEntityLifetimeForCodim(GV gv, std::size_t check_element_count, Dune::C
           "ERROR! inconsistent corner(0) coordinate for entity " << i <<
           " (" << entity_list[i].geometry().corner(0) << " != " << coords[i] << ")");
     }
+
+  static_assert(isGrid<typename GV::Grid>());
 
   return true;
 }
