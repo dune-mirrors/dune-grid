@@ -73,6 +73,9 @@ SPDX-License-Identifier: LicenseRef-GPL-2.0-only-with-DUNE-exception
 
 - `IdSet` now exports grid `dimension` and `Codim<cd>::Entity`.
 
+- Grid concepts are here! Now a `Grid` can be inspected and extended
+  at compilation time using concepts. We provide two versions: the standard
+  C++20 concepts and a fallback implementation pre-C++20.
 - `UGGrid` index sets can now compute the indices of vertices of edges.
 
 - `UGGrid`: Fixed a bug in the numbering of prism edges.
