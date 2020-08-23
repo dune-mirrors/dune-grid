@@ -19,6 +19,8 @@ include(DuneMacros)
 # start a dune project with information from dune.module
 dune_project()
 
+add_dune_ug_flags(dune-grid NO_LINK_DUNEGRID)
+
 add_subdirectory("dune")
 add_subdirectory("doc")
 add_subdirectory("lib")
