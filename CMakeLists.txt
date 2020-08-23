@@ -10,8 +10,7 @@ endif()
 
 #find dune-common and set the module path
 find_package(dune-common REQUIRED)
-list(APPEND CMAKE_MODULE_PATH ${dune-common_MODULE_PATH}
-  "${PROJECT_SOURCE_DIR}/cmake/modules")
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 
 #include the dune macros
 include(DuneMacros)
@@ -19,6 +18,7 @@ include(DuneMacros)
 # start a dune project with information from dune.module
 dune_project()
 
+add_dune_parmetis_flags(dune-grid)
 add_dune_ug_flags(dune-grid NO_LINK_DUNEGRID)
 
 add_subdirectory("dune")

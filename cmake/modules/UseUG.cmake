@@ -25,9 +25,9 @@
 
 # Add dgf magic to config.h and register flags
 if(dune-uggrid_FOUND)
-  dune_register_package_flags(COMPILE_DEFINITIONS "${UG_DEFINITIONS}"
-                              INCLUDE_DIRS "${UG_INCLUDES}"
-                              LIBRARIES "Dune::dune-grid;${UG_LIBRARIES};${DUNE_LIBS}")
+  # dune_register_package_flags(COMPILE_DEFINITIONS "${UG_DEFINITIONS}"
+  #                             INCLUDE_DIRS "${UG_INCLUDES}"
+  #                             LIBRARIES "Dune::dune-grid;${UG_LIBRARIES};${DUNE_LIBS}")
 
   dune_define_gridtype(GRID_CONFIG_H_BOTTOM GRIDTYPE UGGRID
     ASSERTION "GRIDDIM == WORLDDIM"

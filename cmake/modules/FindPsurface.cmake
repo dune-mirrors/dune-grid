@@ -94,7 +94,7 @@ set(PKG_CONFIG_PATH ${PKG_CONFIG_PATH_STORE})
 # behave like a CMake module is supposed to behave
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
-  "psurface"
+  "Psurface"
   DEFAULT_MSG
   PSURFACE_INCLUDE_DIR
   PSURFACE_LIBRARY
@@ -103,7 +103,7 @@ find_package_handle_standard_args(
 mark_as_advanced(PSURFACE_INCLUDE_DIR PSURFACE_LIBRARY PKG_PSURFACE_FOUND)
 
 # if both headers and library are found, store results
-if(PSURFACE_FOUND)
+if(Psurface_FOUND)
   set(PSURFACE_INCLUDE_DIRS ${PSURFACE_INCLUDE_DIR})
   set(PSURFACE_LIBRARIES    ${PSURFACE_LIBRARY})
   # log result
@@ -115,19 +115,10 @@ if(PSURFACE_FOUND)
     CACHE STRING "Compile flags used by DUNE when compiling psurface programs")
   set(PSURFACE_DUNE_LIBRARIES ${PSURFACE_LIBRARIES}
     CACHE STRING "Libraries used by DUNE when linking psurface programs")
-else(PSURFACE_FOUND)
+else(Psurface_FOUND)
   # log errornous result
   file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
     "Determining location of psurface failed:\n"
     "Include directory: ${PSURFACE_INCLUDE_DIRS}\n"
     "Library directory: ${PSURFACE_LIBRARIES}\n\n")
-endif(PSURFACE_FOUND)
-
-# set HAVE_PSURFACE for config.h
-set(HAVE_PSURFACE ${PSURFACE_FOUND})
-
-# register all psurface related flags
-if(PSURFACE_FOUND)
-  dune_register_package_flags(INCLUDE_DIRS "${PSURFACE_INCLUDE_DIRS}"
-                              LIBRARIES "${PSURFACE_LIBRARIES}")
-endif()
+endif(Psurface_FOUND)
