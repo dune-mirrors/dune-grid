@@ -10,10 +10,23 @@ set(@PROJECT_NAME@_LIBRARIES Dune::@PROJECT_NAME@)
 
 list(APPEND CMAKE_MODULE_PATH "@CMAKE_MODULE_PATH@;@CMAKE_CURRENT_LIST_DIR@/cmake/modules")
 
+if(@AmiraMesh_FOUND@)
+  find_dependency(AmiraMesh)
+  set(HAVE_AMIRAMESH ${AmiraMesh_FOUND})
+endif()
+
 if(@ParMETIS_FOUND@)
   find_dependency(ParMETIS)
   set(HAVE_PARMETIS ${ParMETIS_FOUND})
 endif()
+
+if(@Psurface_FOUND@)
+  find_dependency(Psurface)
+  set(HAVE_PSURFACE ${Psurface_FOUND})
+endif()
+
+# Export the directory with the grid example for downstream modules
+set(DUNE_GRID_EXAMPLE_GRIDS_PATH "@DUNE_MODULE_SRC_DOCDIR@/grids/")
 
 # include the configuration of exported targets
 include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@-targets.cmake")

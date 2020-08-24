@@ -8,8 +8,7 @@ endif()
 if(ALBERTA_FOUND)
 foreach(_dim ${ALBERTA_WORLD_DIMS})
   dune_add_library(dunealbertagrid_${_dim}d APPEND
-    _DUNE_TARGET_OBJECTS:albertagrid_${_dim}d_
-    ADD_LIBS ${DUNE_LIBS})
+    _DUNE_TARGET_OBJECTS:albertagrid_${_dim}d_)
   add_dune_alberta_flags(dunealbertagrid_${_dim}d ${_OBJECT_FLAG} NO_LINK_DUNEALBERTAGRID GRIDDIM ${_dim})
   list(APPEND DUNE_ALBERTA_LIBS dunealbertagrid_${_dim}d)
 endforeach(_dim "${ALBERTA_DIMS}")
