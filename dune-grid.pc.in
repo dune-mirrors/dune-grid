@@ -11,5 +11,5 @@ Version: @VERSION@
 Description: Dune (Distributed and Unified Numerics Environment) grid module
 URL: http://dune-project.org/
 Requires: ${DEPENDENCIES}
-Libs: -L${libdir} -ldunegrid
+Libs: -L${libdir} -ldune-grid
 Cflags: -I${includedir}

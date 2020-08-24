@@ -1,6 +1,5 @@
 if(dune-uggrid_FOUND)
-  dune_add_library("uggrid" OBJECT
-    SOURCES
+  target_sources_local(dune-grid PRIVATE
     uggridintersections.cc
     uggrid.cc
     uggridentity.cc

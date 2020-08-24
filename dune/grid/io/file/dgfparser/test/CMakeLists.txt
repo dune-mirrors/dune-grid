@@ -1,19 +1,16 @@
 dune_add_test(NAME test-dgf-yasp
               SOURCES test-dgf-yasp.cc
-              LINK_LIBRARIES dunegrid
               COMPILE_DEFINITIONS DUNE_GRID_EXAMPLE_GRIDS_PATH=\"${PROJECT_SOURCE_DIR}/doc/grids/\"
              )
 
 dune_add_test(NAME test-dgf-yasp-offset
               SOURCES test-dgf-yasp.cc
-              LINK_LIBRARIES dunegrid
               COMPILE_DEFINITIONS DUNE_GRID_EXAMPLE_GRIDS_PATH=\"${PROJECT_SOURCE_DIR}/doc/grids/\"
                                   TESTCOORDINATES
               CMD_ARGS ${PROJECT_SOURCE_DIR}/doc/grids/dgf/test2d_offset.dgf)
 
 dune_add_test(NAME test-dgf-oned
               SOURCES test-dgf-oned.cc
-              LINK_LIBRARIES dunegrid
               COMPILE_DEFINITIONS DUNE_GRID_EXAMPLE_GRIDS_PATH=\"${PROJECT_SOURCE_DIR}/doc/grids/\"
              )
 

@@ -2,6 +2,7 @@
 
 - `UGGrid` index sets can now compute the indices of vertices of edges.
 - `UGGrid`: Fixed a bug in the numbering of prism edges.
+- Various bugs have been fixed in the `UGGrid` subdomain communication implementation.
 - Python bindings have been moved from the `dune-python` module which is now
   obsolete. To activate Python bindings the CMake flag
   `DUNE_ENABLE_PYTHONBINDINGS` needs to be turned on (default is off).
@@ -27,6 +28,8 @@
 - Remove deprecated header `dune/common/universalmapper.hh`.
 
 - Support for PSurface is deprecated and will be removed after Dune 2.8.
+
+- Support for AmiraMesh is deprecated and will be removed after Dune 2.8.
 
 # Release 2.7
 
