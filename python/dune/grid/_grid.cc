@@ -60,6 +60,7 @@ PYBIND11_MODULE( _grid, module )
   reader.value( "dgfString", Dune::Python::Reader::dgfString );
   reader.value( "gmsh", Dune::Python::Reader::gmsh );
   reader.value( "structured", Dune::Python::Reader::structured );
+  reader.value( "vtk", Dune::Python::Reader::vtk );
 
   pybind11::class_< Dune::SingletonStorage > cls( module, "SingletonStorage" );
   module.attr( "singleton" ) = pybind11::cast( std::make_unique< Dune::SingletonStorage >() );

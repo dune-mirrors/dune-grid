@@ -22,6 +22,9 @@
 #include <dune/grid/io/file/dgfparser/dgfparser.hh>
 #include <dune/grid/io/file/gmshreader.hh>
 #include <dune/grid/utility/structuredgridfactory.hh>
+#if HAVE_DUNE_VTK
+#include <dune/vtk/vtkreader.hh>
+#endif
 
 #include <dune/python/common/mpihelper.hh>
 #include <dune/python/common/typeregistry.hh>
@@ -172,6 +175,27 @@ namespace Dune
       throw std::invalid_argument( "Can only read Gmsh files into grids supporting the GridFactory concept." );
     }
 
+    // readVtk
+    // -------
+    template< class Grid, std::enable_if_t< Capabilities::HasGridFactory< Grid >::value, int > = 0 >
+    inline static std::unique_ptr< Grid > readVtk ( const std::string &fileName )
+    {
+#if HAVE_DUNE_VTK
+      Dune::GridFactory< Grid > gridFactory;
+      Dune::VtkReader< Grid > vtk( gridFactory );
+      vtk.read( fileName );
+      return std::unique_ptr< Grid >( vtk.createGrid() );
+#else
+      throw std::invalid_argument( "Needs module dune-vtk to support reading vtk files.");
+#endif
+    }
+
+    template< class Grid, std::enable_if_t< !Capabilities::HasGridFactory< Grid >::value, int > = 0 >
+    inline static std::unique_ptr< Grid > readVtk ( const std::string &fileName )
+    {
+      throw std::invalid_argument( "Can only read vtk files into grids supporting the GridFactory concept." );
+    }
+
 
 
     // reader
@@ -193,6 +217,9 @@ namespace Dune
 
         case Reader::gmsh:
           return readGmsh< Grid >( std::get< 1 >( args ) );
+
+        case Reader::vtk:
+          return readVtk< Grid >( std::get< 1 >( args ) );
 
         default:
           return nullptr;

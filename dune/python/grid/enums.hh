@@ -9,7 +9,7 @@ namespace Dune
   namespace Python
   {
 
-    enum class Reader { dgf, dgfString, gmsh, structured };
+    enum class Reader { dgf, dgfString, gmsh, structured, vtk };
     enum class VTKDataType { CellData, PointData, CellVector, PointVector };
     enum class Marker { Coarsen = -1, Keep = 0, Refine = 1 };
 
