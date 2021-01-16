@@ -122,6 +122,7 @@ if(Alberta_FOUND AND NOT TARGET Alberta::Alberta)
       set_target_properties(Alberta::Alberta_${dim}D PROPERTIES
         IMPORTED_LOCATION ${ALBERTA_${dim}D_LIB}
         INTERFACE_COMPILE_DEFINITIONS ALBERTA_DIM=${dim})
+      target_link_libraries(Alberta::Alberta_${dim}D INTERFACE Alberta::Alberta)
     endif()
   endforeach(dim)
 endif()

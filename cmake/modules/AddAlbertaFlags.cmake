@@ -33,10 +33,10 @@ macro(add_dune_alberta_flags)
     set(_ARG_TARGETS ${_ARG_UNPARSED_ARGUMENTS})
 
     # extract dimension arguments
-    set(ALBERTA_DIM ${_ARG_WORLDDIM} ${_ARG_GRIDDIM})
+    set(ALBERTA_DIM ${_ARG_WORLDDIM} ${_ARG_GRIDDIM} 0)
     list(SORT ALBERTA_DIM ORDER DESCENDING)
     list(GET ALBERTA_DIM 0 WORLDDIM)
-    if(NOT WORLDDIM)
+    if(NOT WORLDDIM OR WORLDDIM EQUAL 0)
       message(WARNING "Alberta dimension not set. Please set it, e.g. use "
                       "add_dune_alberta_flags(WORLDDIM 2 <target>). "
                       "Falling back to dimension 2.")
@@ -47,8 +47,7 @@ macro(add_dune_alberta_flags)
 
     # link to ALBERTA libraries
     foreach(_target ${_ARG_TARGETS})
-      target_link_libraries(${_target} PUBLIC
-        Alberta::Alberta Alberta::Alberta_${WORLDDIM}D)
+      target_link_libraries(${_target} PUBLIC dunealbertagrid${WORLDDIM}d)
       target_compile_definitions(${_target} PUBLIC "ENABLE_ALBERTA=1")
     endforeach(_target)
   endif(Alberta_FOUND)
