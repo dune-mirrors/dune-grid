@@ -30,6 +30,19 @@
 #       The dimension of the world space, defaults to :code:`GRIDDIM`.
 #
 
+if(ALBERTA_FOUND)
+  foreach(_dim ${ALBERTA_WORLD_DIMS})
+    list(TRANSFORM ALBERTA_EXTRA_LIBS PREPEND "-l" OUTPUT_VARIABLE ALBERTA_LINK_FLAGS)
+    dune_generate_pkg_config("alberta-grid_${_dim}d"
+      CFLAGS "-I${ALBERTA_INCLUDE_DIR}"
+      LIBS "${ALBERTA_${_dim}D_LIB};${ALBERTA_UTIL_LIB};${ALBERTA_LINK_FLAGS}")
+    dune_generate_pkg_config("dune-alberta-grid_${_dim}d"
+      LIBS "-L${CMAKE_INSTALL_PREFIX}/lib;-ldunealbertagrid_${_dim}d"
+      CFLAGS "-DALBERTA_DIM=${_dim}"
+      REQUIRES "alberta-grid_${_dim}d")
+  endforeach(_dim)
+endif()
+
 macro(add_dune_alberta_flags)
   if(ALBERTA_FOUND)
     include(CMakeParseArguments)
