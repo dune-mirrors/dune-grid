@@ -4,6 +4,7 @@ set(HEADERS
   partitioning.hh
   structuredyaspgridfactory.hh
   torus.hh
+  yaspgrid.impl.hh
   yaspgridentity.hh
   yaspgridentityseed.hh
   yaspgridgeometry.hh
@@ -20,3 +21,7 @@ exclude_all_but_from_headercheck(backuprestore.hh torus.hh coordinates.hh ygrid.
 
 install(FILES ${HEADERS}
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/grid/yaspgrid/)
+
+dune_add_library(yaspgrid OBJECT
+  SOURCES
+  yaspgrid.cc)

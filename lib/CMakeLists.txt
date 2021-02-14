@@ -11,6 +11,7 @@ endif()
 
 dune_add_library(dunegrid
   _DUNE_TARGET_OBJECTS:onedgrid_
+  _DUNE_TARGET_OBJECTS:yaspgrid_
   _DUNE_TARGET_OBJECTS:dgfparser_
   _DUNE_TARGET_OBJECTS:dgfparserblocks_
   ${UGLIB}
