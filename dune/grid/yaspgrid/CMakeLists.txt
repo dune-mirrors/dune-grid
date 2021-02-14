@@ -1,5 +1,6 @@
 set(HEADERS
   backuprestore.hh
+  backuprestore.impl.hh
   coordinates.hh
   partitioning.hh
   structuredyaspgridfactory.hh
@@ -24,4 +25,5 @@ install(FILES ${HEADERS}
 
 dune_add_library(yaspgrid OBJECT
   SOURCES
+  backuprestore.cc
   yaspgrid.cc)
