@@ -58,7 +58,7 @@ namespace Dune
     };
 
     /**
-     * \brief specialize with 'true' for all codims that a grid provides an iterator for (default=false)
+     * \brief specialize with 'true' for all codims that a grid provides an iterator for (default=hasEntity<codim>::v)
      *
      * \note Being able to iterate over a codimension implies that the grid
      *       provides entities for that codimension.
@@ -68,9 +68,9 @@ namespace Dune
      * \ingroup GICapabilities
      **/
     template< class Grid, int codim >
-    struct hasEntityIterator
+    struct hasEntityIterator : public hasEntity< Grid, codim >
     {
-      static const bool v = false;
+      // default value is whatever hasEntity gives us
     };
 
     /** \brief Specialize with 'false' for all codims that a grid does not
