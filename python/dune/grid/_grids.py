@@ -2,6 +2,16 @@ from dune.common.checkconfiguration import assertHave, ConfigurationError
 from dune.typeregistry import generateTypeName
 
 def onedGrid(constructor):
+    """
+    A one dimensional grid.
+
+    Parameters
+    ----------
+    constructor
+        The grid constructor.
+
+    """
+
     from .grid_generator import module, getDimgrid
 
     typeName = "Dune::OneDGrid"
@@ -11,6 +21,20 @@ def onedGrid(constructor):
     return gridModule.reader(constructor).leafView
 
 def yaspGrid(constructor, dimgrid=None, coordinates="equidistant", ctype="double"):
+    """
+    The yasp grid: Provides a distributed structured cube mesh.
+
+    Parameters
+    ----------
+    constructor
+        The grid constructor.
+    dimGrid:
+        Dimension of the grid.
+    coordinates:
+        Use 'equidistant' (default) or 'tensorproduct' coordinates.
+    ctype:
+        Type of scalar (default: 'double').
+    """
     from dune.generator import Constructor
     from .grid_generator import module, getDimgrid
 

@@ -11,6 +11,21 @@ registry = dict()
 registry["grid"] = grid_registry
 
 def gridFunction(view,name=None,order=None,dimRange=None):
+    """
+    Return the gridFunction decorator.
+
+    Parameters
+    ----------
+    view
+        The grid view object.
+    name
+        The name of the grid function.
+    order
+        The order of the quadrature this grid funtion.
+    dimRange
+        The dimension of the range.
+
+    """
     assert hasattr(view, "dimension"), "did you forget to pass in the grid view to the gridFunction decorator"
     def gridFunction_decorator(func):
         return view.function(func,name=name,order=order,dimRange=dimRange)
@@ -18,8 +33,20 @@ def gridFunction(view,name=None,order=None,dimRange=None):
 gridFunction._counter = 0
 
 def GridFunction(view, name=None,order=None):
+    """The GridFunction class."""
+
     assert hasattr(view, "dimension"), "did you forget to pass in the grid view to the gridFunction decorator"
+
     def GridFunction_decorator(cls):
+        """
+        The GridFunction decorator constructor.
+
+        Parameters
+        ----------
+        cls
+            The class to be wrapped as grid function.
+
+        """
         if not hasattr(cls,"__call__"):
             raise TypeError("Class has no call method")
         class Wrapper(cls):

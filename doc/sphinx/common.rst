@@ -1,0 +1,5 @@
+******
+Common
+******
+
+.. automodule:: dune.common

@@ -9,11 +9,10 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-
-import os
-import sys
-import subprocess
-sys.path.insert(0, os.path.abspath('../../python/'))
+#
+# import os
+# import sys
+# sys.path.insert(0, os.path.abspath('../../python/'))
 
 # -- Project information -----------------------------------------------------
 
@@ -26,8 +25,6 @@ release = '2.8-git'
 
 
 # -- General configuration ---------------------------------------------------
-
-autodoc_mock_imports = ["dune.generator"]
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -48,6 +45,17 @@ templates_path = ['_templates']
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+
+# -- Options for autodoc -------------------------------------------------
+
+# autodoc_mock_imports = ["dune.generator"]
+
+autodoc_default_options = {
+  'members': True,
+  'member-order': 'bysource',
+  'undoc-members': True,
+  'imported-members': True,
+}
 
 # -- Options for HTML output -------------------------------------------------
 
