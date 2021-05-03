@@ -52,10 +52,15 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 autodoc_default_options = {
   'members': True,
-  'member-order': 'bysource',
+  'member-order': 'groupwise',
   'undoc-members': True,
   'imported-members': True,
 }
+
+# Needs sth. like
+#   find . -name "*.hh" -exec python -m pybind11_mkdoc -std=c++17 -I../../../dune-common -I../../../dune-geometry -I../../../dune-grid -o docstrings.hh {} +
+# in dune/python/ to be executed before building _grid.so!
+
 
 # -- Options for HTML output -------------------------------------------------
 

@@ -10,6 +10,8 @@
 
 #include <dune/python/pybind11/pybind11.h>
 
+#include <dune/python/docstrings.hh>
+
 PYBIND11_MODULE( _grid, module )
 {
   // enumeration types from dune-grid
@@ -40,27 +42,27 @@ PYBIND11_MODULE( _grid, module )
 
   // enumeration types added by dune-python
 
-  pybind11::enum_< Dune::Python::detail::CommOp > commOps( module, "CommOp" );
-  commOps.value( "set", Dune::Python::detail::CommOp::set );
-  commOps.value( "add", Dune::Python::detail::CommOp::add );
+  pybind11::enum_< Dune::Python::detail::CommOp > commOps( module, "CommOp", DOC(Dune_Python_detail_CommOp) );
+  commOps.value( "set", Dune::Python::detail::CommOp::set, DOC(Dune_Python_detail_CommOp_set) );
+  commOps.value( "add", Dune::Python::detail::CommOp::add, DOC(Dune_Python_detail_CommOp_add) );
 
-  pybind11::enum_< Dune::Python::Marker > marker( module, "Marker" );
-  marker.value( "coarsen", Dune::Python::Marker::Coarsen );
-  marker.value( "keep", Dune::Python::Marker::Keep );
-  marker.value( "refine", Dune::Python::Marker::Refine );
+  pybind11::enum_< Dune::Python::Marker > marker( module, "Marker", DOC(Dune_Python_Marker) );
+  marker.value( "coarsen", Dune::Python::Marker::Coarsen, DOC(Dune_Python_Marker_Coarsen) );
+  marker.value( "keep", Dune::Python::Marker::Keep, DOC(Dune_Python_Marker_Keep) );
+  marker.value( "refine", Dune::Python::Marker::Refine, DOC(Dune_Python_Marker_Refine) );
 
-  pybind11::enum_< Dune::Python::VTKDataType > vtkDataType( module, "DataType" );
-  vtkDataType.value( "CellData", Dune::Python::VTKDataType::CellData );
-  vtkDataType.value( "PointData", Dune::Python::VTKDataType::PointData );
-  vtkDataType.value( "CellVector", Dune::Python::VTKDataType::CellVector );
-  vtkDataType.value( "PointVector", Dune::Python::VTKDataType::PointVector );
+  pybind11::enum_< Dune::Python::VTKDataType > vtkDataType( module, "DataType", DOC(Dune_Python_VTKDataType) );
+  vtkDataType.value( "CellData", Dune::Python::VTKDataType::CellData, DOC(Dune_Python_VTKDataType_CellData) );
+  vtkDataType.value( "PointData", Dune::Python::VTKDataType::PointData, DOC(Dune_Python_VTKDataType_PointData) );
+  vtkDataType.value( "CellVector", Dune::Python::VTKDataType::CellVector, DOC(Dune_Python_VTKDataType_CellVector) );
+  vtkDataType.value( "PointVector", Dune::Python::VTKDataType::PointVector, DOC(Dune_Python_VTKDataType_PointVector) );
 
-  pybind11::enum_< Dune::Python::Reader > reader( module, "reader" );
-  reader.value( "dgf", Dune::Python::Reader::dgf );
-  reader.value( "dgfString", Dune::Python::Reader::dgfString );
-  reader.value( "gmsh", Dune::Python::Reader::gmsh );
-  reader.value( "structured", Dune::Python::Reader::structured );
+  pybind11::enum_< Dune::Python::Reader > reader( module, "reader", DOC(Dune_Python_Reader) );
+  reader.value( "dgf", Dune::Python::Reader::dgf, DOC(Dune_Python_Reader_dgf) );
+  reader.value( "dgfString", Dune::Python::Reader::dgfString, DOC(Dune_Python_Reader_dgfString) );
+  reader.value( "gmsh", Dune::Python::Reader::gmsh, DOC(Dune_Python_Reader_gmsh) );
+  reader.value( "structured", Dune::Python::Reader::structured, DOC(Dune_Python_Reader_structured) );
 
-  pybind11::class_< Dune::SingletonStorage > cls( module, "SingletonStorage" );
+  pybind11::class_< Dune::SingletonStorage > cls( module, "SingletonStorage", DOC(Dune_SingletonStorage) );
   module.attr( "singleton" ) = pybind11::cast( std::make_unique< Dune::SingletonStorage >() );
 }
