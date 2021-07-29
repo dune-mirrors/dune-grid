@@ -62,9 +62,12 @@ namespace Dune
       using GridModificationListeners = std::vector< GridModificationListener< Grid > * >;
 
       template< class Grid >
-      inline GridModificationListeners<Grid> &gridModificationListeners (const Grid &grid)
+      inline GridModificationListeners<Grid> &gridModificationListeners (const Grid &grid, pybind11::handle gridView)
       {
         pybind11::handle pygrid = pybind11::detail::get_object_handle( &grid, pybind11::detail::get_type_info( typeid( Grid ) ) );
+        if (!pygrid)
+          pygrid = gridView.attr("hierarchicalGrid");
+
         if (!pybind11::hasattr(pygrid, "listeners_"))
         {
           auto ptr = new detail::GridModificationListeners<Grid>;
@@ -82,6 +85,15 @@ namespace Dune
       }
 
       template< class Grid >
+      inline GridModificationListeners<Grid> &gridModificationListeners (const Grid &grid)
+      {
+        pybind11::handle pygrid = pybind11::detail::get_object_handle( &grid, pybind11::detail::get_type_info( typeid( Grid ) ) );
+        if (!pygrid)
+          DUNE_THROW(InvalidStateException, "Python object handle of HierarchicalGrid could not be obtained");
+        return gridModificationListeners(grid, pybind11::handle());
+      }
+
+      template< class Grid >
       inline static IteratorRange< typename GridModificationListeners<Grid>::const_iterator >
       gridModificationListenersRange ( const Grid &grid )
       {
@@ -91,10 +103,10 @@ namespace Dune
       }
 
       template< class Grid >
-      inline static void addGridModificationListener ( const Grid &grid,
+      inline static void addGridModificationListener ( const Grid &grid, pybind11::handle gridView,
               GridModificationListener<Grid>* listener, pybind11::handle nurse = pybind11::handle() )
       {
-        auto &listeners = gridModificationListeners< Grid >(grid);
+        auto &listeners = gridModificationListeners< Grid >(grid, gridView);
         listeners.push_back( listener );
       }
 
