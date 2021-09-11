@@ -1,8 +1,5 @@
-# set up project
-project("dune-grid" C CXX)
-
-# general stuff
 cmake_minimum_required(VERSION 3.13)
+project("dune-grid" C CXX)
 
 if(NOT (dune-common_DIR OR dune-common_ROOT OR
         "${CMAKE_PREFIX_PATH}" MATCHES ".*dune-common.*"))
@@ -19,7 +16,19 @@ list(APPEND CMAKE_MODULE_PATH ${dune-common_MODULE_PATH}
 include(DuneMacros)
 
 # start a dune project with information from dune.module
-dune_project()
+dune_project(dunegrid)
+
+if(dune-uggrid_FOUND)
+  target_compile_definitions(dunegrid PUBLIC ENABLE_UG)
+endif()
+
+if(Alberta_FOUND)
+  foreach(_dim ${ALBERTA_WORLD_DIMS})
+    dune_add_library(dunealbertagrid${_dim}d)
+    target_link_libraries(dunealbertagrid${_dim}d PUBLIC dunegrid Alberta::AlbertaGrid_${_dim}d)
+    target_compile_definitions(dunealbertagrid${_dim}d PRIVATE ALBERTA_DIM=${_dim} ENABLE_ALBERTA)
+  endforeach(_dim)
+endif()
 
 add_subdirectory("dune")
 add_subdirectory("doc")

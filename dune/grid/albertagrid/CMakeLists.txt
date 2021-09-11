@@ -8,13 +8,8 @@ if(Alberta_FOUND)
     macrodata.cc
     meshpointer.cc)
 
-  # Create dimension dependent alberta libraries:
-  # Note, all libraries and flags are set PRIVATE only to not mix up
-  # flags when linked together.
   foreach(_dim ${ALBERTA_WORLD_DIMS})
-    add_library(albertagrid${_dim}d OBJECT ${ALBERTAGRID_SOURCES})
-    target_link_libraries(albertagrid${_dim}d PUBLIC Alberta::AlbertaGrid_${_dim}d)
-    target_compile_definitions(albertagrid${_dim}d PRIVATE ALBERTA_DIM=${_dim} ENABLE_ALBERTA)
+    target_sources(dunealbertagrid${_dim}d PRIVATE ${ALBERTAGRID_SOURCES})
   endforeach(_dim)
 endif()
 
