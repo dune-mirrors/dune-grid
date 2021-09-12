@@ -9,24 +9,15 @@ endif()
 
 #find dune-common and set the module path
 find_package(dune-common REQUIRED)
-list(APPEND CMAKE_MODULE_PATH ${dune-common_MODULE_PATH}
-  "${PROJECT_SOURCE_DIR}/cmake/modules")
-
-#include the dune macros
-include(DuneMacros)
 
 # start a dune project with information from dune.module
 dune_project(dunegrid)
-
-if(dune-uggrid_FOUND)
-  target_compile_definitions(dunegrid PUBLIC ENABLE_UG)
-endif()
 
 if(Alberta_FOUND)
   foreach(_dim ${ALBERTA_WORLD_DIMS})
     dune_add_library(dunealbertagrid${_dim}d)
     target_link_libraries(dunealbertagrid${_dim}d PUBLIC dunegrid Alberta::AlbertaGrid_${_dim}d)
-    target_compile_definitions(dunealbertagrid${_dim}d PRIVATE ALBERTA_DIM=${_dim} ENABLE_ALBERTA)
+    target_compile_definitions(dunealbertagrid${_dim}d PRIVATE ALBERTA_DIM=${_dim} ENABLE_ALBERTA=1)
   endforeach(_dim)
 endif()
 

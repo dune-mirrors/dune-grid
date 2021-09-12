@@ -16,7 +16,7 @@ find_package(ParMETIS)
 include(AddParMETISFlags)
 find_package(Alberta 3.0)
 include(AddAlbertaFlags)
-include(UseUG)
+include(AddUGFlags)
 find_package(Psurface)
 include(AddPsurfaceFlags)
 find_package(AmiraMesh)
@@ -54,7 +54,7 @@ macro(add_dgf_flags target)
   foreach(grid ${DGF_GRIDTYPES})
     list(APPEND replace_args ${grid} ${DGF_GRIDTYPE})
   endforeach(grid ${DGF_GRIDTYPES})
-  replace_properties(TARGET ${target}
+  dune_replace_properties(TARGET ${target}
     PROPERTY COMPILE_DEFINITIONS
     ${replace_args})
 endmacro(add_dgf_flags target)
