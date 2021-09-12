@@ -13,8 +13,7 @@
 
 # Add dgf magic to config.h and register flags
 if(dune-uggrid_FOUND)
-  dune_register_package_flags(COMPILE_DEFINITIONS "ENABLE_UG=1"
-                              LIBRARIES "duneuggrid")
+  dune_register_package_flags(LIBRARIES "duneuggrid")
 
   dune_define_gridtype(GRID_CONFIG_H_BOTTOM GRIDTYPE UGGRID
     ASSERTION "GRIDDIM == WORLDDIM"
