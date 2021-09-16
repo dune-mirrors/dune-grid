@@ -16,7 +16,7 @@ dune_add_test(NAME test-dgf-oned
 
 if(Alberta_FOUND)
   add_executable(test-dgf-alberta test-dgf-alberta.cc)
-  target_link_libraries(test-dgf-alberta PRIVATE dune-grid)
+  target_link_libraries(test-dgf-alberta PRIVATE Dune::grid)
   add_dune_alberta_flags(test-dgf-alberta WORLDDIM 2)
   target_compile_definitions(test-dgf-alberta PUBLIC
     DUNE_GRID_EXAMPLE_GRIDS_PATH=\"${PROJECT_SOURCE_DIR}/doc/grids/\")

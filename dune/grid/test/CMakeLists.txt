@@ -51,7 +51,7 @@ if(Alberta_FOUND)
     foreach(GRIDDIM RANGE 1 ${WORLDDIM})
       set(_test test-alberta-${GRIDDIM}-${WORLDDIM})
       add_executable(${_test} EXCLUDE_FROM_ALL test-alberta.cc)
-      target_link_libraries(${_test} PRIVATE dune-grid)
+      target_link_libraries(${_test} PRIVATE Dune::grid)
       add_dune_alberta_flags(${_test} WORLDDIM ${WORLDDIM})
       target_compile_definitions(${_test} PUBLIC
         GRIDDIM=${GRIDDIM}
