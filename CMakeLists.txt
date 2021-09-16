@@ -11,12 +11,12 @@ endif()
 find_package(dune-common REQUIRED)
 
 # start a dune project with information from dune.module
-dune_project(dunegrid)
+dune_project(dune-grid)
 
 if(Alberta_FOUND)
   foreach(_dim ${ALBERTA_WORLD_DIMS})
-    dune_add_library(dunealbertagrid${_dim}d)
-    target_link_libraries(dunealbertagrid${_dim}d PUBLIC dunegrid Alberta::AlbertaGrid_${_dim}d)
+    dune_add_library(dunealbertagrid${_dim}d EXPORT_NAME albertagrid${_dim}d)
+    target_link_libraries(dunealbertagrid${_dim}d PUBLIC Dune::grid Alberta::AlbertaGrid_${_dim}d)
     target_compile_definitions(dunealbertagrid${_dim}d PRIVATE ALBERTA_DIM=${_dim} ENABLE_ALBERTA=1)
   endforeach(_dim)
 endif()

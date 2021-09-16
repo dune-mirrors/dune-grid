@@ -17,7 +17,7 @@ install(FILES ${HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/grid/onedg
 # and they don't need to necessarily. Remove this line when headers are fixed
 dune_exclude_from_headercheck( onedgridleafiterator.hh onedgridleveliterator.hh onedgridhieriterator.hh )
 
-target_sources(dunegrid PRIVATE
+target_sources(dune-grid PRIVATE
   onedgrid.cc
   onedgridfactory.cc
   nulliteratorfactory.cc)

@@ -13,7 +13,7 @@
 
 # Add dgf magic to config.h and register flags
 if(dune-uggrid_FOUND)
-  dune_register_package_flags(LIBRARIES "duneuggrid")
+  dune_register_package_flags(LIBRARIES "dune-uggrid")
 
   dune_define_gridtype(GRID_CONFIG_H_BOTTOM GRIDTYPE UGGRID
     ASSERTION "GRIDDIM == WORLDDIM"
@@ -24,6 +24,6 @@ endif()
 # Add flags to targets
 function(add_dune_ug_flags _target)
   if(dune-uggrid_FOUND)
-    target_link_libraries(${_target} PUBLIC duneuggrid)
+    target_link_libraries(${_target} PUBLIC Dune::uggrid)
   endif()
 endfunction(add_dune_ug_flags)

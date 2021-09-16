@@ -4,7 +4,6 @@ dune_add_test(SOURCES geometrygrid-coordfunction-copyconstructor.cc)
 
 dune_add_test(NAME test-geogrid-yaspgrid
               SOURCES test-geogrid.cc
-              LINK_LIBRARIES dunegrid
               COMPILE_DEFINITIONS COORDFUNCTION=IdenticalCoordFunction<double,2>
                                   CACHECOORDFUNCTION=0
                                   DUNE_GRID_EXAMPLE_GRIDS_PATH=\"${PROJECT_SOURCE_DIR}/doc/grids/\"
@@ -12,7 +11,6 @@ dune_add_test(NAME test-geogrid-yaspgrid
 
 dune_add_test(NAME test-geogrid-uggrid
               SOURCES test-geogrid.cc
-              LINK_LIBRARIES dunegrid
               COMPILE_DEFINITIONS COORDFUNCTION=IdenticalCoordFunction<double,2>
                                   CACHECOORDFUNCTION=0
                                   DUNE_GRID_EXAMPLE_GRIDS_PATH=\"${PROJECT_SOURCE_DIR}/doc/grids/\"
@@ -23,8 +21,7 @@ dune_add_test(SOURCES test-gridinfo.cc)
 
 dune_add_test(SOURCES test-identitygrid.cc)
 
-dune_add_test(SOURCES test-oned.cc
-              LINK_LIBRARIES dunegrid)
+dune_add_test(SOURCES test-oned.cc)
 
 dune_add_test(SOURCES test-mcmg-geogrid.cc)
 
@@ -54,7 +51,7 @@ if(Alberta_FOUND)
     foreach(GRIDDIM RANGE 1 ${WORLDDIM})
       set(_test test-alberta-${GRIDDIM}-${WORLDDIM})
       add_executable(${_test} EXCLUDE_FROM_ALL test-alberta.cc)
-      target_link_libraries(${_test} PRIVATE dunegrid)
+      target_link_libraries(${_test} PRIVATE dune-grid)
       add_dune_alberta_flags(${_test} WORLDDIM ${WORLDDIM})
       target_compile_definitions(${_test} PUBLIC
         GRIDDIM=${GRIDDIM}

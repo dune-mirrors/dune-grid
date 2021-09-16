@@ -1,4 +1,4 @@
-target_sources(dunegrid PRIVATE
+target_sources(dune-grid PRIVATE
     basic.cc  boundarydom.cc  boundaryseg.cc
     cube.cc  dim.cc  general.cc  gridparameter.cc
     interval.cc  periodicfacetrans.cc projection.cc simplex.cc  simplexgeneration.cc  vertex.cc)

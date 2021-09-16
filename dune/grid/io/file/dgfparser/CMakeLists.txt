@@ -2,7 +2,7 @@ add_subdirectory(blocks)
 add_subdirectory(test)
 add_subdirectory(utils)
 
-target_sources(dunegrid PRIVATE dgfparser.cc dgfug.cc)
+target_sources(dune-grid PRIVATE dgfparser.cc dgfug.cc)
 
 install(FILES
   dgfexception.hh

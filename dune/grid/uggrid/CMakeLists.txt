@@ -1,5 +1,5 @@
 if(dune-uggrid_FOUND)
-  target_sources(dunegrid PRIVATE
+  target_sources(dune-grid PRIVATE
     uggridintersections.cc
     uggrid.cc
     uggridentity.cc
