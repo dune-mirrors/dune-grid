@@ -11,9 +11,15 @@ include(GridType)
 set(DUNE_GRID_EXTRA_UTILS "" CACHE BOOL
   "Enable compilation and installation of extra utilities from the \"src\" subdirectory.")
 
-find_package(METIS)
-find_package(ParMETIS)
+if(NOT TARGET METIS::METIS)
+  find_package(METIS)
+endif()
+
+if(NOT TARGET ParMETIS::ParMETIS)
+  find_package(ParMETIS)
+endif()
 include(AddParMETISFlags)
+
 find_package(Alberta 3.0)
 include(AddAlbertaFlags)
 include(AddUGFlags)

@@ -16,7 +16,7 @@ set(HEADERS
   yaspgridpersistentcontainer.hh
   ygrid.hh)
 
-exclude_all_but_from_headercheck(backuprestore.hh torus.hh coordinates.hh ygrid.hh)
+dune_exclude_all_but_from_headercheck(backuprestore.hh torus.hh coordinates.hh ygrid.hh)
 
 install(FILES ${HEADERS}
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/grid/yaspgrid/)

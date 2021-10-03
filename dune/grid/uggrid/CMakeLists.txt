@@ -11,7 +11,7 @@ if(dune-uggrid_FOUND)
     uggridhieriterator.cc)
 endif()
 
-exclude_all_but_from_headercheck(
+dune_exclude_all_but_from_headercheck(
   boundaryextractor.hh
   ug_undefs.hh)
 

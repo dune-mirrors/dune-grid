@@ -11,7 +11,7 @@
 #
 
 # set HAVE_PSURFACE for config.h
-set(HAVE_PSURFACE ${Psurface_FOUND})
+set(HAVE_PSURFACE ${Psurface_FOUND} CACHE INTERNAL "")
 
 # register all psurface related flags
 if(Psurface_FOUND)

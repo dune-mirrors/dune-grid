@@ -16,7 +16,7 @@
 #
 
 # set HAVE_ALBERTA for config.h
-set(HAVE_ALBERTA ${Alberta_FOUND})
+set(HAVE_ALBERTA ${Alberta_FOUND} CACHE INTERNAL "")
 
 # register all Alberta related flags
 if(Alberta_FOUND)
