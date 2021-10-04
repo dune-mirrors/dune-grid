@@ -10,6 +10,17 @@ endif()
 #find dune-common and set the module path
 find_package(dune-common REQUIRED)
 
+include(DuneFindOrFetchPackage)
+dune_find_or_fetch_package(
+  NAME
+    dune-geometry
+  FIND
+    2.9
+  FETCH
+    GIT_REPOSITORY https://gitlab.dune-project.org/core/dune-geometry.git
+    GIT_TAG        8763ff5f963bb7cc77292a959b68f6f802714155
+)
+
 # start a dune project with information from dune.module
 dune_project(dune-grid)
 
