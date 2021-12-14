@@ -1,10 +1,10 @@
 ---
 include:
   - project: 'core/ci-config'
-    ref: feature/use-rule-extension # NOTE: change back to 'master' once this branch is merged
+    ref: master
     file: 'config/common/master.yml'
   - project: 'core/ci-config'
-    ref: feature/use-rule-extension # NOTE: change back to 'master' once this branch is merged
+    ref: master
     file: 'jobs/common/master.yml'
 
 before_script:
