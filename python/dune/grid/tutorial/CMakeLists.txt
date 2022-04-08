@@ -3,5 +3,13 @@ dune_python_add_test(NAME pyexample
                      SCRIPT example.py
                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                      LABELS quick)
+dune_symlink_to_source_files(FILES ../../../../doc/grids/dgf/test2d_offset.dgf ../../../../doc/grids/gmsh/circle1storder.msh)
 
-dune_symlink_to_source_files(FILES test2d_offset.dgf)
+if(SKBUILD)
+  install(FILES
+    ../../../../doc/grids/dgf/test2d_offset.dgf ../../../../doc/grids/gmsh/circle1storder.msh
+    DESTINATION python/dune/grid/tutorial)
+endif()
+
+# dune_add_copy_command(FILES ../../../doc/grids/dgf/test2d_offset.dgf)
+# dune_add_copy_command(FILES ../../../doc/grids/gmsh/circle1storder.msh)
