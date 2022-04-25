@@ -6,6 +6,10 @@ SPDX-License-Identifier: LicenseRef-GPL-2.0-only-with-DUNE-exception
 # Master (will become release 2.9)
 
 - UGGrid is now thread safe on the grid view.
+
+- Grid concepts are here! A `Grid` can now be inspected and extended
+  at compilation time using concepts.
+
 - The `Geometry` interface was extended by methods `jacobian(local)` and `jacobianInverse(local)`
   and corresponding typedefs `Jacobian` and `JacobianInverse`. All grid implementations need to
   provide the new interface. For transition, the methods and typedefs are default-implemented
@@ -73,9 +77,6 @@ SPDX-License-Identifier: LicenseRef-GPL-2.0-only-with-DUNE-exception
 
 - `IdSet` now exports grid `dimension` and `Codim<cd>::Entity`.
 
-- Grid concepts are here! Now a `Grid` can be inspected and extended
-  at compilation time using concepts. We provide two versions: the standard
-  C++20 concepts and a fallback implementation pre-C++20.
 - `UGGrid` index sets can now compute the indices of vertices of edges.
 
 - `UGGrid`: Fixed a bug in the numbering of prism edges.
