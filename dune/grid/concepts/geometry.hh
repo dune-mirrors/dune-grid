@@ -26,7 +26,7 @@ namespace Dune::Concept {
     { g.corner(/*i*/ int{})               } -> std::convertible_to<typename G::GlobalCoordinate>;
     { g.global(local)                     } -> std::convertible_to<typename G::GlobalCoordinate>;
     { g.local(global)                     } -> std::convertible_to<typename G::LocalCoordinate>;
-    { g.integrationElement(local)         } -> std::convertible_to<typename G::ctype>;
+    { g.integrationElement(local)         } -> std::convertible_to<typename G::Volume>;
     { g.volume()                          } -> std::convertible_to<typename G::Volume>;
     { g.center()                          } -> std::convertible_to<typename G::GlobalCoordinate>;
     { g.jacobianTransposed(local)         } -> std::convertible_to<typename G::JacobianTransposed>;
