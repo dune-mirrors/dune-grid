@@ -58,7 +58,7 @@ debian-10-clang-7-17-werror:
   script: duneci-standard-test
   variables:
     DUNECI_TOOLCHAIN:   clang-7-libcpp-17
-    DUNE_CMAKE_FLAGS:   "-DCMAKE_CXX_FLAGS='-std=c++17 -O2 -g -Wall -Werror -Wno-unused-function -Wno-unneeded-internal-declaration -Wno-deprecated-declarations -Wno-tautological-constant-out-of-range-compare -Wno-unused-variable -fdiagnostics-color=always' -DDUNE_MAX_TEST_CORES=4 -DBUILD_SHARED_LIBS=TRUE -DCMAKE_DISABLE_FIND_PACKAGE_LATEX=TRUE -DCMAKE_DISABLE_FIND_PACKAGE_Alberta=TRUE -DCMAKE_DISABLE_FIND_PACKAGE_Vc=TRUE -DCMAKE_DISABLE_DOCUMENTATION=TRUE"
+    DUNE_CMAKE_FLAGS:   "-DCMAKE_CXX_FLAGS='-std=c++17 -O2 -g -Wall -Werror -Wno-unused-function -Wno-unneeded-internal-declaration -Wno-deprecated-declarations -Wno-unknown-warning-option -Wno-tautological-constant-out-of-range-compare -Wno-unused-variable -fdiagnostics-color=always' -DDUNE_MAX_TEST_CORES=4 -DBUILD_SHARED_LIBS=TRUE -DCMAKE_DISABLE_FIND_PACKAGE_LATEX=TRUE -DCMAKE_DISABLE_FIND_PACKAGE_Alberta=TRUE -DCMAKE_DISABLE_FIND_PACKAGE_Vc=TRUE -DCMAKE_DISABLE_DOCUMENTATION=TRUE"
     # cmake flags we use for all dune moudle - important is that build shared libs is set (need some better way of doing this)
     DUNECI_CMAKE_FLAGS: $DUNE_CMAKE_FLAGS
   tags: [duneci]
