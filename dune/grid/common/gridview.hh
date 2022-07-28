@@ -88,8 +88,37 @@ namespace Dune
     /** \brief type of the intersection iterator */
     typedef typename Traits :: IntersectionIterator IntersectionIterator;
 
+  protected:
+    template<typename T>
+    struct ToVoid
+    {
+      typedef void type;
+    };
+
+    // if this class is used then the Communication typedef is missing in the GridFamily
+    template <typename T>
+    struct
+    [[deprecated("Missing Communication typedef in GridView traits, please fix asap!")]]
+    NoCommunicationTypedef
+    {
+      typedef typename T::CollectiveCommunication type;
+    };
+
+    template <typename T, typename dummy = void>
+    struct HasCommunication : public NoCommunicationTypedef< T >
+    {
+      typedef T::CollectiveCommunication type;
+    };
+
+    template <typename T>
+    struct HasCommunication<T, typename ToVoid<typename T::Communication>::type >
+    {
+      typedef T::Communication type;
+    };
+
+  public:
     /** \brief type of the communication */
-    typedef typename Traits :: Communication Communication;
+    typedef typename HasCommunication<Traits>::type Communication;
 
     /** \brief type of the communication */
     typedef Communication CollectiveCommunication;

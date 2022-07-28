@@ -505,16 +505,43 @@ namespace Dune {
      */
     typedef typename GridFamily::Traits::LocalIdSet LocalIdSet;
 
+  protected:
+    template<typename T>
+    struct ToVoid
+    {
+      typedef void type;
+    };
+
+    // if this class is used then the Communication typedef is missing in the GridFamily
+    template <typename T>
+    struct
+    [[deprecated("Missing Communication typedef in Grid's GridFamily, please fix asap!")]]
+    NoCommunicationTypedef
+    {
+      typedef typename T::CollectiveCommunication type;
+    };
+
+    template <typename T, typename dummy = void>
+    struct HasCommunication : public NoCommunicationTypedef< T >
+    {};
+
+    template <typename T>
+    struct HasCommunication<T, typename ToVoid<typename T::Communication>::type >
+    {
+      typedef typename T::Communication type;
+    };
+
+  public:
     /*! \brief A type that is a model of Dune::Communication.
        It provides a portable way for communication on the set
        of processes used by the grid.
      */
-    typedef typename GridFamily::Traits::Communication Communication;
+    typedef typename HasCommunication<typename GridFamily::Traits>::type Communication;
 
     /** \deprecated Use Communication instead! Will be removed after Dune 2.9.
      */
-    [[deprecated("Use Communication instead!")]]
-    typedef Communication CollectiveCommunication;
+    using CollectiveCommunication [[deprecated("CollectiveCommunication is deprecated, use Communication instead!")]] = Communication;
+    //typedef Communication CollectiveCommunication;
 
     //! Define type used for coordinates in grid module
     typedef ct ctype;
