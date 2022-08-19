@@ -136,6 +136,29 @@ struct subIndexCheck
         assert( false );
       }
 
+      Dune::Hybrid::forEach(std::make_index_sequence<Grid::dimension-cd>{}, [&](auto cc){
+        if constexpr (Dune::Capabilities::hasEntity< Grid, cd + cc >::v)
+        {
+          for (int sSubIndex = 0; sSubIndex != se.subEntities(cd + cc); ++sSubIndex) {
+            int eSubIndex = referenceElement(e.geometry()).subEntity(subIndex, cd, sSubIndex, cd + cc);
+            const auto& sse = e.template subEntity< cd + cc >( eSubIndex );
+            if( levelIndexSet.index( sse ) != levelIndexSet.subIndex( se, sSubIndex, cd + cc ) )
+            {
+              int id_e = levelIndexSet.index( e );
+              int id_e_i = levelIndexSet.index( sse );
+              int subid_e_i = levelIndexSet.subIndex( se, sSubIndex, cd + cc );
+              std::cerr << "Error: levelIndexSet.index( e.template subEntity< cd + cc >( eSubIndex ) ) "
+                        << "!= levelIndexSet.subIndex( e.template subEntity< cd >( subIndex ), sSubIndex, cd + cc )  "
+                        << "[with cd=" << cd << ", cc=" << cc << ", subIndex=" << subIndex << ", eSubIndex=" << eSubIndex << ", sSubIndex=" << sSubIndex << "]" << std::endl;
+              std::cerr << "       ... index( e ) = " << id_e << std::endl;
+              std::cerr << "       ... index( e.subEntity< cd + cc >( eSubIndex ) ) = " << id_e_i << std::endl;
+              std::cerr << "       ... subIndex( e.template subEntity< cd >( subIndex ), sSubIndex, cd + cc ) = " << subid_e_i << std::endl;
+              assert( false );
+            }
+          }
+        }
+      });
+
       ++subIndex;
     }
 
