@@ -102,7 +102,7 @@ namespace Dune
    *                    (always const AlbertaGrid< dim, dimworld >)
    */
   template< int mydim, int cdim, class GridImp >
-  class AlbertaGridGeometry
+  class AlbertaGridGeometry : public GeometryDefaultImplementation<mydim, cdim, GridImp, AlbertaGridGeometry>
   {
     typedef AlbertaGridGeometry< mydim, cdim, GridImp > This;
 
