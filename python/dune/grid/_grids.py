@@ -5,7 +5,28 @@ from dune.common.checkconfiguration import assertCMakeHave, ConfigurationError
 from dune.typeregistry import generateTypeName
 
 class CartesianDomain(tuple):
-    def __new__ (cls, lower,upper,division,**parameters):
+    @staticmethod
+    def bndDomain(lower, upper):
+        bnd = ""
+        lower = list(lower)
+        upper = list(upper)
+        dim = len(lower)
+        for i in range(dim):
+            l = lower.copy()
+            u = upper.copy()
+            l[i] -= 1e-5
+            u[i] = lower[i]
+
+            bnd += str(2*i+1) + " " + " ".join(str(x) for x in l) +\
+                                " " + " ".join(str(x) for x in u) + "\n"
+            l = lower.copy()
+            u = upper.copy()
+            l[i] = upper[i]
+            u[i] = upper[i] + 1e-5
+            bnd += str(2*i+2) + " " + " ".join(str(x) for x in l) +\
+                                " " + " ".join(str(x) for x in u) + "\n"
+        return bnd
+    def __new__ (cls, lower,upper,division,boundary=False,**parameters):
         from ._grid import reader
         dgf = "DGF\n"
         dgf += "INTERVAL\n"
@@ -13,6 +34,12 @@ class CartesianDomain(tuple):
         dgf += " ".join([str(x) for x in upper]) + "\n"
         dgf += " ".join([str(x) for x in division]) + "\n"
         dgf += "#\n"
+
+        if boundary:
+            dgf += "BOUNDARYDOMAIN\n"
+            dgf += CartesianDomain.bndDomain(lower,upper)
+            dgf += "#\n"
+
         dgf += "GRIDPARAMETER\n"
         foundRefEdge = False
         for key in parameters:
@@ -46,7 +73,7 @@ class CartesianDomain(tuple):
             pass
         return super(CartesianDomain, cls).__new__(cls,
                        tuple( (reader.dgfString, dgf) ) )
-    def __init__(self,lower,upper,division,**parameters):
+    def __init__(self,lower,upper,division,boundary=False,**parameters):
         self.dimgrid = len(lower)
         self.lower = lower
         self.upper = upper
@@ -191,7 +218,7 @@ def yaspGrid(constructor, dimgrid=None, coordinates="equidistant", ctype=None,
     useReader = False
 
     #### we try to guess what kind of "constructor" we are using now
-    # CartesianDomain
+    # domain.Cartesian
     if isinstance(constructor, CartesianDomain):
         # retrieve parameters from constructor.param, explicit parameters take precedence
         ctype_     = constructor.param.get("ctype", ctype)
@@ -199,23 +226,23 @@ def yaspGrid(constructor, dimgrid=None, coordinates="equidistant", ctype=None,
             ctype = ctype_
         else:
             if ctype != ctype_:
-                print("WARNING: yaspGrid: ctype Parameter of CartesianDomain overwritten by explicit parameter")
+                print("WARNING: yaspGrid: ctype Parameter of cartesian domain overwritten by explicit parameter")
         if not ctype:
             ctype = "double" # default is doubel
         # ---
         periodic_  = constructor.param.get("periodic", periodic)
         if not periodic:
-            periodic = periodic_ # if periodic is not gieven on the command line, we use the parameter from CartesianDomain
+            periodic = periodic_ # if periodic is not gieven on the command line, we use the parameter from cartesian
         else:
             if periodic != periodic_:
-                print("WARNING: yaspGrid: periodic Parameter of CartesianDomain overwritten by explicit parameter")
+                print("WARNING: yaspGrid: periodic Parameter of cartesian domain overwritten by explicit parameter")
         # ---
         overlap_   = constructor.param.get("overlap", overlap)
         if not overlap:
-            overlap = overlap_ # if overlap is not gieven on the command line, we use the parameter from CartesianDomain
+            overlap = overlap_ # if overlap is not gieven on the command line, we use the parameter from cartesian
         else:
             if overlap != overlap_:
-                print("WARNING: yaspGrid: overlap Parameter of CartesianDomain overwritten by explicit parameter")
+                print("WARNING: yaspGrid: overlap Parameter of cartesian domain overwritten by explicit parameter")
         # ---
         constructor = equidistantOffsetCoordinates(
             lowerleft  = constructor.lower,

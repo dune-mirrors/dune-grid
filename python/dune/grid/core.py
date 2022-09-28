@@ -2,13 +2,16 @@
 # SPDX-License-Identifier: LicenseRef-GPL-2.0-only-with-DUNE-exception
 
 from ._grids import CartesianDomain
+from .domain import cartesian
 from .map import MultipleCodimMultipleGeomTypeMapper as Mapper
 
+from dune.deprecate import deprecated
+@deprecated("Use dune.domain.cartesian instead",name="cartesianDomain")
 def cartesianDomain(lower, upper, division, **parameters):
     return CartesianDomain(lower,upper,division,**parameters)
 def structuredGrid(lower,upper,division,**parameters):
     from ._grids import yaspGrid
-    domain = cartesianDomain(lower, upper, division, **parameters)
+    domain = cartesian(lower, upper, division, **parameters)
     return yaspGrid(domain, dimgrid=len(lower), coordinates="equidistantoffset")
 
 def string2dgf(dgf):

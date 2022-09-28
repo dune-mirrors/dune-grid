@@ -5,7 +5,7 @@ import time, math, numpy, io
 import dune
 from dune.generator import algorithm
 import dune.geometry
-from dune.grid import cartesianDomain
+from dune.grid.domain import cartesian
 from dune.grid import yaspGrid as gridView
 
 def testPyQuad(view,rules,error):
@@ -68,7 +68,7 @@ def testCppQuad(view,rules,error):
     return l2norm2
 
 if __name__ == "__main__":
-    domain = cartesianDomain([0, 0], [1, 1], [50, 50])
+    domain = cartesian([0, 0], [1, 1], [50, 50])
     view = gridView(domain)
 
     @dune.grid.gridFunction(view)

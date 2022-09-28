@@ -68,10 +68,11 @@ ygrid.plot()
 runOnGrid(ygrid)
 
 # create a YaspGrid for a cartesian domain with non-standard overlap and periodicity
-print ("construct a YaspGrid as a CartesianDomain with non-standard overlap and periodicity")
-from dune.grid import yaspGrid, cartesianDomain
+print ("construct a YaspGrid as a cartesian domain with non-standard overlap and periodicity")
+from dune.grid import yaspGrid
+from dune.grid.domain import cartesian
 dim = 2
-cartDomain = cartesianDomain([-10]*dim,[10]*dim, [20]*dim, periodic=[True]*dim, overlap=2)
+cartDomain = cartesian([-10]*dim,[10]*dim, [20]*dim, periodic=[True]*dim, overlap=2)
 p_grid = yaspGrid( cartDomain, dimgrid=dim) #, ctype='float' )
 print("number of elements of periodic YaspGrid grid:",p_grid.size(0))
 p_grid.plot()
