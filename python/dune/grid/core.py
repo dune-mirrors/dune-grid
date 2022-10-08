@@ -6,7 +6,10 @@ from .domain import cartesian
 from .map import MultipleCodimMultipleGeomTypeMapper as Mapper
 
 from dune.deprecate import deprecated
-@deprecated("Use dune.domain.cartesian instead",name="cartesianDomain")
+@deprecated("Use dune.domain.cartesian instead!\n\
+Note: In this case the boundary ids for \
+unstructured grids have changed \nto return the same values as \
+for true Cartesian grids.\n",name="cartesianDomain")
 def cartesianDomain(lower, upper, division, **parameters):
     return CartesianDomain(lower,upper,division,**parameters)
 def structuredGrid(lower,upper,division,**parameters):
