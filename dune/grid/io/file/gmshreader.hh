@@ -314,6 +314,7 @@ namespace Dune
     // exported data
     std::vector<int> boundary_id_to_physical_entity;
     std::vector<int> element_index_to_physical_entity;
+    std::vector<std::string> physical_entity_name;
 
     // static data
     static const int dim = GridType::dimension;
@@ -367,6 +368,11 @@ namespace Dune
       return element_index_to_physical_entity;
     }
 
+    std::vector<std::string> & physicalName()
+    {
+      return physical_entity_name;
+    }
+
     void read (const std::string& f)
     {
       if (verbose) std::cout << "Reading " << dim << "d Gmsh grid..." << std::endl;
@@ -401,10 +407,32 @@ namespace Dune
       if (strcmp(buf,"$EndMeshFormat")!=0)
         DUNE_THROW(Dune::IOError, "expected $EndMeshFormat");
 
+      // physical name section
+      physical_entity_name.clear();
+      readfile(file,1,"%s\n",buf);
+      if (strcmp(buf,"$PhysicalNames")==0) {
+        int number_of_names;
+        readfile(file,1,"%d\n",&number_of_names);
+        if (verbose) std::cout << "file contains " << number_of_names << " physical entities" << std::endl;
+        physical_entity_name.resize(number_of_names);
+        std::string buf_name;
+        for( int i = 0; i < number_of_names; ++i ) {
+          int dim, id;
+          readfile(file,3, "%d %d %s\n", &dim, &id, buf);
+          buf_name.assign(buf);
+          auto begin = buf_name.find_first_of('\"') + 1;
+          auto end = buf_name.find_last_of('\"') - begin;
+          physical_entity_name[id-1].assign(buf_name.substr(begin, end));
+        }
+        readfile(file,1,"%s\n",buf);
+        if (strcmp(buf,"$EndPhysicalNames")!=0)
+          DUNE_THROW(Dune::IOError, "expected $EndPhysicalNames");
+        readfile(file,1,"%s\n",buf);
+      }
+
       // node section
       int number_of_nodes;
 
-      readfile(file,1,"%s\n",buf);
       if (strcmp(buf,"$Nodes")!=0)
         DUNE_THROW(Dune::IOError, "expected $Nodes");
       readfile(file,1,"%d\n",&number_of_nodes);
@@ -458,7 +486,7 @@ namespace Dune
         {
           int blub;
           readfile(file,1,"%d ",&blub);
-          // k == 1: physical entity (not used here)
+          // k == 1: physical entity
           // k == 2: elementary entity (not used here either)
           // if version_number < 2.2:
           //   k == 3: mesh partition 0
