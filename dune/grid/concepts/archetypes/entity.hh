@@ -5,7 +5,6 @@
 #ifndef DUNE_GRID_CONCEPT_ARCHETYPES_ENTITY_HH
 #define DUNE_GRID_CONCEPT_ARCHETYPES_ENTITY_HH
 
-
 #include <dune/geometry/type.hh>
 #include <dune/grid/common/gridenums.hh>
 #include <dune/grid/concepts/archetypes/entity.hh>
@@ -17,7 +16,7 @@ template <int codim>
 struct EntitySeed
 {
   static constexpr int codimension = codim;
-  bool isValid() const { return true; }
+  bool isValid () const;
 };
 
 
@@ -33,16 +32,16 @@ struct Entity
 
   int level () const;
   Dune::PartitionType partitionType () const;
-  Geometry geometry() const;
-  Dune::GeometryType type() const;
-  unsigned int subEntities(int cd) const;
-  EntitySeed seed() const;
+  Geometry geometry () const;
+  Dune::GeometryType type () const;
+  unsigned int subEntities (int cd) const;
+  EntitySeed seed () const;
 
   template <int cc>
-  Archetypes::Entity<dim,cc> subEntity(int i) const;
+  Archetypes::Entity<dim,cc> subEntity (int i) const;
 
-  bool operator==(Entity const&) const;
-  bool operator!=(Entity const&) const;
+  bool operator== (Entity const& entity) const;
+  bool operator!= (Entity const& entity) const;
 };
 
 } // end namespace Dune::Concept::Archetypes
