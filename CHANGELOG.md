@@ -7,8 +7,8 @@ SPDX-License-Identifier: LicenseRef-GPL-2.0-only-with-DUNE-exception
 
 - UGGrid is now thread safe on the grid view.
 
-- Grid concepts are here! A `Grid` can now be inspected and extended
-  at compilation time using concepts.
+- Grid concepts are here! A `Grid` can now be inspected and als its components checked for valid
+  interfaces at compilation time using c++20 concepts.
 
 - The `Geometry` interface was extended by methods `jacobian(local)` and `jacobianInverse(local)`
   and corresponding typedefs `Jacobian` and `JacobianInverse`. All grid implementations need to
