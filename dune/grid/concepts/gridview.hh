@@ -30,8 +30,12 @@ namespace Impl {
   };
 
   template<class ES, int codim>
-  requires (not Dune::Capabilities::hasEntityIterator<ES,codim>::value) || EntitySetAllPartitions<ES,codim>
-  void requireEntitySetAllPartitionsIfSupported();
+  concept EntitySetAllPartitionsIfSupported
+    = ((not Dune::Capabilities::hasEntityIterator<ES,codim>::value) || EntitySetAllPartitions<ES,codim>);
+
+  template<class ES, int... codim>
+    requires (EntitySetAllPartitionsIfSupported<ES,(codim+1)> &&...)
+  void requireEntitySetAllPartitionsIfSupported(std::integer_sequence<int,codim...>) {};
 
 }
 
@@ -41,12 +45,8 @@ namespace Impl {
  * @details Dune::GridView is a template for this model
  */
 template<class GV>
-concept GridView = requires(GV gv)
-{
-  requires Impl::EntitySetAllPartitions<GV,0>; // minimal requirement
-  Dune::unpackIntegerSequence([](auto... i){
-    (Impl::requireEntitySetAllPartitionsIfSupported<GV,i+1>(), ...);
-  }, std::make_index_sequence<GV::dimension>{});
+concept GridView = requires {
+  requireEntitySetAllPartitionsIfSupported<GV>(std::make_integer_sequence<int,GV::dimension>{});
 };
 
 }  // end namespace Dune::Concept
