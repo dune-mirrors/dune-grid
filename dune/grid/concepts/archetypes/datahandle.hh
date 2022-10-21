@@ -9,6 +9,7 @@
 
 #include <dune/grid/common/datahandleif.hh>
 
+#ifndef DOXYGEN
 namespace Dune::Concept::Archetypes {
 
 template <class Data>
@@ -30,6 +31,6 @@ struct CommDataHandle : public Dune::CommDataHandleIF<CommDataHandle<Data>, Data
 };
 
 } // end namespace Dune::Concept::Archetypes
-
+#endif // DOXYGEN
 
 #endif // DUNE_GRID_CONCEPTS_ARCHETYPES_COMMDATAHANDLE_HH

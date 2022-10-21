@@ -9,6 +9,7 @@
 #include <dune/common/fvector.hh>
 #include <dune/geometry/type.hh>
 
+#ifndef DOXYGEN
 namespace Dune::Concept::Archetypes {
 
 struct ReferenceElement {};
@@ -50,6 +51,6 @@ template <int mydim, int cdim>
 Archetypes::ReferenceElement referenceElement (const Geometry<mydim,cdim>& g);
 
 } // end namespace Dune::Concept::Archetypes
-
+#endif // DOXYGEN
 
 #endif // DUNE_GRID_CONCEPTS_ARCHETYPES_GEOMETRY_HH

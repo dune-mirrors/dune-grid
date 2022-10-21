@@ -10,6 +10,7 @@
 #include <dune/grid/concepts/archetypes/entity.hh>
 #include <dune/grid/concepts/archetypes/geometry.hh>
 
+#ifndef DOXYGEN
 namespace Dune::Concept::Archetypes {
 
 template <int codim>
@@ -45,6 +46,6 @@ struct Entity
 };
 
 } // end namespace Dune::Concept::Archetypes
-
+#endif // DOXYGEN
 
 #endif // DUNE_GRID_CONCEPT_ARCHETYPES_ENTITY_HH
