@@ -34,7 +34,7 @@ namespace Dune::Concept {
   namespace Impl {
 
   template<class G, int codim>
-  concept GridCodim = requires(const G& cg, const typename G::template Codim<codim>::EntitySeed& seed)
+  concept GridCodim = requires(G g, const G& cg, const typename G::template Codim<codim>::EntitySeed& seed)
   {
     requires Entity< typename G::template Codim<codim>::Entity>;
     requires EntitySeed< typename G::template Codim<codim>::EntitySeed>;
@@ -54,7 +54,13 @@ namespace Dune::Concept {
     requires EntityIterator< typename G::template Codim<codim>::template Partition<Dune::PartitionIteratorType::Ghost_Partition>::LeafIterator>;
     requires EntityIterator< typename G::template Codim<codim>::LevelIterator>;
     requires EntityIterator< typename G::template Codim<codim>::LeafIterator>;
-    { cg.entity(seed) } -> std::convertible_to<typename G::template Codim<codim>::Entity                                                                                >;
+    { cg.entity(seed) } -> std::convertible_to<typename G::template Codim<codim>::Entity>;
+    requires (not Dune::Capabilities::canCommunicate<G,codim>::value) || requires {
+      requires requires(Archetypes::CommDataHandle<std::byte>& handle)
+      {
+        { g.loadBalance(handle) } -> std::convertible_to< bool >;
+      };
+    };
   };
 
 
@@ -111,12 +117,6 @@ concept Grid = requires(G g, const G& cg, int level, int codim, int refCount,
   { g.adapt()                  } -> std::convertible_to< bool                                >;
   { cg.comm()                  } -> std::convertible_to< typename G::CollectiveCommunication >;
   { g.loadBalance()            } -> std::convertible_to< bool                                >;
-  requires (not Dune::Capabilities::canCommunicate<G,0>::value) || requires {
-    requires requires(Archetypes::CommDataHandle<std::byte>& handle)
-    {
-      { g.loadBalance(handle) } -> std::convertible_to< bool >;
-    };
-  };
   g.globalRefine(refCount);
   g.postAdapt();
 
