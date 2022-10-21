@@ -26,7 +26,7 @@ concept CommDataHandle = requires(const DH chandle, const Archetypes::Entity<2,0
   {
     handle.gather(buffer, entity);
     handle.scatter(buffer, entity, /*size*/ 0u);
-  }
+  };
 };
 
 static_assert(CommDataHandle< Archetypes::CommDataHandle<double> >);
