@@ -3,12 +3,14 @@ SPDX-FileCopyrightText: Copyright © DUNE Project contributors, see file LICENSE
 SPDX-License-Identifier: LicenseRef-GPL-2.0-only-with-DUNE-exception
 -->
 
-# Master (will become release 2.9)
-
-- UGGrid is now thread safe on the grid view.
+## Changelog
 
 - Grid concepts are here! A `Grid` can now be inspected and als its components checked for valid
   interfaces at compilation time using c++20 concepts.
+
+# Master (will become release 2.9)
+
+- UGGrid is now thread safe on the grid view.
 
 - The `Geometry` interface was extended by methods `jacobian(local)` and `jacobianInverse(local)`
   and corresponding typedefs `Jacobian` and `JacobianInverse`. All grid implementations need to
