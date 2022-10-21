@@ -35,16 +35,12 @@ namespace Impl {
 
   template<class ES, class Grid, int codim>
     requires Dune::Capabilities::hasEntityIterator<Grid,codim>::v
-  void requireEntitySetAllPartitionsIfSupportedImpl()
+  void requireEntitySetAllPartitions()
     requires EntitySetAllPartitions<ES,codim> {}
 
   template<class ES, class Grid, int codim>
     requires (not Dune::Capabilities::hasEntityIterator<Grid,codim>::v)
-  void requireEntitySetAllPartitionsIfSupportedImpl() {}
-
-  template<class ES, class Grid, int... dim>
-    requires requires { (requireEntitySetAllPartitionsIfSupportedImpl<ES,Grid,(ES::dimension - dim)>(),...); }
-  void requireEntitySetAllPartitionsIfSupported(std::integer_sequence<int,dim...>) {}
+  void requireEntitySetAllPartitions() {}
 
 }
 
@@ -54,9 +50,12 @@ namespace Impl {
  * @details Dune::GridView is a template for this model
  */
 template<class GV>
-concept GridView = requires {
-  Impl::requireEntitySetAllPartitionsIfSupported<GV,typename GV::Grid>(
-    std::make_integer_sequence<int,GV::dimension+1>{});
+concept GridView = requires(std::make_integer_sequence<int,GV::dimension+1> dims)
+{
+  requires EntitySet<GV,0>;
+
+  []<int... d>(std::integer_sequence<int,d...>) requires
+    requires { (Impl::requireEntitySetAllPartitions<GV,typename GV::Grid,(GV::dimension-d)>(),...); }{} (dims);
 };
 
 }  // end namespace Dune::Concept
