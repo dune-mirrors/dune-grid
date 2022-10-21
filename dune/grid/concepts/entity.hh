@@ -6,9 +6,10 @@
 #define DUNE_GRID_CONCEPT_ENTITY_HH
 
 
-#include <dune/grid/concepts/geometry.hh>
-
 #include <dune/grid/common/gridenums.hh>
+#include <dune/grid/concepts/entity.hh>
+#include <dune/grid/concepts/geometry.hh>
+#include <dune/grid/concepts/archetypes/entity.hh>
 
 #include <dune/geometry/type.hh>
 
@@ -26,6 +27,9 @@ concept EntitySeed = requires(S seed)
   { S::codimension  } -> std::convertible_to<int>;
   { seed.isValid()  } -> std::convertible_to<bool>;
 };
+
+static_assert(EntitySeed< Archetypes::EntitySeed<0> >);
+
 
 /**
  * @brief Model of a grid entity for any codimension
@@ -52,6 +56,8 @@ concept EntityGeneral = requires(E e, unsigned int codim)
   e = e;
   e = std::move(e);
 };
+
+static_assert(EntityGeneral< Archetypes::Entity<2,0> >);
 
 
 namespace Impl
