@@ -89,8 +89,8 @@ bool checkEntityLifetimeForCodim(GV gv, std::size_t check_element_count, Dune::C
 #if DUNE_GRID_HAVE_CONCEPTS
   static_assert(Dune::Concept::GridView<GV>);
   static_assert(Dune::Concept::IndexSet<typename GV::IndexSet>);
-  static_assert(Dune::Concept::IdSet<typename GV::LocalIdSet>);
-  static_assert(Dune::Concept::IdSet<typename GV::GlobalIdSet>);
+  static_assert(Dune::Concept::IdSet<typename GV::Grid::LocalIdSet>);
+  static_assert(Dune::Concept::IdSet<typename GV::Grid::GlobalIdSet>);
   static_assert(Dune::Concept::EntityIterator<Iterator>);
   static_assert(Dune::Concept::Grid<typename GV::Grid>);
 #endif
