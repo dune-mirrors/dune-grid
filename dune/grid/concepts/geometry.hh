@@ -38,6 +38,8 @@ concept Geometry = requires(const G& g, typename G::GlobalCoordinate global, typ
   { g.integrationElement(local)         } -> std::convertible_to<typename G::Volume>;
   { g.volume()                          } -> std::convertible_to<typename G::Volume>;
   { g.center()                          } -> std::convertible_to<typename G::GlobalCoordinate>;
+  { g.jacobian(local)                   } -> std::convertible_to<typename G::Jacobian>;
+  { g.jacobianInverse(local)            } -> std::convertible_to<typename G::JacobianInverse>;
   { g.jacobianTransposed(local)         } -> std::convertible_to<typename G::JacobianTransposed>;
   { g.jacobianInverseTransposed(local)  } -> std::convertible_to<typename G::JacobianInverseTransposed>;
   { referenceElement(g)                 } -> ReferenceElement;

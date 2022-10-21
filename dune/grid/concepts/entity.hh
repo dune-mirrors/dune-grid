@@ -51,10 +51,7 @@ concept EntityGeneral = requires(E e, unsigned int codim)
   { e==e                  } -> std::convertible_to<bool>;
   { e!=e                  } -> std::convertible_to<bool>;
   requires std::default_initializable<E>;
-  requires std::copy_constructible<E>;
-  requires std::move_constructible<E>;
-  e = e;
-  e = std::move(e);
+  requires std::copyable<E>;
 };
 
 static_assert(EntityGeneral< Archetypes::Entity<2,0> >);
