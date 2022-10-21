@@ -15,7 +15,7 @@ namespace Dune::Concept {
  * @details Dune::EntityIterator is a template for this model
  */
 template<class It>
-concept EntityIterator = requires(It it)
+concept EntityIterator = requires
 {
   requires Entity<typename It::Entity>;
   requires std::forward_iterator<It>;

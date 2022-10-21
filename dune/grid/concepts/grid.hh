@@ -33,7 +33,7 @@ namespace Dune::Concept {
   namespace Impl {
 
   template<class G, int codim>
-  concept GridCodim = requires(G g, const typename G::template Codim<codim>::EntitySeed& seed)
+  concept GridCodim = requires(const G& cg, const typename G::template Codim<codim>::EntitySeed& seed)
   {
     requires Entity< typename G::template Codim<codim>::Entity>;
     requires EntitySeed< typename G::template Codim<codim>::EntitySeed>;
@@ -53,7 +53,7 @@ namespace Dune::Concept {
     requires EntityIterator< typename G::template Codim<codim>::template Partition<Dune::PartitionIteratorType::Ghost_Partition>::LeafIterator>;
     requires EntityIterator< typename G::template Codim<codim>::LevelIterator>;
     requires EntityIterator< typename G::template Codim<codim>::LeafIterator>;
-    { g.entity(seed) } -> std::convertible_to<typename G::template Codim<codim>::Entity                                                                                >;
+    { cg.entity(seed) } -> std::convertible_to<typename G::template Codim<codim>::Entity                                                                                >;
   };
 
 
@@ -71,7 +71,7 @@ namespace Dune::Concept {
  * @details Dune::Grid is a template for this model
  */
 template<class G>
-concept Grid = requires(G g, int level, int codim, int refCount,
+concept Grid = requires(G g, const G& cg, int level, int codim, int refCount,
                         Dune::GeometryType type,
                         const typename G::template Codim<0>::Entity& entity)
 {
@@ -92,26 +92,25 @@ concept Grid = requires(G g, int level, int codim, int refCount,
   requires Impl::AllGridCodims<G,G::dimension>;
   typename G::ctype;
   typename G::HierarchicIterator;
-  { g.maxLevel()              } -> std::convertible_to< int                                 >;
-  { g.size(level, codim)      } -> std::convertible_to< int                                 >;
-  { g.size(codim)             } -> std::convertible_to< int                                 >;
-  { g.size(level, type)       } -> std::convertible_to< int                                 >;
-  { g.size(type)              } -> std::convertible_to< int                                 >;
-  { g.numBoundarySegments()   } -> std::convertible_to< std::size_t                         >;
-  { g.levelGridView(level)    } -> std::convertible_to< typename G::LevelGridView           >;
-  { g.leafGridView()          } -> std::convertible_to< typename G::LeafGridView            >;
-  { g.globalIdSet()           } -> std::convertible_to< const typename G::GlobalIdSet&      >;
-  { g.localIdSet()            } -> std::convertible_to< const typename G::LocalIdSet&       >;
-  { g.levelIndexSet(level)    } -> std::convertible_to< const typename G::LevelIndexSet&    >;
-  { g.leafIndexSet()          } -> std::convertible_to< const typename G::LeafIndexSet&     >;
-  { g.mark(refCount,entity)   } -> std::convertible_to< bool                                >;
-  { g.getMark(entity)         } -> std::convertible_to< int                                 >;
-  { g.preAdapt()              } -> std::convertible_to< bool                                >;
-  { g.adapt()                 } -> std::convertible_to< bool                                >;
-  { g.comm()                  } -> std::convertible_to< typename G::CollectiveCommunication >;
-  { g.loadBalance()           } -> std::convertible_to< bool                                >;
-  requires requires(Archetypes::CommDataHandle<typename G::ctype>& handle,
-                    InterfaceType iface, CommunicationDirection dir)
+  { cg.maxLevel()              } -> std::convertible_to< int                                 >;
+  { cg.size(level, codim)      } -> std::convertible_to< int                                 >;
+  { cg.size(codim)             } -> std::convertible_to< int                                 >;
+  { cg.size(level, type)       } -> std::convertible_to< int                                 >;
+  { cg.size(type)              } -> std::convertible_to< int                                 >;
+  { cg.numBoundarySegments()   } -> std::convertible_to< std::size_t                         >;
+  { cg.levelGridView(level)    } -> std::convertible_to< typename G::LevelGridView           >;
+  { cg.leafGridView()          } -> std::convertible_to< typename G::LeafGridView            >;
+  { cg.globalIdSet()           } -> std::convertible_to< const typename G::GlobalIdSet&      >;
+  { cg.localIdSet()            } -> std::convertible_to< const typename G::LocalIdSet&       >;
+  { cg.levelIndexSet(level)    } -> std::convertible_to< const typename G::LevelIndexSet&    >;
+  { cg.leafIndexSet()          } -> std::convertible_to< const typename G::LeafIndexSet&     >;
+  { g.mark(refCount,entity)    } -> std::convertible_to< bool                                >;
+  { g.getMark(entity)          } -> std::convertible_to< int                                 >;
+  { g.preAdapt()               } -> std::convertible_to< bool                                >;
+  { g.adapt()                  } -> std::convertible_to< bool                                >;
+  { cg.comm()                  } -> std::convertible_to< typename G::CollectiveCommunication >;
+  { g.loadBalance()            } -> std::convertible_to< bool                                >;
+  requires requires(Archetypes::CommDataHandle<std::byte>& handle)
   {
     { g.loadBalance(handle) } -> std::convertible_to< bool >;
   };

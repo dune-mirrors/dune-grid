@@ -16,7 +16,7 @@ namespace Dune::Concept {
 namespace Impl {
 
   template<class ES, int codim,  Dune::PartitionIteratorType partition>
-  concept EntityPartitionSpan = requires(ES es) {
+  concept EntityPartitionSpan = requires(const ES& es) {
     requires EntityIterator<typename ES::template Codim<codim>::template Partition<partition>::Iterator>;
     { es.template begin<codim,partition>()  } -> std::convertible_to< typename ES::template Codim<codim>::template Partition<partition>::Iterator>;
     { es.template end<codim,partition>()    } -> std::convertible_to< typename ES::template Codim<codim>::template Partition<partition>::Iterator>;

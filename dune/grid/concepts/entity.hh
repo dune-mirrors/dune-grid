@@ -21,7 +21,7 @@ namespace Dune::Concept {
  * @details Dune::EntitySeed is a template for this model
  */
 template<class S>
-concept EntitySeed = requires(S seed)
+concept EntitySeed = requires(const S seed)
 {
   requires std::default_initializable<S>;
   { S::codimension  } -> std::convertible_to<int>;
@@ -37,7 +37,7 @@ static_assert(EntitySeed< Archetypes::EntitySeed<0> >);
  * @details Dune::Entity is a template for this model.
  */
 template<class E>
-concept EntityGeneral = requires(E e, unsigned int codim)
+concept EntityGeneral = requires(const E e, unsigned int codim)
 {
   requires Geometry<typename E::Geometry>;
   requires EntitySeed<typename E::EntitySeed>;
@@ -60,7 +60,7 @@ static_assert(EntityGeneral< Archetypes::Entity<2,0> >);
 namespace Impl
 {
   template<class E, int codim>
-  concept EntityCodimExtended = requires(E e, int subEntity)
+  concept EntityCodimExtended = requires(const E e, int subEntity)
   {
     { e.template subEntity<codim>(subEntity) } -> EntityGeneral;
   };
@@ -79,7 +79,7 @@ namespace Impl
  * @details Dune::Entity of codimension 0 is a template for this model.
  */
 template<class E>
-concept EntityExtended = requires(E e)
+concept EntityExtended = requires(const E& e)
 {
   requires (E::codimension == 0);
   requires EntityGeneral<E>;

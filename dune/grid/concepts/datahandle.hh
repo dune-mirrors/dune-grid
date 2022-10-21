@@ -12,13 +12,13 @@
 namespace Dune::Concept {
 
 template <class DH>
-concept CommDataHandle = requires(DH handle, const Archetypes::Entity<2,0>& entity)
+concept CommDataHandle = requires(DH handle, const DH& chandle, const Archetypes::Entity<2,0>& entity)
 {
   typename DH::DataType;
 
-  { handle.contains(/*dim*/ 0, /*codim*/ 0) } -> std::convertible_to<bool>;
-  { handle.fixedSize(/*dim*/ 0, /*codim*/ 0) } -> std::convertible_to<bool>;
-  { handle.size(entity) } -> std::integral;
+  { chandle.contains(/*dim*/ 0, /*codim*/ 0) } -> std::convertible_to<bool>;
+  { chandle.fixedSize(/*dim*/ 0, /*codim*/ 0) } -> std::convertible_to<bool>;
+  { chandle.size(entity) } -> std::integral;
 
   requires requires(Archetypes::MessageBuffer<typename DH::DataType> buffer)
   {

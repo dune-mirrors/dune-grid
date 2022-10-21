@@ -16,7 +16,7 @@ namespace Dune::Concept {
  * @details Dune::Grid::Intersection is a template for this model
  */
 template<class I>
-concept Intersection = requires(I i, typename I::LocalCoordinate local)
+concept Intersection = requires(const I& i, typename I::LocalCoordinate local)
 {
   requires EntityGeneral<typename I::Entity>;
   requires Geometry<typename I::Geometry>;
@@ -43,10 +43,7 @@ concept Intersection = requires(I i, typename I::LocalCoordinate local)
   { i==i                            } -> std::convertible_to<bool                           >;
   { i!=i                            } -> std::convertible_to<bool                           >;
   requires std::default_initializable<I>;
-  requires std::copy_constructible<I>;
-  requires std::move_constructible<I>;
-  i = i;
-  i = std::move(i);
+  requires std::copyable<I>;
 };
 
 } // end namespace Dune::Concept

@@ -20,7 +20,7 @@ namespace Dune::Concept {
 namespace Impl {
 
   template<class ES>
-  concept EntitySetEssentials = requires(ES es, Dune::GeometryType type, int codim)
+  concept EntitySetEssentials = requires(const ES& es, Dune::GeometryType type, int codim)
   {
     typename ES::Traits;
     typename ES::ctype;
@@ -38,7 +38,7 @@ namespace Impl {
     { es.overlapSize(codim) } -> std::convertible_to< int                                   >;
     { es.ghostSize(codim)   } -> std::convertible_to< int                                   >;
 
-    requires requires(Archetypes::CommDataHandle<typename ES::ctype>& handle,
+    requires requires(Archetypes::CommDataHandle<std::byte>& handle,
                       InterfaceType iface, CommunicationDirection dir)
     {
       es.communicate(handle, iface, dir);
@@ -58,7 +58,7 @@ namespace Impl {
  *    grid view.
  */
 template<class ES, int codim>
-concept EntitySet = requires(ES es, Dune::GeometryType type, const typename ES::template Codim<codim>::Entity& entity)
+concept EntitySet = requires(const ES& es, Dune::GeometryType type, const typename ES::template Codim<codim>::Entity& entity)
 {
   requires Impl::EntitySetEssentials<ES>;
   requires (codim != 0) || requires {

@@ -15,7 +15,7 @@ namespace Dune::Concept {
  * @details Dune::IntersectionIterator is a template for this model
  */
 template<class It>
-concept IntersectionIterator = requires(It it)
+concept IntersectionIterator = requires
 {
   requires Intersection<typename It::Intersection>;
   requires std::forward_iterator<It>;
