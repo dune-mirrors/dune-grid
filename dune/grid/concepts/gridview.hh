@@ -29,13 +29,18 @@ namespace Impl {
     requires EntityPartitionSpan<ES,codim,Dune::PartitionIteratorType::Ghost_Partition>;
   };
 
-  template<class ES, int codim>
-  concept EntitySetAllPartitionsIfSupported
-    = ((not Dune::Capabilities::hasEntityIterator<ES,codim>::value) || EntitySetAllPartitions<ES,codim>);
+  template<class ES, class Grid, int codim>
+    requires Dune::Capabilities::hasEntityIterator<Grid,codim>::v
+  void requireEntitySetAllPartitionsIfSupportedImpl()
+    requires EntitySetAllPartitions<ES,codim> {}
 
-  template<class ES, int... codim>
-    requires (EntitySetAllPartitionsIfSupported<ES,(codim+1)> &&...)
-  void requireEntitySetAllPartitionsIfSupported(std::integer_sequence<int,codim...>) {};
+  template<class ES, class Grid, int codim>
+    requires (not Dune::Capabilities::hasEntityIterator<Grid,codim>::v)
+  void requireEntitySetAllPartitionsIfSupportedImpl() {}
+
+  template<class ES, class Grid, int... dim>
+    requires requires { (requireEntitySetAllPartitionsIfSupportedImpl<ES,Grid,(ES::dimension - dim)>(),...); }
+  void requireEntitySetAllPartitionsIfSupported(std::integer_sequence<int,dim...>) {}
 
 }
 
@@ -46,7 +51,8 @@ namespace Impl {
  */
 template<class GV>
 concept GridView = requires {
-  requireEntitySetAllPartitionsIfSupported<GV>(std::make_integer_sequence<int,GV::dimension>{});
+  Impl::requireEntitySetAllPartitionsIfSupported<GV,typename GV::Grid>(
+    std::make_integer_sequence<int,GV::dimension+1>{});
 };
 
 }  // end namespace Dune::Concept
