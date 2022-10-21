@@ -36,9 +36,29 @@ int main ( int argc, char **argv )
   Dune::MPIHelper::instance( argc, argv );
 
   static_assert(Dune::Concept::Grid< Dune::OneDGrid >);
+
   static_assert(Dune::Concept::Grid< Dune::YaspGrid<1> >);
   static_assert(Dune::Concept::Grid< Dune::YaspGrid<2> >);
   static_assert(Dune::Concept::Grid< Dune::YaspGrid<3> >);
+
+#if HAVE_ALBERTA
+  static_assert(Dune::Concept::Grid< Dune::AlbertaGrid<1,1> >);
+  static_assert(Dune::Concept::Grid< Dune::AlbertaGrid<1,2> >);
+  static_assert(Dune::Concept::Grid< Dune::AlbertaGrid<1,3> >);
+  static_assert(Dune::Concept::Grid< Dune::AlbertaGrid<2,2> >);
+  static_assert(Dune::Concept::Grid< Dune::AlbertaGrid<2,3> >);
+  static_assert(Dune::Concept::Grid< Dune::AlbertaGrid<3,3> >);
+#endif
+
+#if HAVE_UG
+  static_assert(Dune::Concept::Grid< Dune::UGGrid<1> >);
+  static_assert(Dune::Concept::Grid< Dune::UGGrid<2> >);
+  static_assert(Dune::Concept::Grid< Dune::UGGrid<3> >);
+#endif
+
+  // check grid wrappers
+  static_assert(Dune::Concept::Grid< Dune::GeometryGrid< Dune::YaspGrid<1> > >);
+  static_assert(Dune::Concept::Grid< Dune::IdentityGrid< Dune::YaspGrid<1> > >);
 
 }
 
