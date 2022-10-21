@@ -16,6 +16,7 @@
 #include <dune/grid/concepts/archetypes/datahandle.hh>
 
 #include <dune/grid/common/gridenums.hh>
+#include <dune/grid/common/capabilities.hh>
 
 #include <dune/common/indices.hh>
 
@@ -110,12 +111,15 @@ concept Grid = requires(G g, const G& cg, int level, int codim, int refCount,
   { g.adapt()                  } -> std::convertible_to< bool                                >;
   { cg.comm()                  } -> std::convertible_to< typename G::CollectiveCommunication >;
   { g.loadBalance()            } -> std::convertible_to< bool                                >;
-  requires requires(Archetypes::CommDataHandle<std::byte>& handle)
-  {
-    { g.loadBalance(handle) } -> std::convertible_to< bool >;
+  requires (not Dune::Capabilities::canCommunicate<G,0>::value) || requires {
+    requires requires(Archetypes::CommDataHandle<std::byte>& handle)
+    {
+      { g.loadBalance(handle) } -> std::convertible_to< bool >;
+    };
   };
   g.globalRefine(refCount);
   g.postAdapt();
+
 };
 
 } // end namespace Dune::Concept
