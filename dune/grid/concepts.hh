@@ -9,6 +9,17 @@
  * This file contains a convenience definition that checks if concepts are available
  * If DUNE_GRID_HAVE_CONCEPTS is true, the dune-grid concepts are available and
  * have been included.
+ *
+ * In order to enable these concepts, you need the following:
+ *  (i)   A C++20 compiler with concepts (i.e. __cpp_concepts >= 201907L)
+ *  (ii)  The concepts in the standard library (i.e. __cpp_lib_concepts >= 202002L)
+ *  (iii) A C++ compiler that supports unevaluated context lambdas (i.e.
+ *        can compile `using = decltype([]{})`). This is automatically tested by
+ *        CMake and exposed as a macro definition
+ *        `DUNE_HAVE_CXX_UNEVALUATED_CONTEXT_LAMBDA`.
+ *
+ * - `gcc>=9` and `clang>=12` are known to fulfill (i) and (iii).
+ * - `libstdc++>10` and `libc++>=13` are known to fulfill (ii).
  */
 
 // check whether c++20 concept can be used
