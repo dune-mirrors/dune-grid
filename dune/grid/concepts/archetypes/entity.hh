@@ -17,7 +17,7 @@ template <int codim>
 struct EntitySeed
 {
   static constexpr int codimension = codim;
-  bool isValid() const { return true; }
+  bool isValid() const;
 };
 
 
@@ -31,18 +31,18 @@ struct Entity
   using Geometry = Archetypes::Geometry<mydimension,mydimension>;
   using EntitySeed = Archetypes::EntitySeed<codimension>;
 
-  int level () const { return 0; }
-  Dune::PartitionType partitionType () const { return Dune::PartitionType::InteriorEntity; }
-  Geometry geometry() const { return {}; }
-  Dune::GeometryType type() const { return Dune::GeometryTypes::none(mydimension); }
-  unsigned int subEntities(int cd) const { return 0u; }
-  EntitySeed seed() const { return {}; }
+  int level () const;
+  Dune::PartitionType partitionType () const;
+  Geometry geometry() const;
+  Dune::GeometryType type() const;
+  unsigned int subEntities(int cd) const;
+  EntitySeed seed() const;
 
   template <int cc>
-  Archetypes::Entity<dim,cc> subEntity(int i) const { return {}; }
+  Archetypes::Entity<dim,cc> subEntity(int i) const;
 
-  bool operator==(Entity const&) const { return true; }
-  bool operator!=(Entity const&) const { return false; }
+  bool operator==(Entity const&) const;
+  bool operator!=(Entity const&) const;
 };
 
 } // end namespace Dune::Concept::Archetypes

@@ -13,8 +13,8 @@ namespace Dune::Concept::Archetypes {
 template <class DataType>
 struct MessageBuffer
 {
-  void write(const DataType& data) {}
-  void read(DataType& data) {}
+  void write(const DataType& data);
+  void read(DataType& data);
 };
 
 
@@ -23,17 +23,17 @@ struct CommDataHandle : public Dune::CommDataHandleIF<CommDataHandle<Data>, Data
 {
   using DataType = Data;
 
-  bool contains (int dim, int codim) const { return true; }
-  bool fixedSize (int dim, int codim) const { return false; }
+  bool contains (int dim, int codim) const;
+  bool fixedSize (int dim, int codim) const;
 
   template <class Entity>
-  std::size_t size (const Entity& entity) const { return 0; }
+  std::size_t size (const Entity& entity) const;
 
   template <class Buffer, class Entity>
-  void gather (Buffer& buffer, const Entity& entity) const {}
+  void gather (Buffer& buffer, const Entity& entity) const;
 
   template <class Buffer, class Entity>
-  void scatter (Buffer& buffer, const Entity& entity, std::size_t size) {}
+  void scatter (Buffer& buffer, const Entity& entity, std::size_t size);
 };
 
 } // end namespace Dune::Concept::Archetypes

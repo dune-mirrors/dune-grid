@@ -28,25 +28,26 @@ struct Geometry
   using JacobianInverse = Dune::FieldMatrix<ctype, mydim, cdim>;
   using JacobianInverseTransposed = Dune::FieldMatrix<ctype, cdim, mydim>;
 
-  Dune::GeometryType type () const { return Dune::GeometryTypes::none(mydim); }
-  bool affine () const { return false; }
-  int corners() const { return 0; }
+  Dune::GeometryType type () const;
+  bool affine () const;
+  int corners() const;
 
-  GlobalCoordinate corner(int i) const { return {}; }
-  GlobalCoordinate global(const LocalCoordinate&) const { return {}; }
-  LocalCoordinate local(const GlobalCoordinate&) const { return {}; }
-  GlobalCoordinate center() const { return {}; }
+  GlobalCoordinate corner(int i) const;
+  GlobalCoordinate global(const LocalCoordinate&) const;
+  LocalCoordinate local(const GlobalCoordinate&) const;
+  GlobalCoordinate center() const;
 
-  Volume integrationElement(const LocalCoordinate&) const { return 0; }
-  Volume volume() const { return 0; }
+  Volume integrationElement(const LocalCoordinate&) const;
+  Volume volume() const;
 
-  Jacobian jacobian(const LocalCoordinate&) const { return {}; }
-  JacobianTransposed jacobianTransposed(const LocalCoordinate&) const { return {}; }
-  JacobianInverse jacobianInverse(const LocalCoordinate&) const { return {}; }
-  JacobianInverseTransposed jacobianInverseTransposed(const LocalCoordinate&) const { return {}; }
-
-  friend Archetypes::ReferenceElement referenceElement(const Geometry&) { return Archetypes::ReferenceElement{}; }
+  Jacobian jacobian(const LocalCoordinate&) const;
+  JacobianTransposed jacobianTransposed(const LocalCoordinate&) const;
+  JacobianInverse jacobianInverse(const LocalCoordinate&) const;
+  JacobianInverseTransposed jacobianInverseTransposed(const LocalCoordinate&) const;
 };
+
+template <int mydim, int cdim>
+Archetypes::ReferenceElement referenceElement(const Geometry<mydim,cdim>&);
 
 } // end namespace Dune::Concept::Archetypes
 
