@@ -26,7 +26,7 @@ concept EntitySeed = requires(const S seed)
 {
   requires std::default_initializable<S>;
   { S::codimension  } -> std::convertible_to<int>;
-  { seed.isValid()  } -> std::convertible_to<bool>;
+  { seed.isValid()  } -> BooleanTestable;
 };
 
 static_assert(EntitySeed< Archetypes::EntitySeed<0> >);
@@ -82,15 +82,15 @@ concept EntityExtended = EntityGeneral<E> && requires(const E e, int maxLevel)
   requires (E::codimension == 0);
   requires Geometry<typename E::LocalGeometry>;
   { e.father()                   } -> std::convertible_to<E>;
-  { e.hasFather()                } -> std::convertible_to<bool>;
-  { e.isLeaf()                   } -> std::convertible_to<bool>;
-  { e.isRegular()                } -> std::convertible_to<bool>;
+  { e.hasFather()                } -> BooleanTestable;
+  { e.isLeaf()                   } -> BooleanTestable;
+  { e.isRegular()                } -> BooleanTestable;
   { e.geometryInFather()         } -> std::convertible_to<typename E::LocalGeometry>;
   { e.hbegin(maxLevel)           } -> std::convertible_to<typename E::HierarchicIterator>;
   { e.hend(maxLevel)             } -> std::convertible_to<typename E::HierarchicIterator>;
-  { e.isNew()                    } -> std::convertible_to<bool>;
-  { e.mightVanish()              } -> std::convertible_to<bool>;
-  { e.hasBoundaryIntersections() } -> std::convertible_to<bool>;
+  { e.isNew()                    } -> BooleanTestable;
+  { e.mightVanish()              } -> BooleanTestable;
+  { e.hasBoundaryIntersections() } -> BooleanTestable;
   requires Impl::AllEntityCodimsExtended<E, E::dimension>;
   requires std::same_as<E, typename E::template Codim<0>::Entity>;
 };

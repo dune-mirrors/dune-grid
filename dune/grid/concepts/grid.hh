@@ -68,7 +68,7 @@ namespace Impl {
     requires (not Dune::Capabilities::canCommunicate<G,codim>::v) ||
       requires(G g, Archetypes::CommDataHandle<std::byte>& handle)
       {
-        { g.loadBalance(handle) } -> std::convertible_to<bool>;
+        { g.loadBalance(handle) } -> BooleanTestable;
       };
   };
 
@@ -130,11 +130,11 @@ concept Grid = requires(const G cg, int level, int codim, Dune::GeometryType typ
   // mutable methods
   requires requires(G g, int refCount, const typename G::template Codim<0>::Entity& entity)
   {
-    { g.mark(refCount,entity)  } -> std::convertible_to<bool>;
+    { g.mark(refCount,entity)  } -> BooleanTestable;
     { g.getMark(entity)        } -> std::convertible_to<int>;
-    { g.preAdapt()             } -> std::convertible_to<bool>;
-    { g.adapt()                } -> std::convertible_to<bool>;
-    { g.loadBalance()          } -> std::convertible_to<bool>;
+    { g.preAdapt()             } -> BooleanTestable;
+    { g.adapt()                } -> BooleanTestable;
+    { g.loadBalance()          } -> BooleanTestable;
     g.globalRefine(refCount);
     g.postAdapt();
   };

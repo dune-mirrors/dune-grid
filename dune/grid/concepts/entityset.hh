@@ -29,7 +29,7 @@ namespace Impl {
     requires IndexSet<typename ES::IndexSet>;
     requires Intersection<typename ES::Intersection>;
     requires IntersectionIterator<typename ES::IntersectionIterator>;
-    { ES::conforming        } -> std::convertible_to<bool>;
+    { ES::conforming        } -> BooleanTestable;
     { ES::dimension         } -> std::convertible_to<int>;
     { ES::dimensionworld    } -> std::convertible_to<int>;
     { es.grid()             } -> std::convertible_to<const typename ES::Grid&>;

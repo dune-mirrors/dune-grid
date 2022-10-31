@@ -32,7 +32,7 @@ concept Geometry = requires(const G g, typename G::GlobalCoordinate global, type
   { G::mydimension                     } -> std::convertible_to<int>;
   { G::coorddimension                  } -> std::convertible_to<int>;
   { g.type()                           } -> std::convertible_to<Dune::GeometryType>;
-  { g.affine()                         } -> std::convertible_to<bool>;
+  { g.affine()                         } -> BooleanTestable;
   { g.corners()                        } -> std::convertible_to<int>;
   { g.corner(/*i*/ int{})              } -> std::convertible_to<typename G::GlobalCoordinate>;
   { g.global(local)                    } -> std::convertible_to<typename G::GlobalCoordinate>;

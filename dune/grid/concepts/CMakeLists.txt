@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: LicenseRef-GPL-2.0-only-with-DUNE-exception
 
 install(FILES
+    common.hh
     datahandle.hh
     entity.hh
     entityiterator.hh

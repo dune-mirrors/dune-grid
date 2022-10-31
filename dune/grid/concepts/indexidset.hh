@@ -24,7 +24,7 @@ namespace Impl {
     { is.index(entity)                                  } -> std::convertible_to<typename IS::IndexType>;
     { is.template subIndex<codim>(entity, i, sub_codim) } -> std::convertible_to<typename IS::IndexType>;
     { is.subIndex(entity, i, sub_codim)                 } -> std::convertible_to<typename IS::IndexType>;
-    { is.contains(entity)                               } -> std::convertible_to<bool>;
+    { is.contains(entity)                               } -> BooleanTestable;
   };
 
   template<class IS, int dim>

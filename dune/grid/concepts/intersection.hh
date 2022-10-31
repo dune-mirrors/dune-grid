@@ -28,12 +28,12 @@ concept Intersection = std::regular<I> && requires(const I i, typename I::LocalC
   typename I::ctype;
   { I::mydimension                  } -> std::convertible_to<int>;
   { I::dimensionworld               } -> std::convertible_to<int>;
-  { i.boundary()                    } -> std::convertible_to<bool>;
+  { i.boundary()                    } -> BooleanTestable;
   { i.boundarySegmentIndex()        } -> std::convertible_to<std::size_t>;
-  { i.neighbor()                    } -> std::convertible_to<bool>;
+  { i.neighbor()                    } -> BooleanTestable;
   { i.inside()                      } -> std::convertible_to<typename I::Entity>;
   { i.outside()                     } -> std::convertible_to<typename I::Entity>;
-  { i.conforming()                  } -> std::convertible_to<bool>;
+  { i.conforming()                  } -> BooleanTestable;
   { i.geometryInInside()            } -> std::convertible_to<typename I::LocalGeometry>;
   { i.geometryInOutside()           } -> std::convertible_to<typename I::LocalGeometry>;
   { i.geometry()                    } -> std::convertible_to<typename I::Geometry>;

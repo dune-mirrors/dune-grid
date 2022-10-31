@@ -18,8 +18,8 @@ concept CommDataHandle = requires(const DH chandle, const Archetypes::Entity<2,0
 {
   typename DH::DataType;
 
-  { chandle.contains(/*dim*/ 0, /*codim*/ 0)  } -> std::convertible_to<bool>;
-  { chandle.fixedSize(/*dim*/ 0, /*codim*/ 0) } -> std::convertible_to<bool>;
+  { chandle.contains(/*dim*/ 0, /*codim*/ 0)  } -> BooleanTestable;
+  { chandle.fixedSize(/*dim*/ 0, /*codim*/ 0) } -> BooleanTestable;
   { chandle.size(entity)                      } -> std::integral;
 
   requires requires(DH handle, Archetypes::MessageBuffer<typename DH::DataType> buffer)
