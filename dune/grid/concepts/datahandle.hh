@@ -7,6 +7,7 @@
 
 #include <concepts>
 
+#include <dune/grid/concepts/common.hh>
 #include <dune/grid/concepts/archetypes/datahandle.hh>
 #include <dune/grid/concepts/archetypes/entity.hh>
 #include <dune/grid/concepts/archetypes/messagebuffer.hh>
@@ -20,7 +21,7 @@ concept CommDataHandle = requires(const DH chandle, const Archetypes::Entity<2,0
 
   { chandle.contains(/*dim*/ 0, /*codim*/ 0)  } -> BooleanTestable;
   { chandle.fixedSize(/*dim*/ 0, /*codim*/ 0) } -> BooleanTestable;
-  { chandle.size(entity)                      } -> std::integral;
+  { chandle.size(entity)                      } -> Integer;
 
   requires requires(DH handle, Archetypes::MessageBuffer<typename DH::DataType> buffer)
   {

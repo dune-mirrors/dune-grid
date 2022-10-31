@@ -9,6 +9,7 @@
 
 #include <dune/geometry/type.hh>
 #include <dune/grid/common/gridenums.hh>
+#include <dune/grid/concepts/common.hh>
 #include <dune/grid/concepts/entity.hh>
 #include <dune/grid/concepts/entityiterator.hh>
 #include <dune/grid/concepts/geometry.hh>
@@ -30,15 +31,15 @@ namespace Impl {
     requires Intersection<typename ES::Intersection>;
     requires IntersectionIterator<typename ES::IntersectionIterator>;
     { ES::conforming        } -> BooleanTestable;
-    { ES::dimension         } -> std::convertible_to<int>;
-    { ES::dimensionworld    } -> std::convertible_to<int>;
+    { ES::dimension         } -> Integer;
+    { ES::dimensionworld    } -> Integer;
     { es.grid()             } -> std::convertible_to<const typename ES::Grid&>;
     { es.indexSet()         } -> std::convertible_to<const typename ES::IndexSet&>;
-    { es.size(codim)        } -> std::convertible_to<int>;
-    { es.size(type)         } -> std::convertible_to<int>;
+    { es.size(codim)        } -> Integer;
+    { es.size(type)         } -> Integer;
     { es.comm()             } -> std::convertible_to<typename ES::CollectiveCommunication>;
-    { es.overlapSize(codim) } -> std::convertible_to<int>;
-    { es.ghostSize(codim)   } -> std::convertible_to<int>;
+    { es.overlapSize(codim) } -> Integer;
+    { es.ghostSize(codim)   } -> Integer;
 
     requires requires(Archetypes::CommDataHandle<std::byte>& handle,
                       InterfaceType iface, CommunicationDirection dir)

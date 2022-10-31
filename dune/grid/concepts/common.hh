@@ -8,8 +8,6 @@
 #include <concepts>
 #include <cstddef>
 
-#include <dune/common/typetraits.hh>
-
 namespace Dune::Concept {
 
 template<class B>
@@ -18,6 +16,16 @@ requires(B b)
 {
   { !b } -> std::convertible_to<bool>;
 };
+
+template<class I>
+concept Integer = std::integral<I> &&
+  !std::same_as<I,bool> &&
+  !std::same_as<I,char> &&
+  !std::same_as<I,unsigned char> &&
+  !std::same_as<I,char8_t> &&
+  !std::same_as<I,char16_t> &&
+  !std::same_as<I,char32_t> &&
+  !std::same_as<I,wchar_t>;
 
 } // end namespace Dune::Concept
 

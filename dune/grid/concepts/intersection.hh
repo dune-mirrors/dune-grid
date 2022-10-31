@@ -9,6 +9,7 @@
 #include <cstddef>
 
 #include <dune/geometry/type.hh>
+#include <dune/grid/concepts/common.hh>
 #include <dune/grid/concepts/entity.hh>
 #include <dune/grid/concepts/geometry.hh>
 
@@ -26,10 +27,10 @@ concept Intersection = std::regular<I> && requires(const I i, typename I::LocalC
   requires Geometry<typename I::Geometry>;
   requires Geometry<typename I::LocalGeometry>;
   typename I::ctype;
-  { I::mydimension                  } -> std::convertible_to<int>;
-  { I::dimensionworld               } -> std::convertible_to<int>;
+  { I::mydimension                  } -> Integer;
+  { I::dimensionworld               } -> Integer;
   { i.boundary()                    } -> BooleanTestable;
-  { i.boundarySegmentIndex()        } -> std::convertible_to<std::size_t>;
+  { i.boundarySegmentIndex()        } -> Integer;
   { i.neighbor()                    } -> BooleanTestable;
   { i.inside()                      } -> std::convertible_to<typename I::Entity>;
   { i.outside()                     } -> std::convertible_to<typename I::Entity>;
@@ -38,8 +39,8 @@ concept Intersection = std::regular<I> && requires(const I i, typename I::LocalC
   { i.geometryInOutside()           } -> std::convertible_to<typename I::LocalGeometry>;
   { i.geometry()                    } -> std::convertible_to<typename I::Geometry>;
   { i.type()                        } -> std::convertible_to<Dune::GeometryType>;
-  { i.indexInInside()               } -> std::convertible_to<int>;
-  { i.indexInOutside()              } -> std::convertible_to<int>;
+  { i.indexInInside()               } -> Integer;
+  { i.indexInOutside()              } -> Integer;
   { i.outerNormal(local)            } -> std::convertible_to<typename I::GlobalCoordinate>;
   { i.integrationOuterNormal(local) } -> std::convertible_to<typename I::GlobalCoordinate>;
   { i.unitOuterNormal(local)        } -> std::convertible_to<typename I::GlobalCoordinate>;

@@ -14,6 +14,7 @@
 #include <dune/geometry/type.hh>
 #include <dune/grid/common/gridenums.hh>
 #include <dune/grid/common/capabilities.hh>
+#include <dune/grid/concepts/common.hh>
 #include <dune/grid/concepts/entity.hh>
 #include <dune/grid/concepts/entityiterator.hh>
 #include <dune/grid/concepts/geometry.hh>
@@ -92,8 +93,8 @@ template<class G>
 concept Grid = requires(const G cg, int level, int codim, Dune::GeometryType type)
 {
   // static constants
-  { G::dimension      } -> std::convertible_to<int>;
-  { G::dimensionworld } -> std::convertible_to<int>;
+  { G::dimension      } -> Integer;
+  { G::dimensionworld } -> Integer;
 
   // type and concepts requirements
   requires GridView<typename G::LeafGridView>;
@@ -113,12 +114,12 @@ concept Grid = requires(const G cg, int level, int codim, Dune::GeometryType typ
   typename G::HierarchicIterator;
 
   // const methods
-  { cg.maxLevel()            } -> std::convertible_to<int>;
-  { cg.size(level, codim)    } -> std::convertible_to<int>;
-  { cg.size(codim)           } -> std::convertible_to<int>;
-  { cg.size(level, type)     } -> std::convertible_to<int>;
-  { cg.size(type)            } -> std::convertible_to<int>;
-  { cg.numBoundarySegments() } -> std::convertible_to<std::size_t>;
+  { cg.maxLevel()            } -> Integer;
+  { cg.size(level, codim)    } -> Integer;
+  { cg.size(codim)           } -> Integer;
+  { cg.size(level, type)     } -> Integer;
+  { cg.size(type)            } -> Integer;
+  { cg.numBoundarySegments() } -> Integer;
   { cg.levelGridView(level)  } -> std::convertible_to<typename G::LevelGridView>;
   { cg.leafGridView()        } -> std::convertible_to<typename G::LeafGridView>;
   { cg.globalIdSet()         } -> std::convertible_to<const typename G::GlobalIdSet&>;
@@ -131,7 +132,7 @@ concept Grid = requires(const G cg, int level, int codim, Dune::GeometryType typ
   requires requires(G g, int refCount, const typename G::template Codim<0>::Entity& entity)
   {
     { g.mark(refCount,entity)  } -> BooleanTestable;
-    { g.getMark(entity)        } -> std::convertible_to<int>;
+    { g.getMark(entity)        } -> Integer;
     { g.preAdapt()             } -> BooleanTestable;
     { g.adapt()                } -> BooleanTestable;
     { g.loadBalance()          } -> BooleanTestable;

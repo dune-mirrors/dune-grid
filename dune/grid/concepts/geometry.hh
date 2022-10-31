@@ -10,6 +10,7 @@
 #include <dune/common/fmatrix.hh>
 #include <dune/common/fvector.hh>
 #include <dune/geometry/type.hh>
+#include <dune/grid/concepts/common.hh>
 #include <dune/grid/concepts/archetypes/geometry.hh>
 
 namespace Dune::Concept {
@@ -29,11 +30,11 @@ template<class G>
 concept Geometry = requires(const G g, typename G::GlobalCoordinate global, typename G::LocalCoordinate local)
 {
   typename G::ctype;
-  { G::mydimension                     } -> std::convertible_to<int>;
-  { G::coorddimension                  } -> std::convertible_to<int>;
+  { G::mydimension                     } -> Integer;
+  { G::coorddimension                  } -> Integer;
   { g.type()                           } -> std::convertible_to<Dune::GeometryType>;
   { g.affine()                         } -> BooleanTestable;
-  { g.corners()                        } -> std::convertible_to<int>;
+  { g.corners()                        } -> Integer;
   { g.corner(/*i*/ int{})              } -> std::convertible_to<typename G::GlobalCoordinate>;
   { g.global(local)                    } -> std::convertible_to<typename G::GlobalCoordinate>;
   { g.local(global)                    } -> std::convertible_to<typename G::LocalCoordinate>;

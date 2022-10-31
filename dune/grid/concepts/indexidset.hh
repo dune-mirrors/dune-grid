@@ -10,6 +10,7 @@
 
 #include <dune/common/indices.hh>
 #include <dune/geometry/type.hh>
+#include <dune/grid/concepts/common.hh>
 #include <dune/grid/concepts/entity.hh>
 
 namespace Dune::Concept {
@@ -45,11 +46,11 @@ namespace Impl {
 template<class IS>
 concept IndexSet = requires(const IS is, Dune::GeometryType type, int sub_codim)
 {
-  { IS::dimension       } -> std::convertible_to<int>;
+  { IS::dimension       } -> Integer;
   { is.types(sub_codim) } -> std::convertible_to<typename IS::Types>;
   { is.size(type)       } -> std::convertible_to<typename IS::IndexType>;
   { is.size(sub_codim)  } -> std::convertible_to<typename IS::IndexType>;
-  requires std::integral<typename IS::IndexType>;
+  requires Integer<typename IS::IndexType>;
   typename IS::Types;
   requires Impl::AllIndexSetEntityCodims<IS, IS::dimension>;
 };

@@ -10,6 +10,7 @@
 
 #include <dune/geometry/type.hh>
 #include <dune/grid/common/gridenums.hh>
+#include <dune/grid/concepts/common.hh>
 #include <dune/grid/concepts/entity.hh>
 #include <dune/grid/concepts/geometry.hh>
 #include <dune/grid/concepts/archetypes/entity.hh>
@@ -25,7 +26,7 @@ template<class S>
 concept EntitySeed = requires(const S seed)
 {
   requires std::default_initializable<S>;
-  { S::codimension  } -> std::convertible_to<int>;
+  { S::codimension  } -> Integer;
   { seed.isValid()  } -> BooleanTestable;
 };
 
@@ -43,11 +44,11 @@ concept EntityGeneral = std::regular<E> && requires(const E e, unsigned int codi
   requires Geometry<typename E::Geometry>;
   requires EntitySeed<typename E::EntitySeed>;
   requires E::mydimension == (E::dimension - E::codimension);
-  { e.level()            } -> std::convertible_to<int>;
+  { e.level()            } -> Integer;
   { e.partitionType()    } -> std::convertible_to<Dune::PartitionType>;
   { e.geometry()         } -> std::convertible_to<typename E::Geometry>;
   { e.type()             } -> std::convertible_to<Dune::GeometryType>;
-  { e.subEntities(codim) } -> std::convertible_to<unsigned int>;
+  { e.subEntities(codim) } -> Integer;
   { e.seed()             } -> std::convertible_to<typename E::EntitySeed>;
 };
 
