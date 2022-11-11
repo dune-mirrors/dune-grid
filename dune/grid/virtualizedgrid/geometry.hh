@@ -21,8 +21,10 @@ namespace Dune {
   {
   public:
     typedef typename GridImp::ctype ctype;
+    typedef ctype Volume;
     typedef FieldMatrix< ctype, mydim, coorddim > JacobianTransposed;
     typedef FieldMatrix< ctype, coorddim, mydim > JacobianInverseTransposed;
+    typedef FieldVector< ctype, coorddim > GlobalCoordinate;
 
   private:
     // VIRTUALIZATION BEGIN
@@ -78,6 +80,9 @@ namespace Dune {
         corner_.resize(corners_);
         for (int i = 0; i < corners_; ++i)
           corner_[i] = geometry.corner(i);
+
+        volume_ = geometry.volume();
+        center_ = geometry.center();
       }
 
       //! return the element type identifier
@@ -100,11 +105,23 @@ namespace Dune {
         return corner_[i];
       }
 
+      //! return volume of the geometry
+      Volume volume () const {
+        return volume_;
+      }
+
+      //! return center of the geometry
+      GlobalCoordinate center () const {
+        return center_;
+      }
+
     private:
       GeometryType type_{};
       bool affine_{};
       int corners_{};
-      std::vector<FieldVector<ctype, coorddim>> corner_;
+      std::vector<FieldVector<ctype, coorddim>> corner_{};
+      Volume volume_{};
+      GlobalCoordinate center_{};
     };
 
   public:
@@ -148,6 +165,16 @@ namespace Dune {
     //! return the number of corners of this element. Corners are numbered 0...n-1
     int corners () const {
       return cache().corners();
+    }
+
+    //! return volume of the geometry
+    Volume volume () const {
+      return cache().volume();
+    }
+
+    //! return center of the geometry
+    GlobalCoordinate center () const {
+      return cache().center();
     }
 
     //! access to coordinates of corners. Index is the number of the corner
