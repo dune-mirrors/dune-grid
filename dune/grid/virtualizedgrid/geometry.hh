@@ -66,6 +66,47 @@ namespace Dune {
     };
     // VIRTUALIZATION END
 
+    struct Cache
+    {
+      template<class Geometry>
+      void update (const Geometry& geometry)
+      {
+        type_ = geometry.type();
+        affine_ = geometry.affine();
+        corners_ = geometry.corners();
+
+        corner_.resize(corners_);
+        for (int i = 0; i < corners_; ++i)
+          corner_[i] = geometry.corner(i);
+      }
+
+      //! return the element type identifier
+      GeometryType type () const {
+        return type_;
+      }
+
+      //! return wether we have an affine mapping
+      bool affine () const {
+        return affine_;
+      }
+
+      //! return the number of corners of this element. Corners are numbered 0...n-1
+      int corners () const {
+        return corners_;
+      }
+
+      //! access to coordinates of corners. Index is the number of the corner
+      const FieldVector<ctype, coorddim>& corner (int i) const {
+        return corner_[i];
+      }
+
+    private:
+      GeometryType type_{};
+      bool affine_{};
+      int corners_{};
+      std::vector<FieldVector<ctype, coorddim>> corner_;
+    };
+
   public:
 
     /** constructor from host geometry
@@ -73,39 +114,45 @@ namespace Dune {
     template< class ImplGridGeometry >
     VirtualizedGridGeometry(ImplGridGeometry&& implGridGeometry)
       : impl_( new Implementation<ImplGridGeometry>( std::forward<ImplGridGeometry>(implGridGeometry) ) )
-    {}
+    {
+      update(implGridGeometry);
+    }
 
     VirtualizedGridGeometry(const VirtualizedGridGeometry& other)
     : impl_( other.impl_ ? other.impl_->clone() : nullptr )
+    , cache_( other.cache_ )
     {}
 
-    VirtualizedGridGeometry ( VirtualizedGridGeometry && ) = default;
+    VirtualizedGridGeometry (VirtualizedGridGeometry&&) = default;
 
     VirtualizedGridGeometry& operator=(const VirtualizedGridGeometry& other)
     {
       impl_.reset( other.impl_ ? other.impl_->clone() : nullptr );
+      cache_ = other.cache_;
       return *this;
     }
+
+    VirtualizedGridGeometry& operator= (VirtualizedGridGeometry&&) = default;
 
     /** \brief Return the element type identifier
      */
     GeometryType type () const {
-      return impl_->type();
+      return cache().type();
     }
 
     // return wether we have an affine mapping
-    bool affine() const {
-      return impl_->affine();
+    bool affine () const {
+      return cache().affine();
     }
 
     //! return the number of corners of this element. Corners are numbered 0...n-1
     int corners () const {
-      return impl_->corners();
+      return cache().corners();
     }
 
     //! access to coordinates of corners. Index is the number of the corner
-    const FieldVector<ctype, coorddim> corner (int i) const {
-      return impl_->corner(i);
+    const FieldVector<ctype, coorddim>& corner (int i) const {
+      return cache().corner(i);
     }
 
     /** \brief Maps a local coordinate within reference element to
@@ -135,8 +182,23 @@ namespace Dune {
       return impl_->jacobianInverseTransposed(local);
     }
 
-    std::unique_ptr<Interface> impl_;
+    const auto& cache() const {
+#ifndef DUNE_VIRTUALIZEDGRID_NO_CACHE
+      return cache_;
+#else
+      return *impl_;
+#endif
+    }
 
+    template<class Grid>
+    void update (const Grid& grid) {
+#ifndef DUNE_VIRTUALIZEDGRID_NO_CACHE
+      cache_.update(grid);
+#endif
+    }
+
+    std::unique_ptr<Interface> impl_;
+    Cache cache_;
   };
 
 }  // namespace Dune
