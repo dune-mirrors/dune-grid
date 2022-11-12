@@ -35,7 +35,7 @@ namespace Dune {
       virtual GeometryType type () const = 0;
       virtual bool affine() const = 0;
       virtual int corners () const = 0;
-      virtual const FieldVector<ctype, coorddim> corner (int i) const = 0;
+      virtual FieldVector<ctype, coorddim> corner (int i) const = 0;
       virtual FieldVector<ctype, coorddim> global (const FieldVector<ctype, mydim>& local) const = 0;
       virtual JacobianTransposed jacobianTransposed ( const FieldVector<ctype, mydim>& local ) const = 0;
       virtual FieldVector<ctype, mydim> local (const FieldVector<ctype, coorddim>& global) const = 0;
@@ -53,7 +53,7 @@ namespace Dune {
       GeometryType type () const override { return impl().type(); }
       bool affine() const override { return impl().affine(); }
       int corners () const override { return impl().corners(); }
-      const FieldVector<ctype, coorddim> corner (int i) const override { return impl().corner(i); }
+      FieldVector<ctype, coorddim> corner (int i) const override { return impl().corner(i); }
       FieldVector<ctype, coorddim> global (const FieldVector<ctype, mydim>& local) const override { return impl().global(local); }
       JacobianTransposed jacobianTransposed ( const FieldVector<ctype, mydim>& local ) const override { return impl().jacobianTransposed(local); }
       FieldVector<ctype, mydim> local (const FieldVector<ctype, coorddim>& global) const override { return impl().local(global); }
@@ -167,6 +167,7 @@ namespace Dune {
       return cache().corners();
     }
 
+#ifndef DUNE_VIRTUALIZEDGRID_NO_CACHE
     //! return volume of the geometry
     Volume volume () const {
       return cache().volume();
@@ -176,9 +177,10 @@ namespace Dune {
     GlobalCoordinate center () const {
       return cache().center();
     }
+#endif
 
     //! access to coordinates of corners. Index is the number of the corner
-    const FieldVector<ctype, coorddim>& corner (int i) const {
+    FieldVector<ctype, coorddim> corner (int i) const {
       return cache().corner(i);
     }
 
