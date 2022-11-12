@@ -46,16 +46,17 @@ namespace Dune
   {};
 
   // Forward declaration
-  template<int dimension, int dimensionworld, typename ct = double>
+  template<int dimension, int dimensionworld, typename ct = double,
+           typename GID = VirtualizedGridIdType, typename LID = GID>
   class VirtualizedGrid;
 
-  template<int dimension, int dimensionworld, typename ct>
+  template<int dimension, int dimensionworld, typename ct, typename GID, typename LID>
   struct VirtualizedGridFamily
   {
     struct Traits
     {
       /** \brief The type that implements the grid. */
-      typedef VirtualizedGrid< dimension, dimensionworld, ct > Grid;
+      typedef VirtualizedGrid< dimension, dimensionworld, ct, GID, LID > Grid;
 
       /** \brief The type of the intersection at the leafs of the grid. */
       typedef Dune::Intersection< const Grid, VirtualizedGridLeafIntersection< const Grid > > LeafIntersection;
@@ -120,9 +121,9 @@ namespace Dune
       /** \brief The type of the leaf index set. */
       typedef IndexSet< const Grid, VirtualizedGridLeafIndexSet< const Grid > > LeafIndexSet;
       /** \brief The type of the global id set. */
-      typedef IdSet< const Grid, VirtualizedGridGlobalIdSet< const Grid >, VirtualizedGridIdType> GlobalIdSet;
+      typedef IdSet< const Grid, VirtualizedGridGlobalIdSet< const Grid >, GID> GlobalIdSet;
       /** \brief The type of the local id set. */
-      typedef IdSet< const Grid, VirtualizedGridLocalIdSet< const Grid >, VirtualizedGridIdType> LocalIdSet;
+      typedef IdSet< const Grid, VirtualizedGridLocalIdSet< const Grid >, LID> LocalIdSet;
 
       /** \brief The type of the collective communication. */
       typedef VirtualizedCommunication Communication;
@@ -140,11 +141,11 @@ namespace Dune
    * \ingroup VirtualizedGrid
    */
 
-  template<int dimension, int dimensionworld, typename ct>
+  template<int dimension, int dimensionworld, typename ct, typename GID, typename LID>
   class VirtualizedGrid
-  : public GridDefaultImplementation<dimension, dimensionworld, ct, VirtualizedGridFamily<dimension, dimensionworld, ct>>
+  : public GridDefaultImplementation<dimension, dimensionworld, ct, VirtualizedGridFamily<dimension, dimensionworld, ct,GID, LID>>
   {
-    typedef VirtualizedGrid<dimension, dimensionworld, ct> ThisType;
+    typedef VirtualizedGrid ThisType;
 
     friend class VirtualizedGridLevelIndexSet<const ThisType>;
     friend class VirtualizedGridLeafIndexSet<const ThisType>;
@@ -165,7 +166,7 @@ namespace Dune
 
   public:
     //! type of the used GridFamily for this grid
-    typedef VirtualizedGridFamily<dimension, dimensionworld, ct> GridFamily;
+    typedef VirtualizedGridFamily<dimension, dimensionworld, ct, GID, LID> GridFamily;
 
     //! the Traits
     typedef typename GridFamily::Traits Traits;

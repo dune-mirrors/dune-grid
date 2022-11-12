@@ -10,6 +10,7 @@
  * \brief The VirtualizedGridIdType class
  */
 
+#include <dune/grid/virtualizedgrid/idtype.def.hh>
 
 namespace Dune {
 
@@ -20,122 +21,48 @@ namespace Dune {
    *
    */
   class VirtualizedGridIdType
+      : public Impl::VirtualizedGridIdTypeDefinition::Base
   {
+    using TypeErasureBase = Impl::VirtualizedGridIdTypeDefinition::Base;
 
   public:
-    // VIRTUALIZATION BEGIN
-    struct Interface
-    {
-      virtual ~Interface () = default;
-      virtual Interface *clone () const = 0;
-      virtual bool operator== (const VirtualizedGridIdType& other) const = 0;
-      virtual bool operator!= (const VirtualizedGridIdType& other) const = 0;
-      virtual bool operator< (const VirtualizedGridIdType& other) const = 0;
-      virtual bool operator<= (const VirtualizedGridIdType& other) const = 0;
-      virtual std::size_t hash () const = 0;
-      virtual std::string str() const = 0;
-    };
 
-    template< class I >
-    struct DUNE_PRIVATE Implementation final
-      : public Interface
-    {
-      Implementation ( I&& i ) : impl_( std::forward<I>(i) ) {}
-      Implementation *clone() const override { return new Implementation( *this ); }
+    VirtualizedGridIdType() = default;
 
-      bool operator== (const VirtualizedGridIdType& other) const override
-      {
-        return impl() == static_cast<const Implementation<I>&>(*other.impl_).impl();
-      }
-
-      bool operator!= (const VirtualizedGridIdType& other) const override
-      {
-        return !operator==(other);
-      }
-
-      bool operator< (const VirtualizedGridIdType& other) const override
-      {
-        return impl() < static_cast<const Implementation<I>&>(*other.impl_).impl();
-      }
-
-      bool operator<= (const VirtualizedGridIdType& other) const override
-      {
-        return impl() <= static_cast<const Implementation<I>&>(*other.impl_).impl();
-      }
-
-      std::string str() const override
-      {
-        std::stringstream ss;
-        ss << impl() << std::endl;
-        return ss.str();
-      }
-
-      std::size_t hash () const override
-      {
-        return std::hash<I>()(impl_);
-      }
-
-      const auto &impl () const { return impl_; }
-    private:
-      auto &impl () { return impl_; }
-
-      I impl_;
-    };
-    // VIRTUALIZATION END
-
-    VirtualizedGridIdType()
+    template<class Impl, disableCopyMove<VirtualizedGridIdType,Impl> = 0>
+    VirtualizedGridIdType (Impl&& impl)
+      : TypeErasureBase(std::forward<Impl>(impl))
     {}
 
-    template< class ImplIdType >
-    VirtualizedGridIdType(ImplIdType&& implIdType)
-    : impl_( new Implementation<ImplIdType>( std::forward<ImplIdType>(implIdType) ) )
-    {}
-
-    VirtualizedGridIdType(const VirtualizedGridIdType& other)
-    : impl_( other.impl_ ? other.impl_->clone() : nullptr )
-    {}
-
-    VirtualizedGridIdType ( VirtualizedGridIdType && ) = default;
-
-    VirtualizedGridIdType& operator=(const VirtualizedGridIdType& other)
+    bool operator== (const VirtualizedGridIdType& other) const
     {
-      impl_.reset( other.impl_ ? other.impl_->clone() : nullptr );
-      return *this;
+      return this->asInterface().operator==(other.asInterface());
     }
 
-    VirtualizedGridIdType& operator=( VirtualizedGridIdType&& ) = default;
-
-    bool operator==(const VirtualizedGridIdType& other) const
+    bool operator!= (const VirtualizedGridIdType& other) const
     {
-      return impl_->operator==(other);
+      return this->asInterface().operator!=(other.asInterface());
     }
 
-    bool operator!=(const VirtualizedGridIdType& other) const
+    bool operator< (const VirtualizedGridIdType& other) const
     {
-      return impl_->operator!=(other);
+      return this->asInterface().operator<(other.asInterface());
     }
 
-    bool operator<(const VirtualizedGridIdType& other) const
+    bool operator<= (const VirtualizedGridIdType& other) const
     {
-      return impl_->operator<(other);
+      return this->asInterface().operator<=(other.asInterface());
     }
 
-    bool operator<=(const VirtualizedGridIdType& other) const
+    std::string str () const
     {
-      return impl_->operator<=(other);
-    }
-
-    std::string str() const
-    {
-      return impl_->str();
+      return this->asInterface().str();
     }
 
     std::size_t hash () const
     {
-      return impl_->hash();
+      return this->asInterface().hash();
     }
-
-    std::unique_ptr<Interface> impl_;
   };
 
   inline std::ostream &operator<< ( std::ostream &out, const VirtualizedGridIdType &idtype )

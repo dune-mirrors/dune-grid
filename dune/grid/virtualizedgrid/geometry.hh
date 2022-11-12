@@ -12,61 +12,23 @@
 #include <dune/common/fmatrix.hh>
 #include <dune/common/typetraits.hh>
 #include <dune/grid/common/geometry.hh>
+#include <dune/grid/virtualizedgrid/geometry.def.hh>
 
 namespace Dune {
 
   template<int mydim, int coorddim, class GridImp>
-  class VirtualizedGridGeometry :
-    public GeometryDefaultImplementation <mydim, coorddim, GridImp, VirtualizedGridGeometry>
+  class VirtualizedGridGeometry
+    : public GeometryDefaultImplementation <mydim, coorddim, GridImp, VirtualizedGridGeometry>
+    , public Impl::VirtualizedGridGeometryDefinition<mydim,coorddim,GridImp>::Base
   {
+    using TypeErasureBase = typename Impl::VirtualizedGridGeometryDefinition<mydim,coorddim,GridImp>::Base;
+
   public:
     typedef typename GridImp::ctype ctype;
     typedef ctype Volume;
     typedef FieldMatrix< ctype, mydim, coorddim > JacobianTransposed;
     typedef FieldMatrix< ctype, coorddim, mydim > JacobianInverseTransposed;
     typedef FieldVector< ctype, coorddim > GlobalCoordinate;
-
-  private:
-    // VIRTUALIZATION BEGIN
-    struct Interface
-    {
-      virtual ~Interface () = default;
-      virtual Interface *clone () const = 0;
-      virtual GeometryType type () const = 0;
-      virtual bool affine() const = 0;
-      virtual int corners () const = 0;
-      virtual FieldVector<ctype, coorddim> corner (int i) const = 0;
-      virtual FieldVector<ctype, coorddim> global (const FieldVector<ctype, mydim>& local) const = 0;
-      virtual JacobianTransposed jacobianTransposed ( const FieldVector<ctype, mydim>& local ) const = 0;
-      virtual FieldVector<ctype, mydim> local (const FieldVector<ctype, coorddim>& global) const = 0;
-      virtual ctype integrationElement (const FieldVector<ctype, mydim>& local) const = 0;
-      virtual JacobianInverseTransposed jacobianInverseTransposed (const FieldVector<ctype, mydim>& local) const = 0;
-    };
-
-    template< class I >
-    struct DUNE_PRIVATE Implementation final
-      : public Interface
-    {
-      Implementation ( I&& i ) : impl_( std::forward<I>(i) ) {}
-      Implementation *clone() const override { return new Implementation( *this ); }
-
-      GeometryType type () const override { return impl().type(); }
-      bool affine() const override { return impl().affine(); }
-      int corners () const override { return impl().corners(); }
-      FieldVector<ctype, coorddim> corner (int i) const override { return impl().corner(i); }
-      FieldVector<ctype, coorddim> global (const FieldVector<ctype, mydim>& local) const override { return impl().global(local); }
-      JacobianTransposed jacobianTransposed ( const FieldVector<ctype, mydim>& local ) const override { return impl().jacobianTransposed(local); }
-      FieldVector<ctype, mydim> local (const FieldVector<ctype, coorddim>& global) const override { return impl().local(global); }
-      ctype integrationElement (const FieldVector<ctype, mydim>& local) const override { return impl().integrationElement(local); }
-      JacobianInverseTransposed jacobianInverseTransposed (const FieldVector<ctype, mydim>& local) const override { return impl().jacobianInverseTransposed(local); }
-
-    private:
-      const auto &impl () const { return impl_; }
-      auto &impl () { return impl_; }
-
-      I impl_;
-    };
-    // VIRTUALIZATION END
 
     struct Cache
     {
@@ -128,28 +90,12 @@ namespace Dune {
 
     /** constructor from host geometry
      */
-    template< class ImplGridGeometry >
-    VirtualizedGridGeometry(ImplGridGeometry&& implGridGeometry)
-      : impl_( new Implementation<ImplGridGeometry>( std::forward<ImplGridGeometry>(implGridGeometry) ) )
+    template<class Impl>
+    VirtualizedGridGeometry(Impl&& impl)
+      : TypeErasureBase(std::forward<Impl>(impl))
     {
-      update(implGridGeometry);
+      update(impl);
     }
-
-    VirtualizedGridGeometry(const VirtualizedGridGeometry& other)
-    : impl_( other.impl_ ? other.impl_->clone() : nullptr )
-    , cache_( other.cache_ )
-    {}
-
-    VirtualizedGridGeometry (VirtualizedGridGeometry&&) = default;
-
-    VirtualizedGridGeometry& operator=(const VirtualizedGridGeometry& other)
-    {
-      impl_.reset( other.impl_ ? other.impl_->clone() : nullptr );
-      cache_ = other.cache_;
-      return *this;
-    }
-
-    VirtualizedGridGeometry& operator= (VirtualizedGridGeometry&&) = default;
 
     /** \brief Return the element type identifier
      */
@@ -187,35 +133,35 @@ namespace Dune {
     /** \brief Maps a local coordinate within reference element to
      * global coordinate in element  */
     FieldVector<ctype, coorddim> global (const FieldVector<ctype, mydim>& local) const {
-      return impl_->global(local);
+      return this->asInterface().global(local);
     }
 
     /** \brief Return the transposed of the Jacobian
      */
-    JacobianTransposed
-    jacobianTransposed ( const FieldVector<ctype, mydim>& local ) const {
-      return impl_->jacobianTransposed(local);
+    JacobianTransposed jacobianTransposed (const FieldVector<ctype, mydim>& local) const {
+      return this->asInterface().jacobianTransposed(local);
     }
 
     /** \brief Maps a global coordinate within the element to a
      * local coordinate in its reference element */
     FieldVector<ctype, mydim> local (const FieldVector<ctype, coorddim>& global) const {
-      return impl_->local(global);
+      return this->asInterface().local(global);
     }
 
     ctype integrationElement (const FieldVector<ctype, mydim>& local) const {
-      return impl_->integrationElement(local);
+      return this->asInterface().integrationElement(local);
     }
+
     //! The Jacobian matrix of the mapping from the reference element to this element
     JacobianInverseTransposed jacobianInverseTransposed (const FieldVector<ctype, mydim>& local) const {
-      return impl_->jacobianInverseTransposed(local);
+      return this->asInterface().jacobianInverseTransposed(local);
     }
 
     const auto& cache() const {
 #ifndef DUNE_VIRTUALIZEDGRID_NO_CACHE
       return cache_;
 #else
-      return *impl_;
+      return this->asInterface();
 #endif
     }
 
@@ -226,7 +172,7 @@ namespace Dune {
 #endif
     }
 
-    std::unique_ptr<Interface> impl_;
+  private:
     Cache cache_;
   };
 

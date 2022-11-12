@@ -9,106 +9,21 @@
  * \brief The index and id sets for the VirtualizedGrid class
  */
 
-#include <dune/grid/common/indexidset.hh>
-
 #include <vector>
+#include <dune/grid/common/indexidset.hh>
+#include <dune/grid/virtualizedgrid/indexsets.def.hh>
 
 namespace Dune {
 
   /** \todo Take the index types from the host grid */
   template<class GridImp>
-  class VirtualizedGridLevelIndexSet :
-    public IndexSet<GridImp, VirtualizedGridLevelIndexSet<GridImp>>
+  class VirtualizedGridLevelIndexSet
+    : public IndexSet<GridImp, VirtualizedGridLevelIndexSet<GridImp>>
+    , public Impl::VirtualizedGridLevelIndexSetDefinition<GridImp>::Base
   {
-  public:
-
-    typedef typename IndexSet<GridImp, VirtualizedGridLevelIndexSet<GridImp>>::Types Types;
-
-    enum {dim = GridImp::dimension};
-
-  private:
-    // VIRTUALIZATION BEGIN
-    template<int codim>
-    struct InterfaceCodim
-    {
-      using Entity = typename GridImp::Traits::template Codim<codim>::Entity;
-
-      virtual ~InterfaceCodim () = default;
-      virtual int index (Codim<codim>, const Entity& e) const = 0;
-      virtual int subIndex (Codim<codim>, const Entity& e, int i, int cd) const = 0;
-      virtual bool contains (Codim<codim>, const Entity& e) const = 0;
-    };
-
-    template<int... codims>
-    struct InterfaceImpl
-        : virtual InterfaceCodim<codims>...
-    {
-      virtual ~InterfaceImpl () = default;
-      virtual InterfaceImpl *clone () const = 0;
-      virtual std::size_t size (int codim) const = 0;
-      virtual std::size_t size (GeometryType type) const = 0;
-      virtual Types types (int codim) const = 0;
-
-      using InterfaceCodim<codims>::index...;
-      using InterfaceCodim<codims>::subIndex...;
-      using InterfaceCodim<codims>::contains...;
-    };
-
-    template<class Seq>
-    struct Interface_t;
-    template<int... codims>
-    struct Interface_t<std::integer_sequence<int,codims...>> { using type = InterfaceImpl<codims...>; };
-
-    using Interface = typename Interface_t<std::make_integer_sequence<int,dim+1>>::type;
-
-    template<class Derived, class I, int codim>
-    struct DUNE_PRIVATE ImplementationCodim
-      : virtual InterfaceCodim<codim>
-    {
-      using Entity = typename GridImp::Traits::template Codim<codim>::Entity;
-      using EntityImpl = typename VirtualizedGridEntity<codim,dim,GridImp>::template Implementation<const typename std::decay_t<I>::template Codim<codim>::Entity>;
-
-      int index (Codim<codim>, const Entity& e) const final {
-        return derived().impl().index(upcast<EntityImpl>(e));
-      }
-      int subIndex (Codim<codim>, const Entity& e, int i, int cd) const final {
-        return derived().impl().template subIndex<codim>(upcast<EntityImpl>(e), i, cd);
-      }
-      bool contains (Codim<codim>, const Entity& e) const final {
-        return derived().impl().contains(upcast<EntityImpl>(e));
-      }
-
-    private:
-      const Derived& derived () const { return static_cast<const Derived&>(*this); }
-    };
-
-    template<class I, int... codims>
-    struct DUNE_PRIVATE ImplementationImpl final
-      : virtual InterfaceImpl<codims...>
-      , public ImplementationCodim<ImplementationImpl<I,codims...>, I, codims>...
-    {
-      ImplementationImpl ( I&& i ) : impl_( std::forward<I>(i) ) {}
-      ImplementationImpl *clone() const override { return new ImplementationImpl( *this ); }
-
-      std::size_t size (int codim) const override { return impl().size(codim); }
-      std::size_t size (GeometryType type) const override { return impl().size(type); }
-      Types types (int codim) const override { return impl().types(codim); }
-
-      const auto &impl () const { return impl_; }
-      auto &impl () { return impl_; }
-
-    private:
-      I impl_;
-    };
-
-    template<class I, class Seq>
-    struct Implementation_t;
-    template<class I, int... codims>
-    struct Implementation_t<I,std::integer_sequence<int,codims...>> { using type = ImplementationImpl<I,codims...>; };
-
-    template<class I>
-    using Implementation = typename Implementation_t<I,std::make_integer_sequence<int,dim+1>>::type;
-    // VIRTUALIZATION END
+    using TypeErasureBase = typename Impl::VirtualizedGridLevelIndexSetDefinition<GridImp>::Base;
+    using Types = std::vector<GeometryType>;
+    enum { dim = GridImp::dimension };
 
     struct Cache
     {
@@ -146,36 +61,23 @@ namespace Dune {
     };
 
   public:
-    template< class ImplLevelIndexSet >
-    explicit VirtualizedGridLevelIndexSet(ImplLevelIndexSet&& implLevelIndexSet)
-    : impl_( new Implementation<ImplLevelIndexSet>( std::forward<ImplLevelIndexSet>( implLevelIndexSet ) ) )
+    template<class Impl, disableCopyMove<VirtualizedGridLevelIndexSet,Impl> = 0>
+    explicit VirtualizedGridLevelIndexSet(const Impl& impl)
+      : TypeErasureBase(std::cref(impl))
     {
-      update(implLevelIndexSet);
-    }
-
-    VirtualizedGridLevelIndexSet(const VirtualizedGridLevelIndexSet& other)
-    : impl_( other.impl_ ? other.impl_->clone() : nullptr )
-    , cache_( other.cache_ )
-    {}
-
-    VirtualizedGridLevelIndexSet ( VirtualizedGridLevelIndexSet && ) = default;
-
-    VirtualizedGridLevelIndexSet& operator=(const VirtualizedGridLevelIndexSet& other) {
-      impl_.reset( other.impl_ ? other.impl_->clone() : nullptr );
-      cache_ = other.cache_;
-      return *this;
+      update(impl);
     }
 
     //! get index of an entity
     template<int codim>
     int index (const typename GridImp::Traits::template Codim<codim>::Entity& e) const {
-      return impl_->index(Codim<codim>{}, e);
+      return this->asInterface().index(Codim<codim>{}, e);
     }
 
     //! get index of subEntity of a codim 0 entity
     template<int codim>
     int subIndex (const typename GridImp::Traits::template Codim<codim>::Entity& e, int i, int cd) const {
-      return impl_->subIndex(Codim<codim>{}, e, i, cd);
+      return this->asInterface().subIndex(Codim<codim>{}, e, i, cd);
     }
 
 
@@ -199,14 +101,14 @@ namespace Dune {
     template<class EntityType>
     bool contains (const EntityType& e) const {
       static constexpr int codim = EntityType::codimension;
-      return impl_->contains(Codim<codim>{}, e);
+      return this->asInterface().contains(Codim<codim>{}, e);
     }
 
     const auto& cache() const {
 #ifndef DUNE_VIRTUALIZEDGRID_NO_CACHE
       return cache_;
 #else
-      return *impl_;
+      return this->asInterface();
 #endif
     }
 
@@ -217,7 +119,6 @@ namespace Dune {
 #endif
     }
 
-    std::unique_ptr<Interface> impl_;
     Cache cache_;
   };
 

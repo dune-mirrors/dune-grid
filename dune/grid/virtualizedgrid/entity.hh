@@ -68,7 +68,7 @@ namespace Dune {
 
     typedef typename GridImp::template Codim<codim>::EntitySeed EntitySeed;
 
-  private:
+  public:
 
     typedef typename GridImp::ctype ctype;
 
