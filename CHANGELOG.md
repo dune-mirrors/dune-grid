@@ -26,6 +26,9 @@ SPDX-License-Identifier: LicenseRef-GPL-2.0-only-with-DUNE-exception
   could return the index of a different entity; now every partition iterator returns the
   index of the (single) index set of the grid view.
 
+- Add member function `partitionType(i,codim)` to grid entity implementations, which returns
+  the partition type of the `i`th subEntity of codimension `codim` of an entity of codimension 0.
+
 # Release 2.11
 
 - The grid concepts are now able to check grids that have entity types disabled.
