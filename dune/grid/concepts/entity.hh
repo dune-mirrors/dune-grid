@@ -79,7 +79,7 @@ namespace Impl {
 template<class E>
 concept EntityExtended = EntityGeneral<E> &&
   Geometry<typename E::LocalGeometry> &&
-requires(const E e, int maxLevel)
+requires(const E e, int maxLevel, int i, unsigned int codim)
 {
   requires (E::codimension == 0);
   { e.father()                   } -> std::convertible_to<E>;
@@ -92,6 +92,7 @@ requires(const E e, int maxLevel)
   { e.isNew()                    } -> std::convertible_to<bool>;
   { e.mightVanish()              } -> std::convertible_to<bool>;
   { e.hasBoundaryIntersections() } -> std::convertible_to<bool>;
+  { e.subPartitionType(i,codim)  } -> std::convertible_to<Dune::PartitionType>;
 
   requires std::same_as<E, typename E::template Codim<0>::Entity>;
 } &&
