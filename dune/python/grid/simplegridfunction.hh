@@ -37,8 +37,13 @@ namespace Dune
       template <class GF>
       explicit SimpleLocalFunction ( const GF &gf ) : SimpleLocalFunction(gf.localEvaluator()) {}
 
-      void bind ( const Element &element ) { element_ = element; }
-      void unbind () { element_.reset(); }
+      void bind ( const Element &element ) { element_ = &element; }
+      void bind ( Element&& element )
+      {
+        elemObj_ = element;
+        bind( *elemObj_ );
+      }
+      void unbind () { element_ = nullptr; }
 
       template< class X >
       auto operator() ( const X &x ) const
@@ -49,8 +54,9 @@ namespace Dune
 
       const Element &element () const { assert( element_ ); return *element_; }
 
-    private:
-      std::optional<Element> element_;
+    protected:
+      const Element* element_ = nullptr;
+      std::optional<Element> elemObj_;
       LocalEvaluator localEvaluator_;
     };
 
