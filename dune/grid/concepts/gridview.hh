@@ -94,7 +94,7 @@ requires(const GV gv, int codim, Dune::GeometryType type)
   { gv.indexSet()         } -> std::same_as<const typename GV::IndexSet&>;
   { gv.size(codim)        } -> std::convertible_to<int>;
   { gv.size(type)         } -> std::convertible_to<int>;
-  { gv.comm()             } -> std::same_as<typename GV::CollectiveCommunication>;
+  { gv.comm()             } -> std::convertible_to<typename GV::CollectiveCommunication>;
   { gv.overlapSize(codim) } -> std::convertible_to<int>;
   { gv.ghostSize(codim)   } -> std::convertible_to<int>;
 

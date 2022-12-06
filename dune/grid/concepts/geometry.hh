@@ -34,16 +34,16 @@ concept Geometry = requires(const G g, typename G::GlobalCoordinate global, type
   { g.type()                           } -> std::same_as<Dune::GeometryType>;
   { g.affine()                         } -> std::convertible_to<bool>;
   { g.corners()                        } -> std::convertible_to<int>;
-  { g.corner(/*i*/ int{})              } -> std::same_as<typename G::GlobalCoordinate>;
-  { g.global(local)                    } -> std::same_as<typename G::GlobalCoordinate>;
-  { g.local(global)                    } -> std::same_as<typename G::LocalCoordinate>;
-  { g.integrationElement(local)        } -> std::same_as<typename G::Volume>;
-  { g.volume()                         } -> std::same_as<typename G::Volume>;
-  { g.center()                         } -> std::same_as<typename G::GlobalCoordinate>;
-  { g.jacobian(local)                  } -> std::same_as<typename G::Jacobian>;
-  { g.jacobianInverse(local)           } -> std::same_as<typename G::JacobianInverse>;
-  { g.jacobianTransposed(local)        } -> std::same_as<typename G::JacobianTransposed>;
-  { g.jacobianInverseTransposed(local) } -> std::same_as<typename G::JacobianInverseTransposed>;
+  { g.corner(/*i*/ int{})              } -> std::convertible_to<typename G::GlobalCoordinate>;
+  { g.global(local)                    } -> std::convertible_to<typename G::GlobalCoordinate>;
+  { g.local(global)                    } -> std::convertible_to<typename G::LocalCoordinate>;
+  { g.integrationElement(local)        } -> std::convertible_to<typename G::Volume>;
+  { g.volume()                         } -> std::convertible_to<typename G::Volume>;
+  { g.center()                         } -> std::convertible_to<typename G::GlobalCoordinate>;
+  { g.jacobian(local)                  } -> std::convertible_to<typename G::Jacobian>;
+  { g.jacobianInverse(local)           } -> std::convertible_to<typename G::JacobianInverse>;
+  { g.jacobianTransposed(local)        } -> std::convertible_to<typename G::JacobianTransposed>;
+  { g.jacobianInverseTransposed(local) } -> std::convertible_to<typename G::JacobianInverseTransposed>;
   { referenceElement(g)                } -> ReferenceElement;
 };
 

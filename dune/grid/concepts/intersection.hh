@@ -41,10 +41,10 @@ requires(const I i, typename I::LocalCoordinate local)
   { i.type()                        } -> std::same_as<Dune::GeometryType>;
   { i.indexInInside()               } -> std::convertible_to<int>;
   { i.indexInOutside()              } -> std::convertible_to<int>;
-  { i.outerNormal(local)            } -> std::same_as<typename I::GlobalCoordinate>;
-  { i.integrationOuterNormal(local) } -> std::same_as<typename I::GlobalCoordinate>;
-  { i.unitOuterNormal(local)        } -> std::same_as<typename I::GlobalCoordinate>;
-  { i.centerUnitOuterNormal()       } -> std::same_as<typename I::GlobalCoordinate>;
+  { i.outerNormal(local)            } -> std::convertible_to<typename I::GlobalCoordinate>;
+  { i.integrationOuterNormal(local) } -> std::convertible_to<typename I::GlobalCoordinate>;
+  { i.unitOuterNormal(local)        } -> std::convertible_to<typename I::GlobalCoordinate>;
+  { i.centerUnitOuterNormal()       } -> std::convertible_to<typename I::GlobalCoordinate>;
 };
 
 } // end namespace Dune::Concept
