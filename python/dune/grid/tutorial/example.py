@@ -61,7 +61,7 @@ runOnGrid(grid)
 print ("construct a YaspGrid with tensor product coordinate type")
 from dune.grid import yaspGrid, tensorProductCoordinates
 import numpy as np
-coords = tensorProductCoordinates([np.array([1,2,3,4]), np.array([10,11,33,44])], ctype='float')
+coords = tensorProductCoordinates([np.array([1,2,3,4,5,6,8,9]), np.array([10,11,33,44,48,50,52,54])], ctype='float')
 ygrid = yaspGrid(coords)
 print("number of elements of tensor YaspGrid grid:",ygrid.size(0))
 ygrid.plot()
@@ -78,6 +78,7 @@ p_grid.plot()
 runOnGrid(p_grid)
 
 # create parallel YaspGrids with user defined communicators
+import dune.common
 def parallelGrid(comm,sz):
     print (comm.rank, "construct a YaspGrid with tensor product coordinate type and custom communicator")
     from dune.grid import yaspGrid, tensorProductCoordinates
@@ -88,4 +89,6 @@ def parallelGrid(comm,sz):
     assert(comm.size == sz)
     assert(ygrid.size(0) == 64/sz)
 parallelGrid(dune.common.comm, dune.common.comm.size) # working with the default communicator, one distributed grid
-parallelGrid(MPI.COMM_SELF,    1) # unrelated local grids on each rank
+if dune.common.parallel.withMPI:
+    from mpi4py import MPI
+    parallelGrid(MPI.COMM_SELF,    1) # unrelated local grids on each rank
