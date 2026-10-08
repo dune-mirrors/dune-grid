@@ -63,9 +63,15 @@ dune_add_test(SOURCES vtktest.cc
               TIMEOUT 1200
               COMPILE_DEFINITIONS ${VTK_COMPILE_DEFINITIONS})
 
-dune_add_test(SOURCES vtksequencetest.cc
-              LINK_LIBRARIES ${DUNE_LIBS} $<TARGET_NAME_IF_EXISTS:Python3::Python>
-              COMPILE_DEFINITIONS ${VTK_COMPILE_DEFINITIONS})
+dune_add_test(SOURCES vtksequencetest.cc)
+# Export symbols for readable backtraces and let ctest send SIGUSR1 on timeout,
+# so that the test prints where it got stuck.
+set_target_properties(vtksequencetest PROPERTIES ENABLE_EXPORTS ON)
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.27)
+  set_tests_properties(vtksequencetest PROPERTIES
+    TIMEOUT_SIGNAL_NAME SIGUSR1
+    TIMEOUT_SIGNAL_GRACE_PERIOD 5)
+endif()
 
 dune_add_test(SOURCES starcdreadertest.cc
               COMPILE_DEFINITIONS DUNE_GRID_EXAMPLE_GRIDS_PATH=\"${PROJECT_SOURCE_DIR}/doc/grids/\"
