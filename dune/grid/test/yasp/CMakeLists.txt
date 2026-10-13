@@ -50,12 +50,10 @@ dune_add_test(NAME test-yaspgrid-yaspfactory-3d
               TIMEOUT 666
               )
 
-# periodic YaspGrid is broken, see https://gitlab.dune-project.org/core/dune-grid/-/issues/195
 dune_add_test(NAME test-yaspgrid-periodic
               SOURCES test-yaspgrid-periodic.cc
               MPI_RANKS 1 2
               TIMEOUT 666
-              EXPECT_FAIL
               )
 
 dune_add_test(SOURCES test-yaspgrid-constructor.cc)
