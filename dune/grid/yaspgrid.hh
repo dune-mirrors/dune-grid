@@ -762,13 +762,13 @@ namespace Dune {
         || std::is_same<Coordinates,EquidistantOffsetCoordinates<ctype,dim> >::value)
       {
         for (std::size_t i=0; i<dim; i++)
-          _L[i] = coordinates.size(i) * coordinates.meshsize(i,0);
+          _LL[i] =coordinates.size(i) * coordinates.meshsize(i,0);
       }
       if (std::is_same<Coordinates,TensorProductCoordinates<ctype,dim> >::value)
       {
         //determine sizes of vector to correctly construct torus structure and store for later size requests
         for (int i=0; i<dim; i++)
-          _L[i] = coordinates.coordinate(i,_coarseSize[i]) - coordinates.coordinate(i,0);
+          _LL[i] =coordinates.coordinate(i,_coarseSize[i]) - coordinates.coordinate(i,0);
       }
 
 #if HAVE_MPI
@@ -908,7 +908,7 @@ namespace Dune {
               Communication comm = Communication(),
               const Yasp::Partitioning<dim>* partitioner = defaultPartitioner())
       : ccobj(comm), _torus(comm,tag,s,overlap,partitioner), leafIndexSet_(*this),
-        _L(L), _periodic(periodic), _coarseSize(s), _overlap(overlap),
+        _LL(L), _periodic(periodic), _coarseSize(s), _overlap(overlap),
         keep_ovlp(true), adaptRefCount(0), adaptActive(false)
     {
       _levels.resize(1);
@@ -979,7 +979,7 @@ namespace Dune {
               Communication comm = Communication(),
               const Yasp::Partitioning<dim>* partitioner = defaultPartitioner())
       : ccobj(comm), _torus(comm,tag,s,overlap,partitioner), leafIndexSet_(*this),
-        _L(upperright - lowerleft),
+        _LL(upperright - lowerleft),
         _periodic(periodic), _coarseSize(s), _overlap(overlap),
         keep_ovlp(true), adaptRefCount(0), adaptActive(false)
     {
@@ -1057,7 +1057,7 @@ namespace Dune {
       //determine sizes of vector to correctly construct torus structure and store for later size requests
       for (int i=0; i<dim; i++) {
         _coarseSize[i] = coords[i].size() - 1;
-        _L[i] = coords[i][_coarseSize[i]] - coords[i][0];
+        _LL[i] =coords[i][_coarseSize[i]] - coords[i][0];
       }
 
       iTupel o;
@@ -1171,7 +1171,7 @@ namespace Dune {
         DUNE_THROW(Dune::GridError,"Setup of a tensorproduct grid requires monotonous sequences of coordinates.");
 
       for (int i=0; i<dim; i++)
-        _L[i] = coords[i][coords[i].size() - 1] - coords[i][0];
+        _LL[i] =coords[i][coords[i].size() - 1] - coords[i][0];
 
       _levels.resize(1);
 
@@ -1460,7 +1460,7 @@ namespace Dune {
 
     //! \brief returns the size of the physical domain
     const Dune::FieldVector<ctype, dim>& domainSize () const {
-      return _L;
+      return _LL;
     }
 
     /*! The new communication interface
@@ -1857,7 +1857,8 @@ namespace Dune {
     YaspIndexSet<const YaspGrid<dim,Coordinates>, true> leafIndexSet_;
     YaspGlobalIdSet<const YaspGrid<dim,Coordinates> > theglobalidset;
 
-    Dune::FieldVector<ctype, dim> _L;
+    // do not call this _L, which is a macro on some BSD systems
+    Dune::FieldVector<ctype, dim> _LL;
     iTupel _s;
     std::bitset<dim> _periodic;
     iTupel _coarseSize;
