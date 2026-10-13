@@ -388,14 +388,14 @@ namespace Dune {
         }
         else
         {
-          //check lower boundary
+          //check lower boundary: there is a neighbor unless the interior starts
+          //at the domain boundary (note that o_interior - overlap >= 0 also
+          //holds at the domain boundary for overlap 0)
           if (o_interior[i] - overlap < 0)
             o_overlap[i] = 0;
           else
-          {
             o_overlap[i] = o_interior[i] - overlap;
-            ovlp_low[i] = true;
-          }
+          ovlp_low[i] = (o_interior[i] > 0);
 
           //check upper boundary
           if (o_overlap[i] + g.coords.size(i) < globalSize(i))
@@ -438,10 +438,13 @@ namespace Dune {
               size[i]++;
           *overlapfront_it = YGridComponent<Coordinates>(origin, r, &g.coords, size, n, size);
 
-          // build overlap
+          // build overlap: remove the front, i.e. the outer layer of
+          // entities without shift; for overlap 0 there is no front, the
+          // outer layer consists of border entities
+          const bool hasFront = (overlap > 0);
           for (int i=0; i<dim; i++)
           {
-            if (!r[i])
+            if (!r[i] && hasFront)
             {
               if (ovlp_low[i])
               {
@@ -461,7 +464,7 @@ namespace Dune {
             {
               origin[i] += overlap;
               size[i] -= overlap;
-              if (!r[i])
+              if (!r[i] && hasFront)
               {
                 origin[i]--;
                 size[i]++;
@@ -470,7 +473,7 @@ namespace Dune {
             if (ovlp_up[i])
             {
               size[i] -= overlap;
-              if (!r[i])
+              if (!r[i] && hasFront)
                 size[i]++;
             }
           }
