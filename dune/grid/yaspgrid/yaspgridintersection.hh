@@ -113,7 +113,9 @@ namespace Dune {
       {
         for (int i=0; i<dim; i++)
         {
-          sides[i] =
+          // periodic directions have no boundary (this matters for overlap 0,
+          // otherwise the origin of the overlap grid is negative)
+          sides[i] = _inside.gridlevel()->mg->isPeriodic(i) ? 0 :
             ((_inside.gridlevel()->mg->begin()->overlap[0].dataBegin()->origin(i)
               == 0)+
             (_inside.gridlevel()->mg->begin()->overlap[0].dataBegin()->origin(i) +
@@ -127,7 +129,8 @@ namespace Dune {
       std::array<int, dim> pos = _inside.transformingsubiterator().coord();
       for(int i=0; i<dim; i++)
       {
-        pos[i] = pos[i] / (1<<_inside.level());
+        // round down, coordinates in the periodic overlap can be negative
+        pos[i] = pos[i] >> _inside.level();
         pos[i] = pos[i] - origin[i];
       }
       // compute unit-cube-face-sizes

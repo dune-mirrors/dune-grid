@@ -687,7 +687,9 @@ namespace Dune {
       {
         for (int i=0; i<dim; i++)
         {
-          sides[i] =
+          // periodic directions have no boundary (this matters for overlap 0,
+          // otherwise the origin of the overlap grid is negative)
+          sides[i] = _periodic[i] ? 0 :
             ((begin()->overlap[0].dataBegin()->origin(i) == 0)+
              (begin()->overlap[0].dataBegin()->origin(i) + begin()->overlap[0].dataBegin()->size(i)
                     == levelSize(0,i)));
