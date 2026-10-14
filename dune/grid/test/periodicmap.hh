@@ -5,6 +5,7 @@
 #ifndef DUNE_GRID_TEST_PERIODICMAP_HH
 #define DUNE_GRID_TEST_PERIODICMAP_HH
 
+#include <algorithm>
 #include <bitset>
 #include <cmath>
 #include <cstddef>
@@ -14,11 +15,15 @@
 #include <vector>
 
 #include <dune/common/float_cmp.hh>
+#include <dune/common/hybridutilities.hh>
+#include <dune/common/reservedvector.hh>
 
 #include <dune/geometry/referenceelements.hh>
 #include <dune/geometry/type.hh>
 #include <dune/geometry/typeindex.hh>
 
+#include <dune/grid/common/capabilities.hh>
+#include <dune/grid/common/gridenums.hh>
 #include <dune/grid/common/rangegenerators.hh>
 #include <dune/grid/test/coordinatetolerance.hh>
 
@@ -212,23 +217,91 @@ namespace Dune {
       };
     }
 
+    /** \brief Position of an entity up to the periodic map: geometry type, mapped center, and mapped corners
+     *
+     *  Periodic copies of an entity have the same position. Neither the center
+     *  nor the corners alone identify an entity:
+     *  - different entities can share their center, e.g. a coarse face and the
+     *    middle child of the refined face of its neighbor in a nonconforming
+     *    leaf view,
+     *  - different entities can share their set of mapped corners, e.g. the two
+     *    cells of a grid with two cells in a periodic direction.
+     *
+     *  The constructor sorts the corners, so that the position does not depend
+     *  on the numbering of the corners of the element the entity is taken from.
+     *
+     *  \tparam Coordinate  global coordinate type
+     *  \tparam dim         dimension of the grid (bounds the number of corners by 2^dim)
+     */
+    template<class Coordinate, int dim>
+    class EntityPosition
+    {
+    public:
+      using Corners = ReservedVector<Coordinate, (1 << dim)>;
+
+      /** \brief construct from the mapped center and the mapped corners
+       *
+       *  \param type       global geometry type index (GlobalGeometryTypeIndex)
+       *  \param tolerance  absolute tolerance for sorting the corners, see coordinateTolerance()
+       */
+      EntityPosition (std::size_t type, const Coordinate& center, const Corners& corners, double tolerance)
+        : type_(type), center_(center), corners_(corners)
+      {
+        std::sort(corners_.begin(), corners_.end(), ApproxLess{ tolerance });
+      }
+
+      std::size_t type () const { return type_; }
+      const Coordinate& center () const { return center_; }
+      //! the mapped corners, sorted with ApproxLess
+      const Corners& corners () const { return corners_; }
+
+    private:
+      std::size_t type_;
+      Coordinate center_;
+      Corners corners_;
+    };
+
+    /** \brief Order of EntityPosition: type, then center, then corners (lexicographically), each with ApproxLess */
+    struct EntityPositionLess
+    {
+      double tolerance;
+
+      template<class Position>
+      bool operator() (const Position& a, const Position& b) const
+      {
+        if (a.type() != b.type())
+          return a.type() < b.type();
+        const ApproxLess less{ tolerance };
+        if (less(a.center(), b.center()))
+          return true;
+        if (less(b.center(), a.center()))
+          return false;
+        return std::lexicographical_compare(a.corners().begin(), a.corners().end(),
+                                            b.corners().begin(), b.corners().end(), less);
+      }
+    };
+
     /** \brief Group the entities of one codimension of a grid view into classes of local periodic copies
      *
      *  Entities are identified by their geometry type and their index in the
      *  index set of the grid view (this works for all grid views, a mapper
      *  would require a copy-assignable grid view). Two entities belong to the
-     *  same class if they have the same geometry type, their centers are
-     *  mapped to the same point by the periodic map, and at least one of the
-     *  entities of this point is moved by the map, i.e. is a periodic copy.
-     *  Entities that just share their center without periodicity (e.g. UGGrid
-     *  stores different entities with the same center in its leaf view) are
-     *  not identified. Hence, for the identity map each class consists of a
-     *  single entity.
+     *  same class if they have the same EntityPosition, i.e., the same geometry
+     *  type, and their centers and their corners are mapped to the same points
+     *  by the periodic map. For the identity map, each class consists of a
+     *  single entity unless the grid view contains two entities with the same
+     *  geometry.
      *
      *  Only entities stored on this process are considered. A class with more
      *  than one member is a local coincidence. In parallel, the original of a
      *  copy is usually stored on another process, then the class of the copy
      *  has a single member.
+     *
+     *  Ghost entities are not identified: each ghost entity is a class of its
+     *  own. Ghosts are virtual copies of entities of other processes with less
+     *  consistency requirements; e.g., ALUGrid may store the same remote
+     *  element (and its faces) several times as ghost, with different indices
+     *  and ids. The grid interface does not forbid this.
      */
     template<class GridView>
     class PeriodicIdentification
@@ -247,11 +320,10 @@ namespace Dune {
         constexpr int dim = GridView::dimension;
         const auto tolerance = coordinateTolerance(gridView);
 
-        // group the entities by geometry type and mapped center, and remember
-        // whether a group contains a periodic copy
-        struct Group { std::vector<Key> keys; bool hasCopy = false; };
-        std::vector<Group> groups;
-        std::map<std::size_t, std::map<Coordinate, std::size_t, ApproxLess>> groupIds;
+        // group the entities by their position up to the periodic map
+        using Position = EntityPosition<Coordinate, dim>;
+        std::vector<std::vector<Key>> groups;
+        std::map<Position, std::size_t, EntityPositionLess> groupIds(EntityPositionLess{ tolerance });
         std::map<Key, bool> seen;
 
         for (const auto& element : elements(gridView))
@@ -264,29 +336,31 @@ namespace Dune {
             if (!seen.emplace(key, true).second)
               continue;
 
-            const Coordinate center = geometry.global(refElement.position(i, codim));
-            const Coordinate mapped = periodicMap(center);
-            auto& groupIdsOfType = groupIds.try_emplace(key.first, ApproxLess{ tolerance }).first->second;
-            auto it = groupIdsOfType.find(mapped);
-            if (it == groupIdsOfType.end())
+            // ghost entities are not identified, see the class documentation
+            if (subPartitionType(element, i, codim) == GhostEntity)
             {
-              it = groupIdsOfType.emplace(mapped, groups.size()).first;
+              addClass({ key });
+              continue;
+            }
+
+            typename Position::Corners corners;
+            for (int j = 0; j < refElement.size(i, codim, dim); ++j)
+              corners.push_back(periodicMap(geometry.corner(refElement.subEntity(i, codim, j, dim))));
+            const Position position(key.first, periodicMap(geometry.global(refElement.position(i, codim))),
+                                    corners, tolerance);
+
+            auto it = groupIds.find(position);
+            if (it == groupIds.end())
+            {
+              it = groupIds.emplace(position, groups.size()).first;
               groups.emplace_back();
             }
-            groups[it->second].keys.push_back(key);
-            groups[it->second].hasCopy = groups[it->second].hasCopy || !coordinatesEqual(mapped, center, tolerance);
+            groups[it->second].push_back(key);
           }
         }
 
-        // a group with a periodic copy is one class, otherwise each entity is its own class
         for (const auto& group : groups)
-        {
-          if (group.hasCopy)
-            addClass(group.keys);
-          else
-            for (const auto& key : group.keys)
-              addClass({ key });
-        }
+          addClass(group);
       }
 
       //! the key (geometry type and index) of an entity
@@ -317,6 +391,18 @@ namespace Dune {
       bool hasCoincidences () const { return hasCoincidences_; }
 
     private:
+      // the partition type of a subentity of an element, for a codim given at run time
+      template<class Element>
+      static PartitionType subPartitionType (const Element& element, int i, int codim)
+      {
+        PartitionType partitionType = InteriorEntity;
+        Hybrid::switchCases(std::make_index_sequence<GridView::dimension+1>{}, codim, [&](auto cd) {
+          if constexpr (Capabilities::hasEntity<typename GridView::Grid, cd>::v)
+            partitionType = element.template subEntity<cd>(i).partitionType();
+        });
+        return partitionType;
+      }
+
       void addClass (const std::vector<Key>& keys)
       {
         for (const auto& key : keys)
