@@ -21,6 +21,11 @@ SPDX-License-Identifier: LicenseRef-GPL-2.0-only-with-DUNE-exception
   by partition iterators have the index of the index set of the grid view, i.e. the same index
   as the same entity obtained as a subentity of an element.
 
+- Fix the index of `YaspGrid` entities of codimension 0 < c < dim obtained by partition
+  iterators (interior, interior-border, overlap). In parallel and for periodic grids they
+  could return the index of a different entity; now every partition iterator returns the
+  index of the (single) index set of the grid view.
+
 # Release 2.11
 
 - The grid concepts are now able to check grids that have entity types disabled.
