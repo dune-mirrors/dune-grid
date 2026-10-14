@@ -1091,9 +1091,9 @@ void gridcheck (Grid &g,
 
   // note that for some grid this might fail
   // then un comment this test
-  Dune :: checkIndexSet( g, g.leafGridView(), Dune :: dvverb );
+  Dune :: checkIndexSet( g, g.leafGridView(), Dune :: dvverb, false, periodicMap );
   for( int level = 0; level <= g.maxLevel(); ++level )
-    Dune :: checkIndexSet( g, g.levelGridView( level ), Dune :: dvverb, true );
+    Dune :: checkIndexSet( g, g.levelGridView( level ), Dune :: dvverb, true, periodicMap );
 
   // check id sets
   checkIdSet(g, g.localIdSet(), periodicMap);
