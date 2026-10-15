@@ -206,25 +206,22 @@ def tensorProductCoordinates(coords, offset=None, ctype='double'):
 
 def yaspGrid(constructor, dimgrid=None, coordinates="equidistant", ctype=None,
              periodic=None, overlap=None, **param):
-    """create a Dune::YaspGrid
+    """Create a Dune::YaspGrid
 
-       constructor: a Yaspgrod coordinates object
-                    (created via equidistantCoordinates,
-                                 equidistantOffsetCoordinates or
-                                 tensorProductCoordinates)
-                    or CartesianDomain
-                    or a reader object that can be called via gridModule.reader(constructor)
-       dimgrid:     explicitly specify the dimension of the grid (should only be set if using a reader)
-       coordinates: explicitly specify coordinates template parameter (deprecated, and ignored)
-       ctype:       explicitly specify grids C++ ctype template parameter (should only be set if using a reader, default: double)
-       periodic:    boolean list specifying periodicity per dimension (default: no periodicity)
-       overlap:     size of overlap for periodic or parallel grids (default: 1)
+       :param constructor: a Yaspgrid coordinates object (created via equidistantCoordinates,
+           equidistantOffsetCoordinates or tensorProductCoordinates) or CartesianDomain
+           or a reader object that can be called via gridModule.reader(constructor)
+       :param dimgrid:     explicitly specify the dimension of the grid (should only be set if using a reader)
+       :param coordinates: explicitly specify coordinates template parameter (deprecated, and ignored)
+       :param ctype:       explicitly specify grids C++ ctype template parameter (should only be set if using a reader, default: double)
+       :param periodic:    boolean list specifying periodicity per dimension (default: no periodicity)
+       :param overlap:     size of overlap for periodic or parallel grids (default: 1)
 
 
     parameters coordinates and ctype are deprecated and will in future
     be deduced from the constructor parameter.
-
     """
+
     from dune.generator import Constructor
     from .grid_generator import module, getDimgrid
 

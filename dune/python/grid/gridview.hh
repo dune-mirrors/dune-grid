@@ -248,8 +248,7 @@ namespace Dune
         R"doc(
           get range of entities for a codimension
 
-          Args:
-              codim:    Codimension to obtain range of entities for
+          :param codim: Codimension to obtain range of entities for
         )doc" );
 
       registerPyIntersectionIterator< GridView >();
@@ -259,8 +258,7 @@ namespace Dune
         R"doc(
           get range of all codim-1 intersections for an element
 
-          Args:
-              element:    Element of obtain intersections for
+          :param element: Element to obtain intersections for
         )doc" );
 
       registerPyBoundaryIntersectionIterator< GridView, PyElementIterator >();
@@ -334,9 +332,8 @@ namespace Dune
           return self.size( codim );
         }, "codim"_a,
         R"doc(
-          Args:
-              codim:     required codimension
-          Returns:       number of subentities of codimension `codim`
+          :param codim: Required codimension
+          :return: Number of subentities of codimension `codim`
         )doc" );
       cls.def( "size", [] ( const GridView &self, Dune::GeometryType gt ) {
           if( (gt.dim() < 0) || (gt.dim() > GridView::dimension) )
@@ -344,9 +341,8 @@ namespace Dune
           return self.size( gt );
         }, "gt"_a,
         R"doc(
-          Args:
-              gt:        a geometry type
-          Returns:       number of subentities of the given geometry type
+          :param gt: A geometry type
+          :return: Number of subentities of the given geometry type
         )doc" );
 
       registerVTKWriter< GridView >( cls );
@@ -431,8 +427,7 @@ namespace Dune
         R"doc(
           Generated a possibly refined tessellation using only simplices.
 
-          Args:
-              level: virtual refinement level to use to generate the tessellation
+          :param int level: virtual refinement level to use to generate the tessellation
 
           Returns: (coordinates,simplices) where coordinates is a `numpy` array
                    of the vertex coordinates (padded by to `dimworld` is needed)
@@ -452,8 +447,7 @@ namespace Dune
           R"doc(
             Generated a possibly refined tessellation using only simplices.
 
-            Args:
-                level: virtual refinement level to use to generate the tessellation
+            :param int level: Virtual refinement level to use to generate the tessellation
 
             Returns: (coordinates,simplices) where coordinates is a `numpy` array
                      of the vertex coordinates (padded by to `dimworld` is needed)
@@ -498,8 +492,7 @@ namespace Dune
         R"doc(
           Check whether an entity is contained in the grid instance
 
-          Args:
-              entity:   entity to check
+          :param entity: Entity to check
 
           Note:
           - The entity must be contained in the corresponding hierarchical grid.

@@ -222,6 +222,7 @@ namespace Dune
           (including 0).
           Denoting by E(g) the entities of geometry type g, this map has the
           following properties:
+
           - It is injective on each E(g).
           - The image of E(g) is consecutive and zero-starting, i.e.,
             { 0, ..., N-1 } for some integer N
