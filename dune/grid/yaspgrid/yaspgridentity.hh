@@ -569,8 +569,9 @@ namespace Dune {
       // coordinates of the cell
       iTupel coord = _it.coord();
 
-      // get coordinates on next coarser level
-      for (int k=0; k<dim; k++) coord[k] = coord[k]/2;
+      // get coordinates on next coarser level; round down, coordinates in the
+      // periodic overlap can be negative
+      for (int k=0; k<dim; k++) coord[k] = coord[k] >> 1;
 
       return Entity(YaspEntity<0,GridImp::dimension,GridImp>(cg,cg->overlap[0].begin(coord)));
     }
