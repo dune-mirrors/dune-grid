@@ -542,7 +542,7 @@ namespace Dune
         const std::size_t count = std::count_if( keys.begin(), keys.end(),
                                                  [ typeIndex ] ( const Key &key ) { return key.first == typeIndex; } );
         const bool inRange = std::all_of( keys.begin(), keys.end(), [ & ] ( const Key &key )
-                                          { return (key.first != typeIndex) || (key.second < lset.size( type )); } );
+                                          { return (key.first != typeIndex) || (std::size_t( key.second ) < std::size_t( lset.size( type ) )); } );
         if( (count != (size_t)lset.size( type )) || !inRange )
         {
           std::cerr << "Error: the indices of the " << count << " entities of type " << type
