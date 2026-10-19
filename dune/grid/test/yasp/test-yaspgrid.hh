@@ -204,9 +204,11 @@ void check_yasp(std::string testID, Dune::YaspGrid<dim,CC>* grid,
   checkGeometryInFather(*grid);
   // check the intersection iterator and the geometries it returns
   checkIntersectionIterator(*grid);
+  // check the partition types before checkAdaptRefinement, which refines the
+  // grid twice (in 3d the grid then has 64 times as many cells)
+  checkPartitionType( grid->leafGridView(), periodicMap );
   // check grid adaptation interface
   checkAdaptRefinement(*grid);
-  checkPartitionType( grid->leafGridView(), periodicMap );
 
   std::ofstream file;
   std::ostringstream filename;
