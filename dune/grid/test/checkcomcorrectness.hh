@@ -185,51 +185,68 @@ namespace Dune {
           return 1;
         }
 
+        // debug output is collected in _log and only printed if a check fails
+        void require(bool condition, const std::string& what) const
+        {
+          if (!condition)
+            std::cerr << "[" << _gv.comm().rank() << "] Error in communication test: " << what << "\n"
+                      << "[" << _gv.comm().rank() << "] debug output of this communication:\n"
+                      << _log.str() << std::flush;
+          assert(condition);
+        }
+
         // send the center of the entity, mapped to the periodic unit cell
         template<typename Buf, typename E>
         void gather(Buf& buf, const E& e) const
         {
-          assert(_allowed_writes.count(e.partitionType()) > 0);
           auto center = e.geometry().center();
+          _log << "Gathering from entity " << _mapper.index(e) << " at " << center << "\n";
+          require(_allowed_writes.count(e.partitionType()) > 0,
+                  "write from a " + PartitionName(e.partitionType()) + " entity is not allowed");
           buf.write(_periodicMap(center));
-          if (_gv.comm().rank() == 0)
-            std::cout << "Gathering from entity " << _mapper.index(e) << " at " << e.geometry().center() << std::endl;
           ++_writes[_mapper.index(e)];
-          assert(GridCheck::coordinatesEqual(center, _coords[_mapper.index(e)], _tolerance));
+          require(GridCheck::coordinatesEqual(center, _coords[_mapper.index(e)], _tolerance),
+                  "center of the gathered entity differs from the stored one");
         }
 
         // the received center must match the own center, up to the periodic map
         template<typename Buf, typename E>
         void scatter(Buf& buf, const E& e, [[maybe_unused]] std::size_t n) const
         {
-          assert(_allowed_reads.count(e.partitionType()) > 0);
+          auto center = e.geometry().center();
+          _log << "Scattering to entity " << _mapper.index(e) << " at " << center << "\n";
+          require(_allowed_reads.count(e.partitionType()) > 0,
+                  "read into a " + PartitionName(e.partitionType()) + " entity is not allowed");
           typename E::Geometry::GlobalCoordinate data;
           buf.read(data);
           ++_reads[_mapper.index(e)];
-          auto center = e.geometry().center();
-          assert(GridCheck::coordinatesEqual(data, _periodicMap(center), _tolerance));
-          assert(GridCheck::coordinatesEqual(center, _coords[_mapper.index(e)], _tolerance));
+          require(GridCheck::coordinatesEqual(data, _periodicMap(center), _tolerance),
+                  "received center differs from the own center (up to the periodic map)");
+          require(GridCheck::coordinatesEqual(center, _coords[_mapper.index(e)], _tolerance),
+                  "center of the scattered entity differs from the stored one");
         }
 
+        // check the numbers of writes and reads of each entity; check returns whether they are correct
         template<int cd, typename Check>
         void verify(Dune::Codim<cd> codim, Check check)
         {
           assert(codim == _codim);
           for (const auto& e : entities(_gv,codim))
             {
-              if (_gv.comm().rank() == 0)
-                std::cout << "Entity of codim " << cd
-                          << " at " << e.geometry().center()
-                          << " with partition " << PartitionName(e.partitionType())
-                          << " and " << _writes[_mapper.index(e)] << " / " << _reads[_mapper.index(e)] << " writes / reads"
-                          << std::endl;
-              check(
-                e.partitionType(),
-                _allowed_writes.count(e.partitionType()) > 0,
-                _allowed_reads.count(e.partitionType()) > 0,
-                _writes[_mapper.index(e)],
-                _reads[_mapper.index(e)]
-                );
+              std::ostringstream entity;
+              entity << "Entity of codim " << cd
+                     << " at " << e.geometry().center()
+                     << " with partition " << PartitionName(e.partitionType())
+                     << " and " << _writes[_mapper.index(e)] << " / " << _reads[_mapper.index(e)] << " writes / reads";
+              _log << entity.str() << "\n";
+              require(check(
+                        e.partitionType(),
+                        _allowed_writes.count(e.partitionType()) > 0,
+                        _allowed_reads.count(e.partitionType()) > 0,
+                        _writes[_mapper.index(e)],
+                        _reads[_mapper.index(e)]
+                        ),
+                      "unexpected number of writes / reads: " + entity.str());
             }
         }
 
@@ -257,6 +274,7 @@ namespace Dune {
         const std::vector<typename GV::template Codim<0>::Geometry::GlobalCoordinate>& _coords;
         const ctype _tolerance;
         const PeriodicMap<GV> _periodicMap;
+        mutable std::ostringstream _log;
 
       };
 
@@ -376,19 +394,12 @@ namespace Dune {
           gv.communicate(dh,InteriorBorder_InteriorBorder_Interface,ForwardCommunication);
           dh.verify(
             codim,
-            [](PartitionType partition, bool /* write_allowed */, bool /* read_allowed */, [[maybe_unused]] std::size_t writes, [[maybe_unused]] std::size_t reads)
+            [](PartitionType partition, bool /* write_allowed */, bool /* read_allowed */, std::size_t writes, std::size_t reads)
             {
               if (partition == BorderEntity)
-                {
-                  assert(writes > 0);
-                  assert(reads > 0);
-                  assert(writes == reads);
-                }
+                return (writes > 0) && (reads > 0) && (writes == reads);
               else
-                {
-                  assert(writes == 0);
-                  assert(reads == 0);
-                }
+                return (writes == 0) && (reads == 0);
             });
         }
       }
