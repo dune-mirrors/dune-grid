@@ -5,6 +5,9 @@
 #ifndef DUNE_GEOGRID_ENTITY_HH
 #define DUNE_GEOGRID_ENTITY_HH
 
+#include <utility>
+
+#include <dune/common/hybridutilities.hh>
 #include <dune/geometry/referenceelements.hh>
 
 #include <dune/grid/common/grid.hh>
@@ -854,7 +857,16 @@ namespace Dune
       //! Return the partition type of the i'th subentity of codimension `codim`
       PartitionType partitionType (int i, unsigned int codim) const
       {
-        return hostEntity().partitionType(i, codim);
+        return Hybrid::switchCases(std::make_index_sequence<dimension+1>{}, codim,
+          [&](auto cd) -> PartitionType {
+            if constexpr (Capabilities::hasHostEntity<Grid, cd>::v)
+              return this->hostEntity().partitionType(i, cd);
+            else
+              return this->template subEntity<cd>(i).partitionType();
+          },
+          [&]() -> PartitionType {
+            DUNE_THROW(GridError, "Invalid codimension codim=" << codim);
+          });
       }
 
       using Base::partitionType;
