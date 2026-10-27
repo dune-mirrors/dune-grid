@@ -19,6 +19,7 @@
 #include <dune/grid/common/mcmgmapper.hh>
 #include <dune/grid/uggrid.hh>
 #include <dune/grid/utility/structuredgridfactory.hh>
+#include <dune/grid/test/coordinatetolerance.hh>
 
 using namespace Dune;
 
@@ -31,7 +32,7 @@ class DataExchange
 public:
   //! export type of data for message buffer
   typedef double DataType;
-  typedef std::vector<Dune::FieldVector<double,1> > UserDataType;
+  typedef std::vector<double> UserDataType;
 
   //! constructor
   DataExchange(const MapperT &mapper,
@@ -78,7 +79,7 @@ public:
     DataType x = mapper_.index(e);
     gatherCounter_[mapper_.index(e)]++;
 
-    userDataSend_[mapper_.index(e)][0] = x;
+    userDataSend_[mapper_.index(e)] = x;
     dverb << "Process "
               << Dune::MPIHelper::getCommunication().rank()+1
               << " sends for entity "
@@ -100,7 +101,7 @@ public:
     DataType x;
     buff.read(x);
 
-    userDataReceive_[mapper_.index(e)][0] = x;
+    userDataReceive_[mapper_.index(e)] = x;
     scatterCounter_[mapper_.index(e)]++;
     dverb << "Process "
               << Dune::MPIHelper::getCommunication().rank()+1
@@ -240,7 +241,7 @@ void testCommunication(const GridView &gridView,
   MapperType mapper(gridView, mcmgLayout);
 
   // create the user data arrays
-  using UserDataType = std::vector<Dune::FieldVector<double, 1> >;
+  using UserDataType = std::vector<double>;
 
   UserDataType userDataSend(mapper.size(), 0.0);
   UserDataType userDataReceive(mapper.size(), 0.0);
@@ -455,6 +456,7 @@ class LoadBalance
   static bool checkVector(const GridView& gv, const Data& data)
   {
     const auto& idSet = gv.grid().localIdSet();
+    const auto tolerance = Dune::GridCheck::coordinateTolerance(gv);
 
     for (const auto& entity : entities(gv, Dune::Codim<codim>(),
                                        Dune::Partitions::interiorBorder)) {
@@ -463,15 +465,12 @@ class LoadBalance
       const auto& realPos = entity.geometry().center();
 
       // compare the position with the balanced data
-      for (int k = 0; k < dimension; k++)
+      if (!Dune::GridCheck::coordinatesEqual(commPos, realPos, tolerance))
       {
-        if (Dune::FloatCmp::ne(commPos[k], realPos[k]))
-        {
-          DUNE_THROW(Dune::ParallelError,
-                     gv.comm().rank() << ": position " << realPos
-                                      << " does not coincide with communicated data "
-                                      << commPos);
-        }
+        DUNE_THROW(Dune::ParallelError,
+                   gv.comm().rank() << ": position " << realPos
+                                    << " does not coincide with communicated data "
+                                    << commPos);
       }
     }
 
