@@ -6,7 +6,9 @@
 #define DUNE_GRID_COMMON_ENTITY_HH
 
 #include <type_traits>
+#include <utility>
 
+#include <dune/common/hybridutilities.hh>
 #include <dune/common/iteratorrange.hh>
 #include <dune/common/typetraits.hh>
 
@@ -312,7 +314,11 @@ namespace Dune
     //! @copydoc Dune::Entity::partitionType()
     PartitionType partitionType () const { return realEntity.partitionType(); }
 
-    //! Return the partition type of the i'th subentity of codimension `codim`
+    /** \brief Return the partition type of the i'th subentity of codimension `codim`.
+     * \param i Local subentity index, with `0 <= i < subEntities(codim)`.
+     * \param codim Codimension with respect to the grid, with `0 <= codim <= dim`.
+     * For `codim == 0`, the result is the partition type of this element.
+     */
     PartitionType partitionType (int i, unsigned int codim) const
     {
       return realEntity.partitionType(i, codim);
@@ -671,6 +677,10 @@ namespace Dune
     }
 
     /**\brief Returns the partition type of the i'th subEntity of codimension `codim`
+     *
+     * Implementations defining `partitionType()` must make this overload visible
+     * with `using EntityDefaultImplementation<0,dim,GridImp,EntityImp>::partitionType;`
+     * unless they provide their own implementation.
      */
     PartitionType partitionType (int i, unsigned int codim) const
     {
