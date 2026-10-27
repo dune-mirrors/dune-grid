@@ -29,6 +29,9 @@ SPDX-License-Identifier: LicenseRef-GPL-2.0-only-with-DUNE-exception
 - Add member function `partitionType(i,codim)` to grid entity implementations, which returns
   the partition type of the `i`th subEntity of codimension `codim` of an entity of codimension 0.
 
+- Test `partitionType(i,codim)` against subentity partition types on leaf and level
+  views, including the default implementation and parallel grid partitions.
+
 # Release 2.11
 
 - The grid concepts are now able to check grids that have entity types disabled.

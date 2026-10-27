@@ -8,6 +8,10 @@ link_libraries(Dune::Grid)
 
 dune_add_test(SOURCES test-concepts.cc)
 
+dune_add_test(SOURCES test-subentity-partition.cc
+              MPI_RANKS 1 2 4
+              TIMEOUT 300)
+
 dune_add_test(SOURCES geometrygrid-coordfunction-copyconstructor.cc)
 
 dune_add_test(NAME test-geogrid-yaspgrid
