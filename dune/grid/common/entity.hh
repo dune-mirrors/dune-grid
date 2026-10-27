@@ -16,6 +16,7 @@
 #include <dune/geometry/referenceelements.hh>
 
 #include "grid.hh"
+#include "capabilities.hh"
 #include "rangegenerators.hh"
 
 namespace Dune
@@ -681,11 +682,17 @@ namespace Dune
      * Implementations defining `partitionType()` must make this overload visible
      * with `using EntityDefaultImplementation<0,dim,GridImp,EntityImp>::partitionType;`
      * unless they provide their own implementation.
+     * Requests for codimensions without entities throw NotImplemented.
      */
     PartitionType partitionType (int i, unsigned int codim) const
     {
       return Dune::Hybrid::switchCases(std::make_index_sequence<dim+1>{}, codim,
-      [&](auto cd) { return asImp().template subEntity<cd>(i).partitionType(); },
+      [&](auto cd) -> PartitionType {
+          if constexpr (Capabilities::hasEntity<GridImp, cd>::v)
+            return asImp().template subEntity<cd>(i).partitionType();
+          else
+            DUNE_THROW(NotImplemented, "Grid has no entities of codimension " << cd);
+      },
       [&] {
           DUNE_THROW(Dune::Exception, "Invalid codimension codim=" << codim);
           return PartitionType{};

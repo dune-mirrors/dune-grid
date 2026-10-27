@@ -32,6 +32,9 @@ SPDX-License-Identifier: LicenseRef-GPL-2.0-only-with-DUNE-exception
 - Test `partitionType(i,codim)` against subentity partition types on leaf and level
   views, including the default implementation and parallel grid partitions.
 
+- Support grids with missing entity codimensions in the default `partitionType(i,codim)`
+  dispatch, and use synthesized subentities for these queries in `GeometryGrid`.
+
 # Release 2.11
 
 - The grid concepts are now able to check grids that have entity types disabled.
