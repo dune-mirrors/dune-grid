@@ -328,6 +328,12 @@ def addAttr(module, cls):
     setattr(cls,"tesselate", tesselate)
     [[deprecated("use 'tessellate' (note spelling)")]]
 
+    @deprecated(name="dune.grid.GridView.conforming", msg="Use 'isConforming' instead!")
+    def conforming(gv):
+        return gv._conforming
+    setattr(cls,"conforming", property(conforming))
+    [[deprecated("use 'isConforming' instead!")]]
+
     if cls.dimension == 2:
         setattr(cls, "plot", plot)
         setattr(cls, "triangulation", triangulation)

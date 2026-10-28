@@ -325,8 +325,14 @@ namespace Dune
           associated hierarchical grid
         )doc" );
 
-      cls.def_property_readonly_static( "dimension", [] ( pybind11::object ) { return int(GridView::dimension); } );
-      cls.def_property_readonly_static( "dimensionworld", [] ( pybind11::object ) { return int(GridView::dimensionworld); } );
+      cls.def_property_readonly_static( "dimension", [] ( pybind11::object ) { return int(GridView::dimension); },
+        R"doc(
+          Specifies the dimension of the grid.
+        )doc" );
+      cls.def_property_readonly_static( "dimensionworld", [] ( pybind11::object ) { return int(GridView::dimensionworld); },
+        R"doc(
+          Specifies the dimension of the surrounding space, this can be different from dim, if the grid is defined on a manifold.
+        )doc" );
 
       cls.def( "size", [] ( const GridView &self, int codim ) {
           if( (codim < 0) || (codim > GridView::dimension) )
@@ -398,14 +404,25 @@ namespace Dune
 
       // export grid capabilities
 
-      cls.def_property_readonly( "conforming", [] ( pybind11::object ) { return static_cast< bool >( GridView::conforming ); } );
+      cls.def_property_readonly( "_conforming", [] ( pybind11::object ) { return static_cast< bool >( GridView::conforming ); } );
+      cls.def_property_readonly( "isConforming", [] ( const GridView &self ) -> bool { return self.isConforming(); },
+        R"doc(
+          Returns True if the current state of the grid is conforming, i.e. no hanging nodes exist.
+        )doc" );
 
       if( Capabilities::hasSingleGeometryType< Grid >::v )
         cls.def_property_readonly_static( "type", [] ( pybind11::object ) {
             return GeometryType( Capabilities::hasSingleGeometryType< Grid >::topologyId, Grid::dimension );
-          } );
+          },
+        R"doc(
+          Returns geometry type of the grid, if grid only consist of one geometry type.
+        )doc" );
 
-      cls.def_property_readonly_static( "isCartesian", [] ( pybind11::object ) { return Capabilities::isCartesian< Grid >::v; } );
+      cls.def_property_readonly_static( "isCartesian", [] ( pybind11::object ) { return Capabilities::isCartesian< Grid >::v; },
+        R"doc(
+          Returns True if the grid is of Cartesian structure (ijk logic).
+        )doc" );
+
       cls.def_property_readonly_static( "canCommunicate", [] ( pybind11::object ) {
           pybind11::tuple canCommunicate( Grid::dimension+1 );
           Hybrid::forEach( std::make_integer_sequence< int, Grid::dimension+1 >(), [ &canCommunicate ] ( auto codim ) {
