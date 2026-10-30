@@ -876,7 +876,7 @@ namespace Dune {
      */
     typedef typename GridFamily::Traits Traits;
 
-    //! map storing user data that on the grid structure, e.g. for memory handling etc.
+    //! User data attached to the grid, identified by string keys.
     using UserDataContainer = std::map< std::string, std::any >;
 
     //! View for a grid level for All_Partition
@@ -994,9 +994,18 @@ namespace Dune {
       return false;
     }
 
-    /** \brief return internal map storing user data that need to be attached to the grid.
+    /** \brief Access user data attached to this grid.
      *
-     * \return reference to userData (std::map<std::string, std::any>)
+     * The map associates string keys with arbitrary copy-constructible values stored
+     * in std::any. Use distinct keys (e.g. prefixed with your module name) to avoid
+     * collisions. Non-copyable objects can be stored through std::shared_ptr.
+     * The map is mutable, so entries can also be modified through a const grid.
+     *
+     * \warning The map is destroyed after the derived grid's own members.
+     * Destructors of stored objects must not access the grid. If cleanup requires
+     * grid access, remove the corresponding entries while the grid is still alive.
+     *
+     * \return Mutable reference to the user data map.
      */
     UserDataContainer& userData() const
     {
