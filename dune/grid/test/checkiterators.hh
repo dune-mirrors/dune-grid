@@ -152,6 +152,7 @@ inline void CheckCodimIterators< GridView, codim, true >
 
 /** \brief check the codim iterators of a grid view
  *
+ * \param gridView    the grid view to check
  * \param periodicMap maps each coordinate to its representative in the periodic
  *                    unit cell, see dune/grid/test/periodicmap.hh
  */

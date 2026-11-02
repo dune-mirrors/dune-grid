@@ -429,6 +429,10 @@ private:
  * vertices on opposite sides of a periodic domain.
  *
  * Only local coincidences are checked; copies on other processes are not visible here.
+ *
+ * \param gridView    the grid view to check
+ * \param periodicMap maps each coordinate to its representative in the periodic
+ *                    unit cell, see dune/grid/test/periodicmap.hh
  */
 template< class GridView >
 inline void checkPeriodicPartitionTypes ( const GridView &gridView,
@@ -468,6 +472,7 @@ inline void checkPeriodicPartitionTypes ( const GridView &gridView,
 
 /** \brief check the partition types and the communication interfaces of a grid view
  *
+ * \param gridView    the grid view to check
  * \param periodicMap maps each coordinate to its representative in the periodic
  *                    unit cell, see dune/grid/test/periodicmap.hh
  */

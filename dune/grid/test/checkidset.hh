@@ -80,6 +80,11 @@ namespace Dune
    * periodic map. Conversely, a periodic copy must have the same id as all
    * other entities on the same level whose centers are mapped to the same
    * point (this part is only active for a non-trivial periodic map).
+   *
+   * \param grid        the grid to check
+   * \param idSet       the id set of grid to check (e.g. the local or global id set)
+   * \param periodicMap maps each coordinate to its representative in the periodic
+   *                    unit cell, see dune/grid/test/periodicmap.hh
    */
   template <class Grid, class IdSet>
   void checkInjectivity(const Grid& grid, const IdSet& idSet,
@@ -175,6 +180,8 @@ namespace Dune
 
   /** \brief Run all available tests for a given IdSet
    *
+   * \param grid        the grid to check
+   * \param idSet       the id set of grid to check (e.g. the local or global id set)
    * \param periodicMap maps each coordinate to its representative in the periodic
    *                    unit cell, see dune/grid/test/periodicmap.hh
    */

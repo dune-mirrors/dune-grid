@@ -1009,6 +1009,7 @@ void checkCodim1Mapping(const Grid &g)
 
 /** \brief Run the generic checks of the grid interface
  *
+ * \param g           the grid to check
  * \param periodicMap maps each coordinate to its representative in the periodic
  *                    unit cell, see dune/grid/test/periodicmap.hh; the default is
  *                    the identity, i.e. a grid without periodic copies of entities

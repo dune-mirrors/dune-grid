@@ -793,6 +793,10 @@ namespace Dune
 
   /** \brief check the index set of a grid view
    *
+   * \param grid        the grid the grid view belongs to
+   * \param view        the grid view whose index set is checked
+   * \param sout        stream for status (non-error) messages
+   * \param levelIndex  whether view is a level grid view (true) or the leaf grid view (false)
    * \param periodicMap maps each coordinate to its representative in the periodic
    *                    unit cell, see dune/grid/test/periodicmap.hh; periodic copies
    *                    of an entity have different indices but the same id

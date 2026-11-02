@@ -543,6 +543,10 @@ public:
 
 /** \brief check the communication of a leaf (level < 0) or level grid view
  *
+ * \param grid        the grid to check
+ * \param level       the level of the level grid view to check, or a negative
+ *                    number for the leaf grid view
+ * \param sout        stream for diagnostic messages
  * \param periodicMap maps each coordinate to its representative in the periodic
  *                    unit cell, see dune/grid/test/periodicmap.hh
  */

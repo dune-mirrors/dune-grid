@@ -248,7 +248,9 @@ namespace Dune {
 
     /** \brief Whether the map moves the point x, i.e. whether x is a periodic copy
      *
-     *  \param tolerance  absolute tolerance, see coordinateTolerance()
+     *  \param periodicMap  the periodic map, see PeriodicMap
+     *  \param x            the point
+     *  \param tolerance    absolute tolerance, see coordinateTolerance()
      */
     template<class Map, class Coordinate>
     bool isPeriodicCopy (const Map& periodicMap, const Coordinate& x,
@@ -271,6 +273,10 @@ namespace Dune {
      *  The returned std::function converts to PeriodicMap<Grid> if Coordinate
      *  is the global coordinate type of the grid. For an example see
      *  yaspPeriodicMap() in dune/grid/test/yasp/test-yaspgrid.hh.
+     *
+     *  \param lower     lower left corner of the box
+     *  \param upper     upper right corner of the box
+     *  \param periodic  the directions in which the box is periodic
      *
      *  \see PeriodicMap
      */
@@ -405,6 +411,12 @@ namespace Dune {
       using Key = std::pair<std::size_t, Index>;
       using Coordinate = typename GridView::template Codim<0>::Geometry::GlobalCoordinate;
 
+      /** \brief Build the classes of the entities of one codimension
+       *
+       *  \param gridView     the grid view; must outlive this object (its index set is stored)
+       *  \param codim        the codimension of the entities to group
+       *  \param periodicMap  the periodic map, see PeriodicMap
+       */
       PeriodicIdentification (const GridView& gridView, int codim, const PeriodicMap<GridView>& periodicMap)
         : indexSet_(gridView.indexSet())
       {
@@ -460,14 +472,22 @@ namespace Dune {
           addClass(group);
       }
 
-      //! the key (geometry type and index) of an entity
+      /** \brief the key (geometry type and index) of an entity
+       *
+       *  \param entity  an entity of the grid view
+       */
       template<class Entity>
       Key key (const Entity& entity) const
       {
         return Key(GlobalGeometryTypeIndex::index(entity.type()), indexSet_.index(entity));
       }
 
-      //! the key (geometry type and index) of a subentity of an element
+      /** \brief the key (geometry type and index) of a subentity of an element
+       *
+       *  \param element  an element of the grid view
+       *  \param i        number of the subentity within the element
+       *  \param codim    codimension of the subentity
+       */
       template<class Element>
       Key subKey (const Element& element, int i, int codim) const
       {
@@ -478,10 +498,16 @@ namespace Dune {
       //! the number of classes
       std::size_t size () const { return members_.size(); }
 
-      //! the class of the entity with the given key
+      /** \brief the class of the entity with the given key
+       *
+       *  \param key  the key of an entity of the grid view and codimension, see key() and subKey()
+       */
       std::size_t classOf (const Key& key) const { return classOf_.at(key); }
 
-      //! the keys of all entities in a class
+      /** \brief the keys of all entities in a class
+       *
+       *  \param classId  the class, in [0, size())
+       */
       const std::vector<Key>& members (std::size_t classId) const { return members_[classId]; }
 
       //! whether some class has more than one member, i.e. this process stores several copies of an entity

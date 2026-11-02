@@ -433,6 +433,7 @@ namespace Dune {
 
       /** \brief Check the correctness of the communication on a grid view, starting with codim 0
        *
+       * \param gv          the grid view to check
        * \param periodicMap maps each coordinate to its representative in the periodic
        *                    unit cell, see dune/grid/test/periodicmap.hh
        */
