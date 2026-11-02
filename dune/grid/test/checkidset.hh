@@ -7,7 +7,6 @@
 
 #include <iostream>
 #include <map>
-#include <tuple>
 #include <utility>
 
 #include <dune/common/hybridutilities.hh>
@@ -26,25 +25,6 @@
 
 namespace Dune
 {
-  namespace GridCheck::Impl
-  {
-    // order (codim, geometry type, center) tuples, comparing centers up to an absolute tolerance
-    struct PositionLess
-    {
-      double tolerance;
-
-      template<class Tuple>
-      bool operator() (const Tuple& a, const Tuple& b) const
-      {
-        if (std::get<0>(a) != std::get<0>(b))
-          return std::get<0>(a) < std::get<0>(b);
-        if (std::get<1>(a) != std::get<1>(b))
-          return std::get<1>(a) < std::get<1>(b);
-        return ApproxLess{ tolerance }(std::get<2>(a), std::get<2>(b));
-      }
-    };
-  }
-
   // Check the type used for ids
   template <class Grid, class IdSet>
   void checkIdType(const Grid& grid, const IdSet& idSet)
@@ -120,9 +100,15 @@ namespace Dune
       const auto gridView = grid.levelGridView(i);
 
       // ids of the entities on this level, by codim, geometry type, and mapped center
-      // the flag records whether the id belongs to a periodic copy
-      std::map<std::tuple<int,GeometryType,GlobalCoordinate>, std::pair<IdType,bool>,
-               GridCheck::Impl::PositionLess> positionContainer(GridCheck::Impl::PositionLess{ tolerance });
+      // the flag isCopy records whether the id belongs to a periodic copy
+      struct PositionEntry
+      {
+        int codim;
+        GeometryType type;
+        IdType id;
+        bool isCopy;
+      };
+      GridCheck::ApproximatePointMap<GlobalCoordinate, PositionEntry> positionContainer(tolerance);
 
       for (const auto& element: elements(gridView))
       {
@@ -162,17 +148,18 @@ namespace Dune
               // Then both must have the same id. This only sees local coincidences; copies of
               // entities stored on other processes are checked by check_communication_correctness.
               const bool isCopy = GridCheck::isPeriodicCopy(periodicMap, center, tolerance);
-              const auto key = std::make_tuple(int(codim), entity.type(), mappedCenter);
-              auto it = positionContainer.find(key);
-              if (it == positionContainer.end())
-                positionContainer.emplace(key, std::make_pair(id, isCopy));
+              PositionEntry* entry = positionContainer.find(mappedCenter, [&](const PositionEntry& e) {
+                return e.codim == int(codim) && e.type == entity.type();
+              });
+              if (!entry)
+                positionContainer.insert(mappedCenter, PositionEntry{ int(codim), entity.type(), id, isCopy });
               else
               {
-                if ((isCopy || it->second.second) && it->second.first != id)
+                if ((isCopy || entry->isCopy) && entry->id != id)
                   DUNE_THROW(GridError, "Periodic copies have different ids: entity at "
                              << center << " (codim " << codim << ") has id " << id
-                             << ", another copy of it has id " << it->second.first);
-                it->second.second = it->second.second || isCopy;
+                             << ", another copy of it has id " << entry->id);
+                entry->isCopy = entry->isCopy || isCopy;
               }
 
               // While we are here: Do subEntity.id and subId return the same value?

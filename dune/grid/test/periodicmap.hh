@@ -6,6 +6,7 @@
 #define DUNE_GRID_TEST_PERIODICMAP_HH
 
 #include <algorithm>
+#include <array>
 #include <bitset>
 #include <cmath>
 #include <cstddef>
@@ -15,6 +16,7 @@
 #include <vector>
 
 #include <dune/common/float_cmp.hh>
+#include <dune/common/ftraits.hh>
 #include <dune/common/hybridutilities.hh>
 #include <dune/common/reservedvector.hh>
 
@@ -144,30 +146,104 @@ namespace Dune {
       return [](auto x) { return x; };
     }
 
-    /** \brief Lexicographic order on coordinates that treats approximately equal components as equal
+    /** \brief Container of points with associated values, searched up to an absolute tolerance
      *
      *  Periodic maps subtract periods, so representatives of the same point
-     *  differ by round-off. Components are compared with coordinatesEqual()
-     *  and an absolute tolerance, see coordinateTolerance(). This is a strict
-     *  weak ordering for point sets in which distinct points differ by much
-     *  more than the tolerance in each differing component, which is the case
-     *  for the entity centers of a mesh.
+     *  differ by round-off. Hence, points must be compared up to an absolute
+     *  tolerance, see coordinateTolerance(). Approximate equality is not
+     *  transitive, and no ordering derived from it (e.g. a lexicographic order
+     *  that treats approximately equal components as equal) is a strict weak
+     *  ordering, not even for well-separated points. Therefore, it cannot be
+     *  used as comparator of std::map or std::sort.
+     *
+     *  Instead, the points are sorted into buckets: a point x belongs to the
+     *  cell q of a regular grid of width w = 2*tolerance, with
+     *  q_i = floor(x_i / w). Cells are integer tuples, which have an exact
+     *  ordering. A stored point that equals a query point up to the tolerance
+     *  (in each component) lies in the cell of the query point or in a
+     *  neighboring cell. A query therefore searches the 3^n cells around the
+     *  cell of the query point, n the number of components, and compares the
+     *  candidates with coordinatesEqual() and an additional predicate only.
+     *  The cost of a query is O(3^n times the number of points per cell).
+     *
+     *  \tparam Coordinate  coordinate type (a FieldVector)
+     *  \tparam Value       value stored with each point
      */
-    struct ApproxLess
+    template<class Coordinate, class Value>
+    class ApproximatePointMap
     {
-      double tolerance;
+      static constexpr int n = Coordinate::dimension;
+      using Cell = std::array<long long, n>;
 
-      template<class Coordinate>
-      bool operator() (const Coordinate& a, const Coordinate& b) const
+    public:
+      using Field = typename FieldTraits<Coordinate>::field_type;
+
+      /** \brief Construct an empty container
+       *
+       *  \param tolerance  absolute tolerance, see coordinateTolerance()
+       */
+      explicit ApproximatePointMap (Field tolerance)
+        : tolerance_(tolerance), width_(2*tolerance)
       {
-        for (std::size_t i = 0; i < a.size(); ++i)
-        {
-          if (coordinatesEqual(a[i], b[i], tolerance))
-            continue;
-          return a[i] < b[i];
-        }
-        return false;
+        // any positive width finds all points within the tolerance; a zero
+        // tolerance means an exact comparison
+        if (!(width_ > 0))
+          width_ = 1;
       }
+
+      /** \brief Find a stored point that equals x up to the tolerance and whose value satisfies pred
+       *
+       *  \param x     the query point
+       *  \param pred  predicate on the stored values, e.g. a further comparison
+       *  \returns a pointer to the value of such a point, or nullptr if there is
+       *           none; it is invalidated by the next call of insert()
+       */
+      template<class Predicate>
+      Value* find (const Coordinate& x, Predicate&& pred)
+      {
+        const Cell cell = cellOf(x);
+        int numNeighbors = 1;
+        for (int i = 0; i < n; ++i)
+          numNeighbors *= 3;
+        for (int k = 0; k < numNeighbors; ++k)
+        {
+          // the k-th neighbor cell, offsets -1, 0, +1 encoded in the digits of k in base 3
+          Cell neighbor = cell;
+          for (int i = 0, m = k; i < n; ++i, m /= 3)
+            neighbor[i] += m % 3 - 1;
+          const auto bucket = buckets_.find(neighbor);
+          if (bucket == buckets_.end())
+            continue;
+          for (auto& [point, value] : bucket->second)
+            if (coordinatesEqual(point, x, tolerance_) && pred(std::as_const(value)))
+              return &value;
+        }
+        return nullptr;
+      }
+
+      /** \brief Insert the point x with the given value (equal points are not merged)
+       *
+       *  \param x      the point
+       *  \param value  the value stored with x
+       */
+      void insert (const Coordinate& x, Value value)
+      {
+        buckets_[cellOf(x)].emplace_back(x, std::move(value));
+      }
+
+    private:
+      Cell cellOf (const Coordinate& x) const
+      {
+        using std::floor;
+        Cell cell;
+        for (int i = 0; i < n; ++i)
+          cell[i] = static_cast<long long>(floor(x[i] / width_));
+        return cell;
+      }
+
+      Field tolerance_;
+      Field width_;
+      std::map<Cell, std::vector<std::pair<Coordinate, Value>>> buckets_;
     };
 
     /** \brief Whether the map moves the point x, i.e. whether x is a periodic copy
@@ -227,8 +303,9 @@ namespace Dune {
      *  - different entities can share their set of mapped corners, e.g. the two
      *    cells of a grid with two cells in a periodic direction.
      *
-     *  The constructor sorts the corners, so that the position does not depend
-     *  on the numbering of the corners of the element the entity is taken from.
+     *  The corners are compared as sets (see equals()), so that the position
+     *  does not depend on the numbering of the corners of the element the
+     *  entity is taken from.
      *
      *  \tparam Coordinate  global coordinate type
      *  \tparam dim         dimension of the grid (bounds the number of corners by 2^dim)
@@ -238,47 +315,56 @@ namespace Dune {
     {
     public:
       using Corners = ReservedVector<Coordinate, (1 << dim)>;
+      using Field = typename FieldTraits<Coordinate>::field_type;
 
       /** \brief construct from the mapped center and the mapped corners
        *
-       *  \param type       global geometry type index (GlobalGeometryTypeIndex)
-       *  \param tolerance  absolute tolerance for sorting the corners, see coordinateTolerance()
+       *  \param type     global geometry type index (GlobalGeometryTypeIndex)
+       *  \param center   the mapped center
+       *  \param corners  the mapped corners, in any order
        */
-      EntityPosition (std::size_t type, const Coordinate& center, const Corners& corners, double tolerance)
+      EntityPosition (std::size_t type, const Coordinate& center, const Corners& corners)
         : type_(type), center_(center), corners_(corners)
-      {
-        std::sort(corners_.begin(), corners_.end(), ApproxLess{ tolerance });
-      }
+      {}
 
       std::size_t type () const { return type_; }
       const Coordinate& center () const { return center_; }
-      //! the mapped corners, sorted with ApproxLess
+      //! the mapped corners, in the order given to the constructor
       const Corners& corners () const { return corners_; }
 
+      /** \brief Whether two positions are equal up to the tolerance
+       *
+       *  Positions are equal if they have the same type, their centers are
+       *  equal, and their sets of corners are equal, i.e. they have the same
+       *  number of corners and each corner of one position equals some corner
+       *  of the other one (checked in both directions). Coordinates are
+       *  compared with coordinatesEqual().
+       *
+       *  \param other      the position to compare with
+       *  \param tolerance  absolute tolerance, see coordinateTolerance()
+       */
+      bool equals (const EntityPosition& other, Field tolerance) const
+      {
+        if (type_ != other.type_ || corners_.size() != other.corners_.size()
+            || !coordinatesEqual(center_, other.center_, tolerance))
+          return false;
+        return containsCorners(other, tolerance) && other.containsCorners(*this, tolerance);
+      }
+
     private:
+      // whether each corner of other equals some corner of this position
+      bool containsCorners (const EntityPosition& other, Field tolerance) const
+      {
+        return std::all_of(other.corners_.begin(), other.corners_.end(), [&](const Coordinate& x) {
+          return std::any_of(corners_.begin(), corners_.end(), [&](const Coordinate& y) {
+            return coordinatesEqual(x, y, tolerance);
+          });
+        });
+      }
+
       std::size_t type_;
       Coordinate center_;
       Corners corners_;
-    };
-
-    /** \brief Order of EntityPosition: type, then center, then corners (lexicographically), each with ApproxLess */
-    struct EntityPositionLess
-    {
-      double tolerance;
-
-      template<class Position>
-      bool operator() (const Position& a, const Position& b) const
-      {
-        if (a.type() != b.type())
-          return a.type() < b.type();
-        const ApproxLess less{ tolerance };
-        if (less(a.center(), b.center()))
-          return true;
-        if (less(b.center(), a.center()))
-          return false;
-        return std::lexicographical_compare(a.corners().begin(), a.corners().end(),
-                                            b.corners().begin(), b.corners().end(), less);
-      }
     };
 
     /** \brief Group the entities of one codimension of a grid view into classes of local periodic copies
@@ -320,10 +406,12 @@ namespace Dune {
         constexpr int dim = GridView::dimension;
         const auto tolerance = coordinateTolerance(gridView);
 
-        // group the entities by their position up to the periodic map
+        // group the entities by their position up to the periodic map,
+        // searching the groups by the mapped center
         using Position = EntityPosition<Coordinate, dim>;
         std::vector<std::vector<Key>> groups;
-        std::map<Position, std::size_t, EntityPositionLess> groupIds(EntityPositionLess{ tolerance });
+        std::vector<Position> groupPositions;
+        ApproximatePointMap<Coordinate, std::size_t> groupIds(tolerance);
         std::map<Key, bool> seen;
 
         for (const auto& element : elements(gridView))
@@ -347,15 +435,19 @@ namespace Dune {
             for (int j = 0; j < refElement.size(i, codim, dim); ++j)
               corners.push_back(periodicMap(geometry.corner(refElement.subEntity(i, codim, j, dim))));
             const Position position(key.first, periodicMap(geometry.global(refElement.position(i, codim))),
-                                    corners, tolerance);
+                                    corners);
 
-            auto it = groupIds.find(position);
-            if (it == groupIds.end())
+            const std::size_t* groupId = groupIds.find(position.center(), [&](std::size_t g) {
+              return groupPositions[g].equals(position, tolerance);
+            });
+            if (groupId)
+              groups[*groupId].push_back(key);
+            else
             {
-              it = groupIds.emplace(position, groups.size()).first;
-              groups.emplace_back();
+              groupIds.insert(position.center(), groups.size());
+              groupPositions.push_back(position);
+              groups.push_back({ key });
             }
-            groups[it->second].push_back(key);
           }
         }
 
