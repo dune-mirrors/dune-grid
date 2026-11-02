@@ -262,9 +262,11 @@ namespace Dune {
      *  In each direction with `periodic[i] == true` the coordinate is mapped
      *  into the half-open interval [lower[i],upper[i]) by subtracting a
      *  multiple of the length upper[i]-lower[i]; the other directions are not
-     *  changed. Points on the upper boundary, up to round-off of 1e-8 relative
-     *  to the length of the box, are mapped to the lower boundary, so that both
-     *  sides of the seam have the same representative.
+     *  changed. Points on the upper boundary, up to a tolerance of
+     *  relativeCoordinateTolerance() (in the field type of Coordinate) times
+     *  the length of the box, are mapped to the lower boundary, so that both
+     *  sides of the seam have the same representative (see also
+     *  coordinateTolerance()).
      *
      *  The returned std::function converts to PeriodicMap<Grid> if Coordinate
      *  is the global coordinate type of the grid. For an example see
@@ -276,18 +278,21 @@ namespace Dune {
     std::function<Coordinate(Coordinate)> periodicBoxMap (const Coordinate& lower, const Coordinate& upper,
                                                           std::bitset<dim> periodic)
     {
+      using Field = typename FieldTraits<Coordinate>::field_type;
+      const Field relTol = relativeCoordinateTolerance<Field>();
       return [=](Coordinate x) {
+        using std::floor;
         for (std::size_t i = 0; i < dim; ++i)
         {
           if (!periodic[i])
             continue;
           const auto length = upper[i] - lower[i];
           auto t = (x[i] - lower[i]) / length;
-          t -= std::floor(t);
-          // snap round-off at the upper boundary to the lower boundary
-          if (1 - t <= 1e-8)
-            t = 0;
+          t -= floor(t);
           x[i] = lower[i] + t*length;
+          // snap round-off at the upper boundary to the lower boundary
+          if (coordinatesEqual(x[i], upper[i], relTol*length))
+            x[i] = lower[i];
         }
         return x;
       };

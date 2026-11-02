@@ -6,6 +6,7 @@
 #define DUNE_GRID_TEST_COORDINATETOLERANCE_HH
 
 #include <algorithm>
+#include <cmath>
 #include <limits>
 
 #include <dune/common/float_cmp.hh>
@@ -27,14 +28,32 @@
 namespace Dune {
   namespace GridCheck {
 
+    /** \brief Tolerance for coordinates of type T, relative to the size of the domain: sqrt(epsilon)
+     *
+     *  This is about 1.5e-8 for double and adapts to the precision of other
+     *  coordinate types, e.g. float or quad precision. It is the default of
+     *  coordinateTolerance().
+     */
+    template<class T>
+    T relativeCoordinateTolerance ()
+    {
+      using std::sqrt;
+      return sqrt(std::numeric_limits<T>::epsilon());
+    }
+
     /** \brief Absolute tolerance for comparing global coordinates of a grid view
      *
      *  Returns relTol times the diameter of the bounding box of the element
      *  corners stored on this process (or relTol if there are no elements).
+     *
+     *  \param gridView  the grid view whose coordinates are compared
+     *  \param relTol    tolerance relative to the size of the domain,
+     *                   by default relativeCoordinateTolerance()
      */
     template<class GridView>
     typename GridView::ctype coordinateTolerance (const GridView& gridView,
-                                                  typename GridView::ctype relTol = 1e-8)
+                                                  typename GridView::ctype relTol
+                                                    = relativeCoordinateTolerance<typename GridView::ctype>())
     {
       using ctype = typename GridView::ctype;
       using Coordinate = typename GridView::template Codim<0>::Geometry::GlobalCoordinate;
