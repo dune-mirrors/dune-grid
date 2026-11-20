@@ -12,8 +12,17 @@
 
 #include <dune/python/pybind11/pybind11.h>
 
+// Path to the example grids shipped with dune-grid, passed in as a compile
+// definition (see python/dune/grid/CMakeLists.txt)
+#ifndef DUNE_GRID_EXAMPLE_GRIDS_PATH
+#define DUNE_GRID_EXAMPLE_GRIDS_PATH ""
+#endif
+
 PYBIND11_MODULE( _grid, module )
 {
+  // make the path to the example grids available to Python
+  module.attr( "DUNE_GRID_EXAMPLE_GRIDS_PATH" ) = DUNE_GRID_EXAMPLE_GRIDS_PATH;
+
   // enumeration types from dune-grid
 
   pybind11::enum_< Dune::PartitionType > partitionType( module, "PartitionType" );
