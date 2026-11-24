@@ -407,10 +407,11 @@ namespace Dune::Impl::Gmsh
     std::istringstream stream(line);
     stream >> version >> file_type >> data_size;
     dataSize_ = data_size;
+    swap = false;
     if (file_type != 0) {
       int one;
       input.read(reinterpret_cast<char*>(&one), sizeof(int));
-      if (one != 1) swap = true;
+      swap = (one != 1);
       std::getline(input, line);
     }
   }
