@@ -310,44 +310,35 @@ namespace Dune::Impl::Gmsh
     if (!input.is_open())
       DUNE_THROW(IOError, "Could not open file " << filename << ".");
 
-    const std::string ext = filePath.extension().string();
-    if (ext == ".msh") {
+    // Get first line
+    std::string line;
+    std::getline(input, line);
+    ltrim(line);
 
-      // Get first line
-      std::string line;
-      std::getline(input, line);
-      ltrim(line);
+    // Read the mesh format section -- it must make up the first two lines
+    if (line != "$MeshFormat")
+      DUNE_THROW(IOError, "First line of file is not $MeshFormat!");
 
-      // Read the mesh format section -- it must make up the first two lines
-      if (line != "$MeshFormat")
-        DUNE_THROW(IOError, "First line of file is not $MeshFormat!");
+    double version = 0.0;
+    int file_type = 0;
+    int data_size = 0;
+    readMeshFormat(input, version, file_type, data_size);
 
-      double version = 0.0;
-      int file_type = 0;
-      int data_size = 0;
-      readMeshFormat(input, version, file_type, data_size);
+    // Test whether version is supported
+    if (version < 4.0 || version >= 5.0)
+      DUNE_THROW(IOError, "Can only read gmsh files versions >= 4.0 and < 5.0");
 
-      // Test whether version is supported
-      if (version < 4.0 || version >= 5.0)
-        DUNE_THROW(IOError, "Can only read gmsh files versions >= 4.0 and < 5.0");
+    // Further sanity checking
+    if (file_type != 0 && file_type != 1)
+      DUNE_THROW(IOError, "Invalid file-type: 0 for ASCII mode, 1 for binary mode");
+    if (file_type == 1 && data_size != 4 && data_size != 8)
+      DUNE_THROW(IOError, "Invalid data-size: binary files are supported only with data-size 4 or 8, but got " << data_size);
 
-      // Further sanity checking
-      if (file_type != 0 && file_type != 1)
-        DUNE_THROW(IOError, "Invalid file-type: 0 for ASCII mode, 1 for binary mode");
-      if (file_type == 1 && data_size != 4 && data_size != 8)
-        DUNE_THROW(IOError, "Invalid data-size: binary files are supported only with data-size 4 or 8, but got " << data_size);
+    // Rewind the stream, so readSerialFileFromStream can start from the top again
+    input.clear();
+    input.seekg(0, std::ios::beg);
 
-      // Rewind the stream, so readSerialFileFromStream can start from the top again
-      input.clear();
-      input.seekg(0, std::ios::beg);
-
-      readSerialFileFromStream(input, fillCreator);
-      pieces_.push_back(filename);
-    } else if (ext == ".pro") {
-      readParallelFileFromStream(input, comm().rank(), comm().size(), fillCreator);
-    } else {
-      DUNE_THROW(IOError, "File has unknown file-extension '" << ext << "'. Allowed are only '.msh' and '.pro'.");
-    }
+    readSerialFileFromStream(input, fillCreator);
   }
 
 
@@ -419,16 +410,6 @@ namespace Dune::Impl::Gmsh
       }
     }
 
-    if (fillCreator)
-      fillGridCreator();
-  }
-
-
-  template <class G, class C, class S>
-  void Gmsh4Reader<G,C,S>::readParallelFileFromStream (std::ifstream& input, int commRank, int commSize, bool fillCreator)
-  {
-    clear();
-    DUNE_THROW(Dune::NotImplemented, "Reading parallel .pro files not yet implemented.");
     if (fillCreator)
       fillGridCreator();
   }
@@ -1291,7 +1272,7 @@ namespace Dune::Impl::Gmsh
 
 
   template <class G, class C, class S>
-  void Gmsh4Reader<G,C,S>::fillGridCreator (bool insertPieces)
+  void Gmsh4Reader<G,C,S>::fillGridCreator ()
   {
     if (!nodes_.empty())
       creator_->insertVertices(numNodes_, {minNodeTag_, maxNodeTag_}, nodes_);
@@ -1299,8 +1280,6 @@ namespace Dune::Impl::Gmsh
       std::set<int> boundaryEntities;
       creator_->insertElements(numElements_, {minElementTag_, maxElementTag_}, elements_, boundaryEntities);
     }
-    if (insertPieces)
-      creator_->insertPieces(pieces_);
   }
 
 } // end namespace Dune::Impl::Gmsh

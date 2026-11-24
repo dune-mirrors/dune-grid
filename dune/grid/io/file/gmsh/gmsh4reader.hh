@@ -82,25 +82,11 @@ namespace Dune::Impl::Gmsh
      **/
     void readSerialFileFromStream (std::ifstream& input, bool fillCreator = true);
 
-    /// Read the grid from and input stream, referring to a .pro file, into the GridCreator
-    /**
-     * \param input          A STL input stream to read the Gmsh file from.
-     * \param fillCreator    If `false`, only fill internal data structures,
-     *                       if `true`, also calls \ref fillGridCreator. [true]
-     **/
-    void readParallelFileFromStream (std::ifstream& input, int rank, int size, bool fillCreator = true);
-
     /// Construct a grid using the GridCreator
     // NOTE: requires the internal data structures to be filled by an aforgoing call to read
-    void fillGridCreator (bool insertPieces = true);
+    void fillGridCreator ();
 
     /// @}
-
-    /// Return the filenames of parallel pieces
-    std::vector<std::string> const& pieces () const
-    {
-      return pieces_;
-    }
 
 #ifndef DOXYGEN
     /// Implementation of \ref FileReader interface
@@ -151,8 +137,6 @@ namespace Dune::Impl::Gmsh
     // clear all vectors
     void clear ()
     {
-      pieces_.clear();
-
       physicalNames_.clear();
 
       points_.clear();
@@ -184,11 +168,6 @@ namespace Dune::Impl::Gmsh
       elementData_.clear();
       elementNodeData_.clear();
       interpolationScheme_.clear();
-    }
-
-    auto comm () const
-    {
-      return MPIHelper::getCommunication();
     }
 
   private: // structures used to store data from file
@@ -225,8 +204,6 @@ namespace Dune::Impl::Gmsh
 
     // size in bytes of the size_t values in a binary msh-file, given by the `data_size` in the header
     int dataSize_ = sizeof(std::size_t);
-
-    std::vector<std::string> pieces_;
 
     // PhysicalNames section
     std::vector<PhysicalNamesAttributes> physicalNames_;

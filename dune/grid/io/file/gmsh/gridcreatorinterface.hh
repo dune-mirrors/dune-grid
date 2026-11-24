@@ -52,12 +52,6 @@ namespace Dune::Impl::Gmsh
       asDerived().insertElementsImpl(numElements, elementTagRange, entityBlocks, boundaryEntities);
     }
 
-    /// Insert part of a grid stored in file into factory
-    void insertPieces (std::vector<std::string> const& pieces)
-    {
-      asDerived().insertPiecesImpl(pieces);
-    }
-
     /// Return the associated GridFactory
     GridFactory<Grid>& factory ()
     {
@@ -68,12 +62,6 @@ namespace Dune::Impl::Gmsh
     GridFactory<Grid> const& factory () const
     {
       return *factory_;
-    }
-
-    /// Return the mpi collective communicator
-    auto comm () const
-    {
-      return MPIHelper::getCommunication();
     }
 
   protected:   // cast to derived type
@@ -105,11 +93,6 @@ namespace Dune::Impl::Gmsh
                              BoundaryEntities const& boundaryEntities)
     {
       /* do nothing */
-    }
-
-    void insertPiecesImpl (std::vector<std::string> const&)
-    {
-      /* do nothing */;
     }
 
   protected:
