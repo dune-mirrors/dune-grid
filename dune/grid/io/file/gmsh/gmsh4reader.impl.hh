@@ -240,22 +240,6 @@ namespace Dune::Impl::Gmsh
     std::vector<Element> elements;
   };
 
-  template <class G, class C, class S>
-  struct Gmsh4Reader<G,C,S>::PeriodicAttributes
-  {
-    struct Association
-    {
-      size_type tag;
-      size_type tagMaster;
-    };
-
-    int entityDim;
-    int entityTag;
-    int entityTagMaster;
-    std::vector<double> affine;
-    std::vector<Association> correspondingNodes;
-  };
-
 
   template <class G, class C, class S>
   template <class T>

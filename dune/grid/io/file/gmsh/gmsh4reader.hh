@@ -160,14 +160,6 @@ namespace Dune::Impl::Gmsh
       minElementTag_ = 0;
       maxElementTag_ = 0;
       elements_.clear();
-
-      periodic_.clear();
-      ghostElements_.clear();
-      parametrization_.clear();
-      nodeData_.clear();
-      elementData_.clear();
-      elementNodeData_.clear();
-      interpolationScheme_.clear();
     }
 
   private: // structures used to store data from file
@@ -187,14 +179,6 @@ namespace Dune::Impl::Gmsh
     struct GhostAttributes;
     struct NodeAttributes;
     struct ElementAttributes;
-    struct PeriodicAttributes;
-
-    struct GhostElementAttributes {};
-    struct ParametrizationAttributes {};
-    struct NodeDataAttributes {};
-    struct ElementDataAttributes {};
-    struct ElementNodeDataAttributes {};
-    struct InterpolationSchemeAttributes {};
 
   private:
     std::shared_ptr<GridCreator> creator_ = nullptr;
@@ -231,13 +215,6 @@ namespace Dune::Impl::Gmsh
     size_type minElementTag_ = 0;
     size_type maxElementTag_ = 0;
     std::vector<ElementAttributes> elements_;
-    std::vector<PeriodicAttributes> periodic_;
-    std::vector<GhostElementAttributes> ghostElements_;
-    std::vector<ParametrizationAttributes> parametrization_;
-    std::vector<NodeDataAttributes> nodeData_;
-    std::vector<ElementDataAttributes> elementData_;
-    std::vector<ElementNodeDataAttributes> elementNodeData_;
-    std::vector<InterpolationSchemeAttributes> interpolationScheme_;
 
     /// Map the elementType number to number of nodes
     static std::map<int, size_type> elementType_;
