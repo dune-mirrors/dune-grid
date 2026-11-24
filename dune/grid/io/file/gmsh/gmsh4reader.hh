@@ -32,7 +32,7 @@ namespace Dune::Impl::Gmsh
    **/
   template <class Grid, class GridCreator = ContinuousGridCreator<Grid>, class SizeType = std::size_t>
   class Gmsh4Reader
-    : public FileReader<Grid, Gmsh4Reader<Grid, GridCreator> >
+    : public FileReader<Grid, Gmsh4Reader<Grid, GridCreator, SizeType> >
   {
     // Sections visited during the file parsing
     enum class Sections {
