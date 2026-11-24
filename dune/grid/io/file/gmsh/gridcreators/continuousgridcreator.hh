@@ -15,7 +15,6 @@
 
 #include <dune/grid/io/file/gmsh/types.hh>
 #include <dune/grid/io/file/gmsh/gridcreatorinterface.hh>
-#include <dune/grid/io/file/gmsh/utility/errors.hh>
 
 namespace Dune::Impl::Gmsh
 {
@@ -77,7 +76,8 @@ namespace Dune::Impl::Gmsh
           connectivity.resize(refElem.size(Grid::dimension));
 
           for (auto const& element : entityBlock.elements) {
-            GMSH4_ASSERT(element.nodes.size() >= connectivity.size());
+            if (element.nodes.size() < connectivity.size())
+              DUNE_THROW(IOError, "Element " << element.tag << " has too few nodes.");
             for (std::size_t j = 0; j < connectivity.size(); ++j) {
               auto index = vertexMap_[element.nodes[j] - vertexShift_];
               auto& vertex = cornerVertices.at(index);

@@ -11,7 +11,7 @@
 #include <string>
 #include <set>
 
-#include <dune/grid/io/file/gmsh/utility/errors.hh>
+#include <dune/common/exceptions.hh>
 #include <dune/grid/io/file/gmsh/utility/string.hh>
 
 namespace Dune::Impl::Gmsh
@@ -290,8 +290,8 @@ namespace Dune::Impl::Gmsh
       DUNE_THROW(IOError, "Unsupported data-size " << dataSize_ << " in binary gmsh file. Only 4 and 8 are supported.");
     }
 
-    GMSH4_ASSERT_MSG(value <= std::uint64_t(std::numeric_limits<size_type>::max()),
-                     "Value " << value << " read from file does not fit into the size_type of the reader.");
+    if (value > std::uint64_t(std::numeric_limits<size_type>::max()))
+      DUNE_THROW(RangeError, "Value " << value << " read from file does not fit into the size_type of the reader.");
     v = static_cast<size_type>(value);
   }
 
@@ -306,7 +306,8 @@ namespace Dune::Impl::Gmsh
       DUNE_THROW(IOError, "File " << filename << " does not exist!");
 
     std::ifstream input(filename, std::ios_base::in | std::ios_base::binary);
-    GMSH4_ASSERT(input.is_open());
+    if (!input.is_open())
+      DUNE_THROW(IOError, "Could not open file " << filename << ".");
 
     const std::string ext = filePath.extension().string();
     if (ext == ".msh") {
@@ -317,7 +318,8 @@ namespace Dune::Impl::Gmsh
       ltrim(line);
 
       // Read the mesh format section -- it must make up the first two lines
-      GMSH4_ASSERT_MSG((line=="$MeshFormat"), "First line of file is not $MeshFormat!");
+      if (line != "$MeshFormat")
+        DUNE_THROW(IOError, "First line of file is not $MeshFormat!");
 
       double version = 0.0;
       int file_type = 0;
@@ -325,14 +327,14 @@ namespace Dune::Impl::Gmsh
       readMeshFormat(input, version, file_type, data_size);
 
       // Test whether version is supported
-      GMSH4_ASSERT_MSG((version >= 4.0 && version < 5.0),
-                       "Can only read gmsh files versions >= 4.0 and < 5.0");
+      if (version < 4.0 || version >= 5.0)
+        DUNE_THROW(IOError, "Can only read gmsh files versions >= 4.0 and < 5.0");
 
       // Further sanity checking
-      GMSH4_ASSERT_MSG(file_type == 0 || file_type == 1,
-                       "Invalid file-type: 0 for ASCII mode, 1 for binary mode");
-      GMSH4_ASSERT_MSG(file_type != 1 || data_size == 4 || data_size == 8,
-                       "Invalid data-size: binary files are supported only with data-size 4 or 8, but got " << data_size);
+      if (file_type != 0 && file_type != 1)
+        DUNE_THROW(IOError, "Invalid file-type: 0 for ASCII mode, 1 for binary mode");
+      if (file_type == 1 && data_size != 4 && data_size != 8)
+        DUNE_THROW(IOError, "Invalid data-size: binary files are supported only with data-size 4 or 8, but got " << data_size);
 
       // Rewind the stream, so readSerialFileFromStream can start from the top again
       input.clear();
@@ -504,7 +506,8 @@ namespace Dune::Impl::Gmsh
 
       points_.push_back(attr);
     }
-    GMSH4_ASSERT(points_.size() == numPoints);
+    if (points_.size() != numPoints)
+      DUNE_THROW(IOError, "Unexpected end of file: read " << points_.size() << " of " << numPoints << " entries for points.");
 
     // curves
     curves_.reserve(numCurves);
@@ -532,7 +535,8 @@ namespace Dune::Impl::Gmsh
 
       curves_.push_back(attr);
     }
-    GMSH4_ASSERT(curves_.size() == numCurves);
+    if (curves_.size() != numCurves)
+      DUNE_THROW(IOError, "Unexpected end of file: read " << curves_.size() << " of " << numCurves << " entries for curves.");
 
     // surfaces
     surfaces_.reserve(numSurfaces);
@@ -560,7 +564,8 @@ namespace Dune::Impl::Gmsh
 
       surfaces_.push_back(attr);
     }
-    GMSH4_ASSERT(surfaces_.size() == numSurfaces);
+    if (surfaces_.size() != numSurfaces)
+      DUNE_THROW(IOError, "Unexpected end of file: read " << surfaces_.size() << " of " << numSurfaces << " entries for surfaces.");
 
     // volumes
     volumes_.reserve(numVolumes);
@@ -588,7 +593,8 @@ namespace Dune::Impl::Gmsh
 
       volumes_.push_back(attr);
     }
-    GMSH4_ASSERT(volumes_.size() == numVolumes);
+    if (volumes_.size() != numVolumes)
+      DUNE_THROW(IOError, "Unexpected end of file: read " << volumes_.size() << " of " << numVolumes << " entries for volumes.");
   }
 
 
@@ -620,7 +626,8 @@ namespace Dune::Impl::Gmsh
 
       points_.push_back(attr);
     }
-    GMSH4_ASSERT(points_.size() == numPoints);
+    if (points_.size() != numPoints)
+      DUNE_THROW(IOError, "Unexpected end of file: read " << points_.size() << " of " << numPoints << " entries for points.");
 
     // curves
     curves_.reserve(numCurves);
@@ -649,7 +656,8 @@ namespace Dune::Impl::Gmsh
 
       curves_.push_back(attr);
     }
-    GMSH4_ASSERT(curves_.size() == numCurves);
+    if (curves_.size() != numCurves)
+      DUNE_THROW(IOError, "Unexpected end of file: read " << curves_.size() << " of " << numCurves << " entries for curves.");
 
     // surfaces
     surfaces_.reserve(numSurfaces);
@@ -678,7 +686,8 @@ namespace Dune::Impl::Gmsh
 
       surfaces_.push_back(attr);
     }
-    GMSH4_ASSERT(surfaces_.size() == numSurfaces);
+    if (surfaces_.size() != numSurfaces)
+      DUNE_THROW(IOError, "Unexpected end of file: read " << surfaces_.size() << " of " << numSurfaces << " entries for surfaces.");
 
     // volumes
     volumes_.reserve(numVolumes);
@@ -707,7 +716,8 @@ namespace Dune::Impl::Gmsh
 
       volumes_.push_back(attr);
     }
-    GMSH4_ASSERT(volumes_.size() == numVolumes);
+    if (volumes_.size() != numVolumes)
+      DUNE_THROW(IOError, "Unexpected end of file: read " << volumes_.size() << " of " << numVolumes << " entries for volumes.");
     std::string line;
     std::getline(input, line);
   }
@@ -739,7 +749,8 @@ namespace Dune::Impl::Gmsh
 
         ghostEntities_.push_back(attr);
       }
-      GMSH4_ASSERT(ghostEntities_.size() == numGhostEntities);
+      if (ghostEntities_.size() != numGhostEntities)
+        DUNE_THROW(IOError, "Unexpected end of file: read " << ghostEntities_.size() << " of " << numGhostEntities << " entries for ghostEntities.");
     }
 
     std::getline(input, line);
@@ -774,7 +785,8 @@ namespace Dune::Impl::Gmsh
 
       partitionedPoints_.push_back(attr);
     }
-    GMSH4_ASSERT(partitionedPoints_.size() == numPoints);
+    if (partitionedPoints_.size() != numPoints)
+      DUNE_THROW(IOError, "Unexpected end of file: read " << partitionedPoints_.size() << " of " << numPoints << " entries for partitionedPoints.");
 
     // curves
     partitionedCurves_.reserve(numCurves);
@@ -809,7 +821,8 @@ namespace Dune::Impl::Gmsh
 
       partitionedCurves_.push_back(attr);
     }
-    GMSH4_ASSERT(partitionedCurves_.size() == numCurves);
+    if (partitionedCurves_.size() != numCurves)
+      DUNE_THROW(IOError, "Unexpected end of file: read " << partitionedCurves_.size() << " of " << numCurves << " entries for partitionedCurves.");
 
     // surfaces
     partitionedSurfaces_.reserve(numSurfaces);
@@ -844,7 +857,8 @@ namespace Dune::Impl::Gmsh
 
       partitionedSurfaces_.push_back(attr);
     }
-    GMSH4_ASSERT(partitionedSurfaces_.size() == numSurfaces);
+    if (partitionedSurfaces_.size() != numSurfaces)
+      DUNE_THROW(IOError, "Unexpected end of file: read " << partitionedSurfaces_.size() << " of " << numSurfaces << " entries for partitionedSurfaces.");
 
     // volumes
     partitionedVolumes_.reserve(numVolumes);
@@ -879,7 +893,8 @@ namespace Dune::Impl::Gmsh
 
       partitionedVolumes_.push_back(attr);
     }
-    GMSH4_ASSERT(partitionedVolumes_.size() == numVolumes);
+    if (partitionedVolumes_.size() != numVolumes)
+      DUNE_THROW(IOError, "Unexpected end of file: read " << partitionedVolumes_.size() << " of " << numVolumes << " entries for partitionedVolumes.");
   }
 
 
@@ -900,7 +915,8 @@ namespace Dune::Impl::Gmsh
       readValueBinary(input, attr.partition);
       ghostEntities_.push_back(attr);
     }
-    GMSH4_ASSERT(ghostEntities_.size() == numGhostEntities);
+    if (ghostEntities_.size() != numGhostEntities)
+      DUNE_THROW(IOError, "Unexpected end of file: read " << ghostEntities_.size() << " of " << numGhostEntities << " entries for ghostEntities.");
 
     readSizeBinary(input, numPoints);
     readSizeBinary(input, numCurves);
@@ -934,7 +950,8 @@ namespace Dune::Impl::Gmsh
 
       partitionedPoints_.push_back(attr);
     }
-    GMSH4_ASSERT(partitionedPoints_.size() == numPoints);
+    if (partitionedPoints_.size() != numPoints)
+      DUNE_THROW(IOError, "Unexpected end of file: read " << partitionedPoints_.size() << " of " << numPoints << " entries for partitionedPoints.");
 
     // curves
     partitionedCurves_.reserve(numCurves);
@@ -972,7 +989,8 @@ namespace Dune::Impl::Gmsh
 
       partitionedCurves_.push_back(attr);
     }
-    GMSH4_ASSERT(partitionedCurves_.size() == numCurves);
+    if (partitionedCurves_.size() != numCurves)
+      DUNE_THROW(IOError, "Unexpected end of file: read " << partitionedCurves_.size() << " of " << numCurves << " entries for partitionedCurves.");
 
     // surfaces
     partitionedSurfaces_.reserve(numSurfaces);
@@ -1010,7 +1028,8 @@ namespace Dune::Impl::Gmsh
 
       partitionedSurfaces_.push_back(attr);
     }
-    GMSH4_ASSERT(partitionedSurfaces_.size() == numSurfaces);
+    if (partitionedSurfaces_.size() != numSurfaces)
+      DUNE_THROW(IOError, "Unexpected end of file: read " << partitionedSurfaces_.size() << " of " << numSurfaces << " entries for partitionedSurfaces.");
 
     // volumes
     partitionedVolumes_.reserve(numVolumes);
@@ -1048,7 +1067,8 @@ namespace Dune::Impl::Gmsh
 
       partitionedVolumes_.push_back(attr);
     }
-    GMSH4_ASSERT(partitionedVolumes_.size() == numVolumes);
+    if (partitionedVolumes_.size() != numVolumes)
+      DUNE_THROW(IOError, "Unexpected end of file: read " << partitionedVolumes_.size() << " of " << numVolumes << " entries for partitionedVolumes.");
     std::string line;
     std::getline(input, line);
   }
