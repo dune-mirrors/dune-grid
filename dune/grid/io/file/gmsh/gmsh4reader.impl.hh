@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <sstream>
 #include <fstream>
+#include <iomanip>
 #include <iterator>
 #include <limits>
 #include <string>
@@ -467,8 +468,7 @@ namespace Dune::Impl::Gmsh
 
       std::istringstream stream(line);
       PhysicalNamesAttributes attr;
-      stream >> attr.dim >> attr.tag;
-      readString(stream, attr.name);
+      stream >> attr.dim >> attr.tag >> std::quoted(attr.name);
 
       physicalNames_.push_back(attr);
     }

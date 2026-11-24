@@ -148,12 +148,6 @@ namespace Dune::Impl::Gmsh
       return result;
     }
 
-    void readString(std::istream& /*stream*/, std::string& name)
-    {
-      DUNE_THROW(Dune::NotImplemented, "Method readString() not yet implemented");
-      name = "";
-    }
-
     // clear all vectors
     void clear ()
     {

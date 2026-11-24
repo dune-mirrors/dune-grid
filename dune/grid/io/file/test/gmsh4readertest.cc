@@ -17,6 +17,7 @@
 #include <dune/common/parallel/mpihelper.hh>
 #include <dune/common/test/testsuite.hh>
 
+#include <dune/grid/io/file/gmshreader.hh>
 #include <dune/grid/io/file/gmsh/gmsh4reader.hh>
 
 #include <dune/grid/test/gridcheck.hh>
@@ -89,6 +90,14 @@ int main(int argc, char** argv)
           {"-binary.msh", "-binary-datasize4.msh"});
   test<3>(testSuite, path, "hybrid-testgrid-3d-v4",
           {"-binary.msh", "-binary-datasize4-bigendian.msh"});
+
+  { // Read a grid with a $PhysicalNames section through the GmshReader interface
+    std::cout << "Reading unitsquare-v4-physicalnames.msh" << std::endl;
+    auto grid = GmshReader<UGGrid<2> >::read(path + "unitsquare-v4-physicalnames.msh");
+    gridcheck(*grid);
+    testSuite.check(grid->leafGridView().size(0) > 0, "unitsquare-v4-physicalnames.msh")
+      << "Grid with physical names is empty";
+  }
 
   return testSuite.exit();
 }
