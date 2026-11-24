@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: LicenseRef-GPL-2.0-only-with-DUNE-exception
 
 set(HEADERS
-  filereader.hh
   gmsh2parser.hh
   gmsh4reader.hh
   gmsh4reader.impl.hh

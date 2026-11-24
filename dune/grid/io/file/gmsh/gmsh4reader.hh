@@ -7,11 +7,13 @@
 #include <iosfwd>
 #include <map>
 #include <memory>
+#include <string>
+#include <type_traits>
 #include <vector>
 
 #include <dune/common/shared_ptr.hh>
 
-#include <dune/grid/io/file/gmsh/filereader.hh>
+#include <dune/grid/common/gridfactory.hh>
 #include <dune/grid/io/file/gmsh/gridcreators/continuousgridcreator.hh> // default GridCreator
 
 namespace Dune::Impl::Gmsh
@@ -32,7 +34,6 @@ namespace Dune::Impl::Gmsh
    **/
   template <class Grid, class GridCreator = ContinuousGridCreator<Grid>, class SizeType = std::size_t>
   class Gmsh4Reader
-    : public FileReader<Grid, Gmsh4Reader<Grid, GridCreator, SizeType> >
   {
     // Sections visited during the file parsing
     enum class Sections {
@@ -88,14 +89,20 @@ namespace Dune::Impl::Gmsh
 
     /// @}
 
-#ifndef DOXYGEN
-    /// Implementation of \ref FileReader interface
-    static void fillFactoryImpl (GridFactory<Grid>& factory, std::string const& filename)
+    /// Read the grid from file with `filename` into the given GridFactory
+    static void fillFactory (GridFactory<Grid>& factory, std::string const& filename)
     {
       Gmsh4Reader reader{factory};
       reader.read(filename);
     }
-#endif
+
+    /// Read the grid from file with `filename` and return a unique_ptr to the created grid
+    static std::unique_ptr<Grid> createGridFromFile (std::string const& filename)
+    {
+      GridFactory<Grid> factory;
+      fillFactory(factory, filename);
+      return std::unique_ptr<Grid>{ factory.createGrid() };
+    }
 
   private:
     template<class T>
