@@ -5,6 +5,11 @@ SPDX-License-Identifier: LicenseRef-GPL-2.0-only-with-DUNE-exception
 
 # Master (will become release 2.12)
 
+- `GmshReader` can read binary version 4 files independent of the `sizeof(size_t)` of the
+  machine that wrote the file, e.g., files written on 64-bit machines can now be read on 32-bit
+  machines and vice versa. Version 4 files with named physical groups (a `$PhysicalNames`
+  section) can now be read; before, an exception was thrown.
+
 - Construction of grid in Python that relied on DGF (`reader.dgf`, `reader.dgfString`, and usage of `cartesianDomain`)
   automatically included a call to `loadBalance`. This can now be deactivated by using
   `reader.dgf(False)`, `reader.dgfString(False)`, and setting `loadBalance=False` in the argument list to the call of
