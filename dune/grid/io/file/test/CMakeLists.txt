@@ -90,6 +90,11 @@ dune_add_test(NAME gmsh4readertest
               COMPILE_DEFINITIONS DUNE_GRID_EXAMPLE_GRIDS_PATH=\"${PROJECT_SOURCE_DIR}/doc/grids/\"
               CMAKE_GUARD dune-uggrid_FOUND)
 
+dune_add_test(NAME gmshorientationtest
+              SOURCES gmshorientationtest.cc
+              COMPILE_DEFINITIONS DUNE_GRID_EXAMPLE_GRIDS_PATH=\"${PROJECT_SOURCE_DIR}/doc/grids/\"
+              CMAKE_GUARD dune-uggrid_FOUND)
+
 if(Alberta_FOUND)
   add_executable(gmshtest-alberta2d gmshtest.cc)
   add_dune_alberta_flags(gmshtest-alberta2d WORLDDIM 2)
