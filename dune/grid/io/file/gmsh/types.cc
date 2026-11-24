@@ -184,8 +184,8 @@ namespace Dune::Impl::Gmsh
     }
     else if (t.isPrism()) {
       type_ = GeometryTypes::prism;
-      permutation_ = {0,2,1,3,5,4};
-      identityPermutation_ = false;
+      // The Gmsh reference prism has the same corner numbering as the Dune reference prism
+      permutation_ = {0,1,2,3,4,5};
     }
     else if (t.isPyramid()) {
       type_ = GeometryTypes::pyramid;
