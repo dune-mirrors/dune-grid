@@ -25,10 +25,10 @@ namespace Dune::Impl::Gmsh
    * \tparam GridCreator  Policy type to control what to pass to a grid factory with
    *                      data given from the file. See \ref GridCreatorInterface
    *                      [ContinuousGridCreator]
-   * \tparam SizeType     Data type for indices in the .msh file. Should match in size
-   *                      the `data_size` information in the header of the .msh file.
-   *                      This type is used for the internal data in the caches.
-   *                      [std::size_t]
+   * \tparam SizeType     Data type used for indices and counts in the internal data caches.
+   *                      Binary files are read with the integer width given by the
+   *                      `data_size` entry in the header of the .msh file (4 or 8 bytes)
+   *                      and the values are converted into this type. [std::size_t]
    **/
   template <class Grid, class GridCreator = ContinuousGridCreator<Grid>, class SizeType = std::size_t>
   class Gmsh4Reader
@@ -114,6 +114,8 @@ namespace Dune::Impl::Gmsh
   private:
     template<class T>
     void readValueBinary(std::ifstream& input, T &v);
+    // Read an unsigned integer of size `dataSize_` (the size_t of the file) and convert it into size_type
+    void readSizeBinary(std::ifstream& input, size_type& v);
     void readMeshFormat (std::ifstream& input,
                          double& version, int& file_type, int& data_size);
 
@@ -226,6 +228,9 @@ namespace Dune::Impl::Gmsh
 
     // swap will be true if a binary msh-file has different endianness as the user's system.
     bool swap = false;
+
+    // size in bytes of the size_t values in a binary msh-file, given by the `data_size` in the header
+    int dataSize_ = sizeof(std::size_t);
 
     std::vector<std::string> pieces_;
 

@@ -2,10 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-GPL-2.0-only-with-DUNE-exception OR LGPL-3.0-or-later
 
 #include <array>
+#include <cstdint>
 #include <filesystem>
 #include <sstream>
 #include <fstream>
 #include <iterator>
+#include <limits>
 #include <string>
 #include <set>
 
@@ -270,6 +272,31 @@ namespace Dune::Impl::Gmsh
 
 
   template <class G, class C, class S>
+  void Gmsh4Reader<G,C,S>::readSizeBinary(std::ifstream& input, size_type& v)
+  {
+    std::uint64_t value = 0;
+    switch (dataSize_) {
+    case 4: {
+      std::uint32_t v32 = 0;
+      readValueBinary(input, v32);
+      value = v32;
+      break;
+    }
+    case 8: {
+      readValueBinary(input, value);
+      break;
+    }
+    default:
+      DUNE_THROW(IOError, "Unsupported data-size " << dataSize_ << " in binary gmsh file. Only 4 and 8 are supported.");
+    }
+
+    GMSH4_ASSERT_MSG(value <= std::uint64_t(std::numeric_limits<size_type>::max()),
+                     "Value " << value << " read from file does not fit into the size_type of the reader.");
+    v = static_cast<size_type>(value);
+  }
+
+
+  template <class G, class C, class S>
   void Gmsh4Reader<G,C,S>::read (std::string const& filename, bool fillCreator)
   {
     const std::filesystem::path filePath(filename);
@@ -304,10 +331,8 @@ namespace Dune::Impl::Gmsh
       // Further sanity checking
       GMSH4_ASSERT_MSG(file_type == 0 || file_type == 1,
                        "Invalid file-type: 0 for ASCII mode, 1 for binary mode");
-      GMSH4_ASSERT_MSG(data_size >= 4 && data_size <= 16,
-                       "Invalid data-size range: should be in {4, 16}");
-      GMSH4_ASSERT_MSG(file_type != 1 || data_size == sizeof(size_type),
-                       "Invalid data-size: must be sizeof(size_t)");
+      GMSH4_ASSERT_MSG(file_type != 1 || data_size == 4 || data_size == 8,
+                       "Invalid data-size: binary files are supported only with data-size 4 or 8, but got " << data_size);
 
       // Rewind the stream, so readSerialFileFromStream can start from the top again
       input.clear();
@@ -413,6 +438,7 @@ namespace Dune::Impl::Gmsh
     std::getline(input, line);
     std::istringstream stream(line);
     stream >> version >> file_type >> data_size;
+    dataSize_ = data_size;
     if (file_type != 0) {
       int one;
       input.read(reinterpret_cast<char*>(&one), sizeof(int));
@@ -571,10 +597,10 @@ namespace Dune::Impl::Gmsh
   {
     size_type numPoints = 0, numCurves = 0, numSurfaces = 0, numVolumes = 0;
 
-    readValueBinary(input, numPoints);
-    readValueBinary(input, numCurves);
-    readValueBinary(input, numSurfaces);
-    readValueBinary(input, numVolumes);
+    readSizeBinary(input, numPoints);
+    readSizeBinary(input, numCurves);
+    readSizeBinary(input, numSurfaces);
+    readSizeBinary(input, numVolumes);
 
     // points
     points_.reserve(numPoints);
@@ -587,7 +613,7 @@ namespace Dune::Impl::Gmsh
       readValueBinary(input, attr.xyz[2]);
 
       size_type numPhysicalTags = 0;
-      readValueBinary(input, numPhysicalTags);
+      readSizeBinary(input, numPhysicalTags);
       attr.physicalTags.resize(numPhysicalTags);
       for (size_type j = 0; j < numPhysicalTags; ++j)
         readValueBinary(input, attr.physicalTags[j]);
@@ -610,13 +636,13 @@ namespace Dune::Impl::Gmsh
       readValueBinary(input, attr.max_xyz[2]);
 
       size_type numPhysicalTags = 0;
-      readValueBinary(input, numPhysicalTags);
+      readSizeBinary(input, numPhysicalTags);
       attr.physicalTags.resize(numPhysicalTags);
       for (size_type j = 0; j < numPhysicalTags; ++j)
         readValueBinary(input, attr.physicalTags[j]);
 
       size_type numBoundingPoints = 0;
-      readValueBinary(input, numBoundingPoints);
+      readSizeBinary(input, numBoundingPoints);
       attr.boundingEntities.resize(numBoundingPoints);
       for (size_type j = 0; j < numBoundingPoints; ++j)
         readValueBinary(input, attr.boundingEntities[j]);
@@ -639,13 +665,13 @@ namespace Dune::Impl::Gmsh
       readValueBinary(input, attr.max_xyz[2]);
 
       size_type numPhysicalTags = 0;
-      readValueBinary(input, numPhysicalTags);
+      readSizeBinary(input, numPhysicalTags);
       attr.physicalTags.resize(numPhysicalTags);
       for (size_type j = 0; j < numPhysicalTags; ++j)
         readValueBinary(input, attr.physicalTags[j]);
 
       size_type numBoundingCurves = 0;
-      readValueBinary(input, numBoundingCurves);
+      readSizeBinary(input, numBoundingCurves);
       attr.boundingEntities.resize(numBoundingCurves);
       for (size_type j = 0; j < numBoundingCurves; ++j)
         readValueBinary(input, attr.boundingEntities[j]);
@@ -668,13 +694,13 @@ namespace Dune::Impl::Gmsh
       readValueBinary(input, attr.max_xyz[2]);
 
       size_type numPhysicalTags = 0;
-      readValueBinary(input, numPhysicalTags);
+      readSizeBinary(input, numPhysicalTags);
       attr.physicalTags.resize(numPhysicalTags);
       for (size_type j = 0; j < numPhysicalTags; ++j)
         readValueBinary(input, attr.physicalTags[j]);
 
       size_type numBoundingSurfaces = 0;
-      readValueBinary(input, numBoundingSurfaces);
+      readSizeBinary(input, numBoundingSurfaces);
       attr.boundingEntities.resize(numBoundingSurfaces);
       for (size_type j = 0; j < numBoundingSurfaces; ++j)
         readValueBinary(input, attr.boundingEntities[j]);
@@ -863,10 +889,10 @@ namespace Dune::Impl::Gmsh
     size_type numGhostEntities = 0;
     size_type numPoints = 0, numCurves = 0, numSurfaces = 0, numVolumes = 0;
 
-    readValueBinary(input, numPartitions_);
+    readSizeBinary(input, numPartitions_);
 
     // ghost entities
-    readValueBinary(input, numGhostEntities);
+    readSizeBinary(input, numGhostEntities);
     ghostEntities_.reserve(numGhostEntities);
     for (size_type i = 0; i < numGhostEntities; ++i) {
       GhostAttributes attr;
@@ -876,10 +902,10 @@ namespace Dune::Impl::Gmsh
     }
     GMSH4_ASSERT(ghostEntities_.size() == numGhostEntities);
 
-    readValueBinary(input, numPoints);
-    readValueBinary(input, numCurves);
-    readValueBinary(input, numSurfaces);
-    readValueBinary(input, numVolumes);
+    readSizeBinary(input, numPoints);
+    readSizeBinary(input, numCurves);
+    readSizeBinary(input, numSurfaces);
+    readSizeBinary(input, numVolumes);
 
     // points
     partitionedPoints_.reserve(numPoints);
@@ -891,7 +917,7 @@ namespace Dune::Impl::Gmsh
       readValueBinary(input, attr.parentTag);
 
       size_type numPartitions = 0;
-      readValueBinary(input, numPartitions);
+      readSizeBinary(input, numPartitions);
       attr.partitions.resize(numPartitions);
       for (size_type j = 0; j < numPartitions; ++j)
         readValueBinary(input, attr.partitions[j]);
@@ -901,7 +927,7 @@ namespace Dune::Impl::Gmsh
       readValueBinary(input, attr.xyz[2]);
 
       size_type numPhysicalTags = 0;
-      readValueBinary(input, numPhysicalTags);
+      readSizeBinary(input, numPhysicalTags);
       attr.physicalTags.resize(numPhysicalTags);
       for (size_type j = 0; j < numPhysicalTags; ++j)
         readValueBinary(input, attr.physicalTags[j]);
@@ -920,7 +946,7 @@ namespace Dune::Impl::Gmsh
       readValueBinary(input, attr.parentTag);
 
       size_type numPartitions = 0;
-      readValueBinary(input, numPartitions);
+      readSizeBinary(input, numPartitions);
       attr.partitions.resize(numPartitions);
       for (size_type j = 0; j < numPartitions; ++j)
         readValueBinary(input, attr.partitions[j]);
@@ -933,13 +959,13 @@ namespace Dune::Impl::Gmsh
       readValueBinary(input, attr.max_xyz[2]);
 
       size_type numPhysicalTags = 0;
-      readValueBinary(input, numPhysicalTags);
+      readSizeBinary(input, numPhysicalTags);
       attr.physicalTags.resize(numPhysicalTags);
       for (size_type j = 0; j < numPhysicalTags; ++j)
         readValueBinary(input, attr.physicalTags[j]);
 
       size_type numBoundingPoints = 0;
-      readValueBinary(input, numBoundingPoints);
+      readSizeBinary(input, numBoundingPoints);
       attr.boundingEntities.resize(numBoundingPoints);
       for (size_type j = 0; j < numBoundingPoints; ++j)
         readValueBinary(input, attr.boundingEntities[j]);
@@ -958,7 +984,7 @@ namespace Dune::Impl::Gmsh
       readValueBinary(input, attr.parentTag);
 
       size_type numPartitions = 0;
-      readValueBinary(input, numPartitions);
+      readSizeBinary(input, numPartitions);
       attr.partitions.resize(numPartitions);
       for (size_type j = 0; j < numPartitions; ++j)
         readValueBinary(input, attr.partitions[j]);
@@ -971,13 +997,13 @@ namespace Dune::Impl::Gmsh
       readValueBinary(input, attr.max_xyz[2]);
 
       size_type numPhysicalTags = 0;
-      readValueBinary(input, numPhysicalTags);
+      readSizeBinary(input, numPhysicalTags);
       attr.physicalTags.resize(numPhysicalTags);
       for (size_type j = 0; j < numPhysicalTags; ++j)
         readValueBinary(input, attr.physicalTags[j]);
 
       size_type numBoundingCurves = 0;
-      readValueBinary(input, numBoundingCurves);
+      readSizeBinary(input, numBoundingCurves);
       attr.boundingEntities.resize(numBoundingCurves);
       for (size_type j = 0; j < numBoundingCurves; ++j)
         readValueBinary(input, attr.boundingEntities[j]);
@@ -996,7 +1022,7 @@ namespace Dune::Impl::Gmsh
       readValueBinary(input, attr.parentTag);
 
       size_type numPartitions = 0;
-      readValueBinary(input, numPartitions);
+      readSizeBinary(input, numPartitions);
       attr.partitions.resize(numPartitions);
       for (size_type j = 0; j < numPartitions; ++j)
         readValueBinary(input, attr.partitions[j]);
@@ -1009,13 +1035,13 @@ namespace Dune::Impl::Gmsh
       readValueBinary(input, attr.max_xyz[2]);
 
       size_type numPhysicalTags = 0;
-      readValueBinary(input, numPhysicalTags);
+      readSizeBinary(input, numPhysicalTags);
       attr.physicalTags.resize(numPhysicalTags);
       for (size_type j = 0; j < numPhysicalTags; ++j)
         readValueBinary(input, attr.physicalTags[j]);
 
       size_type numBoundingSurfaces = 0;
-      readValueBinary(input, numBoundingSurfaces);
+      readSizeBinary(input, numBoundingSurfaces);
       attr.boundingEntities.resize(numBoundingSurfaces);
       for (size_type j = 0; j < numBoundingSurfaces; ++j)
         readValueBinary(input, attr.boundingEntities[j]);
@@ -1084,10 +1110,10 @@ namespace Dune::Impl::Gmsh
   void Gmsh4Reader<G,C,S>::readNodesBinary (std::ifstream& input)
   {
     size_type numEntityBlocks = 0;
-    readValueBinary(input, numEntityBlocks);
-    readValueBinary(input, numNodes_);
-    readValueBinary(input, minNodeTag_);
-    readValueBinary(input, maxNodeTag_);
+    readSizeBinary(input, numEntityBlocks);
+    readSizeBinary(input, numNodes_);
+    readSizeBinary(input, minNodeTag_);
+    readSizeBinary(input, maxNodeTag_);
 
     nodes_.resize(numEntityBlocks);
     for (size_type i = 0; i < numEntityBlocks; ++i) {
@@ -1097,11 +1123,11 @@ namespace Dune::Impl::Gmsh
       readValueBinary(input, entityBlock.entityDim);
       readValueBinary(input, entityBlock.entityTag);
       readValueBinary(input, entityBlock.parametric);
-      readValueBinary(input, numNodesInBlock);
+      readSizeBinary(input, numNodesInBlock);
 
       entityBlock.nodes.resize(numNodesInBlock);
       for (size_type j = 0; j < numNodesInBlock; ++j)
-        readValueBinary(input, entityBlock.nodes[j].tag);
+        readSizeBinary(input, entityBlock.nodes[j].tag);
 
       for (size_type j = 0; j < numNodesInBlock; ++j) {
         auto& node = entityBlock.nodes[j];
@@ -1171,10 +1197,10 @@ namespace Dune::Impl::Gmsh
     size_type numEntityBlocks = 0;
     size_type numElementsInBlock = 0;
 
-    readValueBinary(input, numEntityBlocks);
-    readValueBinary(input, numElements_);
-    readValueBinary(input, minElementTag_);
-    readValueBinary(input, maxElementTag_);
+    readSizeBinary(input, numEntityBlocks);
+    readSizeBinary(input, numElements_);
+    readSizeBinary(input, minElementTag_);
+    readSizeBinary(input, maxElementTag_);
 
     elements_.resize(numEntityBlocks);
     for (size_type i = 0; i < numEntityBlocks; ++i) {
@@ -1183,17 +1209,17 @@ namespace Dune::Impl::Gmsh
       readValueBinary(input, entityBlock.entityDim);
       readValueBinary(input, entityBlock.entityTag);
       readValueBinary(input, entityBlock.elementType);
-      readValueBinary(input, numElementsInBlock);
+      readSizeBinary(input, numElementsInBlock);
 
       size_type numNodes = elementType_[entityBlock.elementType];
 
       entityBlock.elements.resize(numElementsInBlock);
       for (size_type j = 0; j < numElementsInBlock; ++j) {
         auto& element = entityBlock.elements[j];
-        readValueBinary(input, element.tag);
+        readSizeBinary(input, element.tag);
         element.nodes.resize(numNodes);
         for (size_type k = 0; k < numNodes; ++k)
-          readValueBinary(input, element.nodes[k]);
+          readSizeBinary(input, element.nodes[k]);
       }
     }
     std::string line;
