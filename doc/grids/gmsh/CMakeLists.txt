@@ -9,7 +9,10 @@ set(GRIDS
   curved2d.msh
   hybrid-testgrid-2d.msh
   hybrid-testgrid-3d.msh
+  interiorinterface.msh
   oned-testgrid.msh
+  partialboundary.msh
+  partialboundary-v4.msh
   pyramid1storder.msh
   pyramid2ndorder.msh
   pyramid4.msh

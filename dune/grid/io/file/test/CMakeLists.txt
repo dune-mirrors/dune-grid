@@ -90,7 +90,18 @@ dune_add_test(NAME gmsh4readertest
               COMPILE_DEFINITIONS DUNE_GRID_EXAMPLE_GRIDS_PATH=\"${PROJECT_SOURCE_DIR}/doc/grids/\"
               CMAKE_GUARD dune-uggrid_FOUND)
 
+dune_add_test(NAME gmshdatatest-uggrid
+              SOURCES gmshdatatest.cc
+              COMPILE_DEFINITIONS GMSH_UGGRID
+                                  DUNE_GRID_EXAMPLE_GRIDS_PATH=\"${PROJECT_SOURCE_DIR}/doc/grids/\"
+              CMAKE_GUARD dune-uggrid_FOUND)
+
 if(Alberta_FOUND)
+  add_executable(gmshdatatest-alberta2d gmshdatatest.cc)
+  add_dune_alberta_flags(gmshdatatest-alberta2d WORLDDIM 2)
+  target_compile_definitions(gmshdatatest-alberta2d PUBLIC GMSH_ALBERTAGRID DUNE_GRID_EXAMPLE_GRIDS_PATH=\"${PROJECT_SOURCE_DIR}/doc/grids/\")
+  dune_add_test(TARGET gmshdatatest-alberta2d)
+
   add_executable(gmshtest-alberta2d gmshtest.cc)
   add_dune_alberta_flags(gmshtest-alberta2d WORLDDIM 2)
   target_compile_definitions(gmshtest-alberta2d PUBLIC GMSH_ALBERTAGRID DUNE_GRID_EXAMPLE_GRIDS_PATH=\"${PROJECT_SOURCE_DIR}/doc/grids/\")
